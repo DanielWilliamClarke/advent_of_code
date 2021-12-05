@@ -40,9 +40,40 @@ pub fn solution_pt_2() -> i32 {
     result.0
 }
 
+pub fn solution_pt_2_algorithmic() -> i32 {
+    let input = get();
+    println!("Length of day_01 input = {}", input.len());
+
+    let window_size = 3;
+
+    let mut total = 0;
+    let mut previous = 0;
+
+    let mut iter = input.iter();
+    while let Some(current) = iter.next() {
+
+        let mut sum = *current;
+        let mut lookAheadIter = iter.clone();
+
+        for _ in 1..window_size {
+            sum = match lookAheadIter.next() {
+                Some(value) => sum + *value,
+                None => sum
+            }
+        }
+    
+        if previous != 0 && sum > previous {
+            total += 1;
+        }
+        previous = sum;
+    }
+
+    total
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::day_01::{input::get, solution_pt_1, solution_pt_2};
+    use crate::day_01::{input::get, solution_pt_1, solution_pt_2, solution_pt_2_algorithmic};
 
     #[test]
     fn solution_pt_1_total_increases_greater_than_0_and_less_than_len() {
@@ -66,5 +97,10 @@ mod tests {
     #[test]
     fn solution_pt_2_total_is_solution_result() {
         assert_eq!(solution_pt_2(), 1359);
+    }
+
+    #[test]
+    fn solution_pt_2_algorithmic_is_equivalent_to_functional() {
+        assert_eq!(solution_pt_2(), solution_pt_2_algorithmic());
     }
 }
