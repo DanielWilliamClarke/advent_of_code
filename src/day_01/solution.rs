@@ -53,10 +53,10 @@ pub fn solution_pt_2_algorithmic() -> i32 {
     while let Some(current) = iter.next() {
 
         let mut sum = *current;
-        let mut lookAheadIter = iter.clone();
+        let mut look_ahead_iter = iter.clone();
 
         for _ in 1..window_size {
-            sum = match lookAheadIter.next() {
+            sum = match look_ahead_iter.next() {
                 Some(value) => sum + *value,
                 None => sum
             }
