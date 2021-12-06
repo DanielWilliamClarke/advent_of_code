@@ -16,7 +16,7 @@ pub trait Solution<T, U> {
 
     fn run(&self, file_name: &str)
     where 
-        T: FromStr + std::cmp::PartialOrd,
+        T: FromStr,
         <T as FromStr>::Err: std::fmt::Debug,
         U: std::fmt::Display {
         println!("Running Advent Of Code: {}", std::any::type_name::<Self>());
@@ -26,14 +26,8 @@ pub trait Solution<T, U> {
         println!("Part 2 result: {}", self.pt_2(&input));
     }
 
-    fn pt_1(&self, input: &[T]) -> U
-    where 
-        T: FromStr + std::cmp::PartialOrd,
-        <T as FromStr>::Err: std::fmt::Debug;
+    fn pt_1(&self, input: &[T]) -> U;
 
-    fn pt_2(&self, input: &[T]) -> U
-    where 
-        T: FromStr + std::cmp::PartialOrd,
-        <T as FromStr>::Err: std::fmt::Debug;
+    fn pt_2(&self, input: &[T]) -> U;
 }
 

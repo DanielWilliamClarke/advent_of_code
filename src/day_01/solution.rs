@@ -8,36 +8,31 @@ use crate::common::Solution;
 pub struct Day01 {}
 
 impl Solution<i32, usize> for Day01 {
-    fn pt_1(&self, input: &[i32]) -> usize
-    where
-        i32: FromStr + std::cmp::PartialOrd,
-        <i32 as FromStr>::Err: std::fmt::Debug {
-            input
-                .iter()
-                .tuple_windows::<(_,_)>()
-                .filter(|(a, b)| b > a)
-                .collect_vec()
-                .len()
+    fn pt_1(&self, input: &[i32]) -> usize {
+        self.count(input.iter())
     }
 
-    fn pt_2 (&self, input: &[i32]) -> usize 
-    where
-        i32: FromStr + std::cmp::PartialOrd,
-        <i32 as FromStr>::Err: std::fmt::Debug {
-        input
+    fn pt_2 (&self, input: &[i32]) -> usize {
+        self.count(input
             .iter()
             .tuple_windows::<(_,_,_)>()
-            .map(|(a, b, c)| a + b + c)
-            .tuple_windows::<(_,_)>()
-            .filter(|(a, b)| b > a)
-            .collect_vec()
-            .len()
+            .map(|(a, b, c)| a + b + c)) 
     }
 }
 
 impl Day01 {
     pub fn new() -> Day01 {
         Day01 {}
+    }
+
+    fn count<I>(&self, input: I) -> usize
+    where
+        I: std::iter::Iterator,
+        <I as std::iter::Iterator>::Item: std::clone::Clone + std::cmp::PartialOrd {
+        input
+            .tuple_windows::<(_,_)>()
+            .filter(|(a, b)| b > a)
+            .count()
     }
 }
 
