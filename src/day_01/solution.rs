@@ -8,27 +8,26 @@ use crate::common::Solution;
 pub struct Day01 {}
 
 impl Solution<i32, usize> for Day01 {
-    fn pt_1(&self, input: &[Result<i32, <i32 as FromStr>::Err>]) -> usize
+    fn pt_1(&self, input: &[i32]) -> usize
     where
         i32: FromStr + std::cmp::PartialOrd,
         <i32 as FromStr>::Err: std::fmt::Debug {
             input
                 .iter()
                 .tuple_windows::<(_,_)>()
-                .filter(|(a, b)| b.as_ref().unwrap() > a.as_ref().unwrap())
+                .filter(|(a, b)| b > a)
                 .collect_vec()
                 .len()
     }
 
-    fn pt_2 (&self, input: &[Result<i32, <i32 as FromStr>::Err>]) -> usize 
+    fn pt_2 (&self, input: &[i32]) -> usize 
     where
-    i32: FromStr + std::cmp::PartialOrd,
-    <i32 as FromStr>::Err: std::fmt::Debug {
+        i32: FromStr + std::cmp::PartialOrd,
+        <i32 as FromStr>::Err: std::fmt::Debug {
         input
             .iter()
             .tuple_windows::<(_,_,_)>()
-            .map(|(a, b, c)|
-                 a.as_ref().unwrap() + b.as_ref().unwrap() + c.as_ref().unwrap())
+            .map(|(a, b, c)| a + b + c)
             .tuple_windows::<(_,_)>()
             .filter(|(a, b)| b > a)
             .collect_vec()

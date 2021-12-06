@@ -3,13 +3,14 @@
 use std::{str::FromStr};
 
 pub trait Solution<T, U> {
-    fn read_input(&self, file_name: &str) -> Vec<Result<T, <T as FromStr>::Err>>
+    fn read_input(&self, file_name: &str) -> Vec<T>
     where 
-        T: FromStr {
+        T: FromStr,
+        <T as FromStr>::Err: std::fmt::Debug {
         std::fs::read_to_string(file_name)
             .expect("file not found!")
             .lines()
-            .map(|x| x.parse())
+            .map(|x| x.parse().unwrap())
             .collect()
     }
 
@@ -25,12 +26,12 @@ pub trait Solution<T, U> {
         println!("Part 2 result: {}", self.pt_2(&input));
     }
 
-    fn pt_1(&self, input: &[Result<T, <T as FromStr>::Err>]) -> U
+    fn pt_1(&self, input: &[T]) -> U
     where 
         T: FromStr + std::cmp::PartialOrd,
         <T as FromStr>::Err: std::fmt::Debug;
 
-    fn pt_2(&self, input: &[Result<T, <T as FromStr>::Err>]) -> U
+    fn pt_2(&self, input: &[T]) -> U
     where 
         T: FromStr + std::cmp::PartialOrd,
         <T as FromStr>::Err: std::fmt::Debug;
