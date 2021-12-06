@@ -58,13 +58,18 @@ impl Day02 {
     {
         input
             .iter()
-            .fold(Trajectory::default(), |acc, movement| {
-                let mut split = movement.split(' ');
-                let direction = split.next().unwrap();
-                let distance = <i32 as FromStr>::from_str(split.next().unwrap()).unwrap();
+            .map(|instruction| {
+                let mut split = instruction.split(' ');
+                (split.next().unwrap(), self.convert(split.next().unwrap()))
+            })
+            .fold(Trajectory::default(), |acc, (direction, distance)| {
                 parser(acc, direction, distance)
             })
             .combine()
+    }
+
+    fn convert(&self, input: &str) -> i32 {
+        <i32 as FromStr>::from_str(input).unwrap()
     }
 }
 
