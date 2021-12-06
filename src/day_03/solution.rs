@@ -7,8 +7,8 @@ pub struct Day03 {}
 
 impl Solution<String, i32> for Day03 {
     fn pt_1(&self, input: &[String]) -> i32 {
-        let transposed_bits = self.transpose(self.input_to_bits(input));
-        self.calculate_gamma(&transposed_bits) * self.calculate_epsilon(&transposed_bits)
+        let value = self.calculate(&self.transpose(self.input_to_bits(input)));
+        value * (value ^ 0xFFF)
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
@@ -21,15 +21,11 @@ impl Day03 {
         Day03 {}
     }
 
-    fn calculate_gamma(&self, input: &Vec<Vec<i32>>) -> i32 {
-        self.calculate(input, |average| if average >= 0.5 { 1 } else { 0 })
+    fn calculate(&self, input: &[Vec<i32>]) -> i32 {
+        self.render(input, |average| if average >= 0.5 { 1 } else { 0 })
     }
 
-    fn calculate_epsilon(&self, input: &Vec<Vec<i32>>) -> i32 {
-        self.calculate(input, |average| if average <= 0.5 { 1 } else { 0 })
-    }
-
-    fn calculate<F>(&self, input: &Vec<Vec<i32>>, criteria: F) -> i32
+    fn render<F>(&self, input: &[Vec<i32>], criteria: F) -> i32
     where
         F: Fn(f32) -> i32,
     {
@@ -65,4 +61,15 @@ impl Day03 {
 #[cfg(test)]
 mod tests {
     use crate::{common::Solution, day_03::solution::Day03};
+
+    #[test]
+    fn solution_is_correct() {
+        let day02 = Day03::new();
+        let input = day02.read_input("src/day_03/input.txt");
+        vec![
+            (day02.pt_1(&input), 1131506),
+        ]
+        .iter()
+        .for_each(|test| assert_eq!(test.0, test.1))
+    }
 }
