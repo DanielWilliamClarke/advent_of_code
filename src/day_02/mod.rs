@@ -1,6 +1,5 @@
-// src/day_01/mod.rs
+// src/day_02/mod.rs
 
-mod input;
 mod solution;
 
-pub use solution::{solution_pt_1};
+pub use solution::Day02;
