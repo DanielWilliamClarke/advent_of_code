@@ -74,4 +74,22 @@ impl Day02 {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use crate::{common::Solution, day_02::solution::Day02};
+
+    #[test]
+    fn solution_pt_1_total_is_solution_result() {
+        let day02 = Day02::new();
+        let input = day02.read_input("src/day_02/input.txt");
+        let result = day02.pt_1(&input);
+        assert_eq!(result, 1868935);
+    }
+
+    #[test]
+    fn solution_pt_2_total_is_solution_result() {
+        let day02 = Day02::new();
+        let input = day02.read_input("src/day_02/input.txt");
+        let result = day02.pt_2(&input);
+        assert_eq!(result, 1965970888);
+    }
+}
