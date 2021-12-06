@@ -1,106 +1,82 @@
 // src/day_01/solution.rs
 
-use crate::day_01::input::get;
 
+use std::{str::FromStr};
 use itertools::Itertools;
+use crate::common::Solution;
 
-pub fn solution_pt_1() -> i32 {
-    let input = get();
-    println!("Length of day_01 input = {}", input.len());
+pub struct Day01 {}
 
-    let result = input
-        .iter()
-        .fold(
-        (0, 0), 
-        |(total, previous), current| {
-            let is_greater = previous != 0 && current > &previous;
-            let total = if is_greater { total + 1 } else { total };
-            (total, *current)
-        });
-
-    result.0
-}
-
-pub fn solution_pt_2() -> i32 {
-    let input = get();
-    println!("Length of day_01 input = {}", input.len());
-
-    let result = input
-        .iter()
-        .tuple_windows::<(_,_,_)>()
-        .fold(
-        (0, 0),  
-        |(total, previous), current| {
-            let sum = current.0 + current.1 + current.2;
-            let is_greater = previous != 0 && sum > previous;
-            let total = if is_greater { total + 1 } else { total };
-            (total, sum)
-        });
-
-    result.0
-}
-
-pub fn solution_pt_2_algorithmic() -> i32 {
-    let input = get();
-    println!("Length of day_01 input = {}", input.len());
-
-    let window_size = 3;
-
-    let mut total = 0;
-    let mut previous = 0;
-
-    let mut iter = input.iter();
-    while let Some(current) = iter.next() {
-
-        let mut sum = *current;
-        let mut look_ahead_iter = iter.clone();
-
-        for _ in 1..window_size {
-            sum = match look_ahead_iter.next() {
-                Some(value) => sum + *value,
-                None => sum
-            }
-        }
-    
-        if previous != 0 && sum > previous {
-            total += 1;
-        }
-        previous = sum;
+impl Solution<i32, usize> for Day01 {
+    fn pt_1(&self, input: &[Result<i32, <i32 as FromStr>::Err>]) -> usize
+    where
+        i32: FromStr + std::cmp::PartialOrd,
+        <i32 as FromStr>::Err: std::fmt::Debug {
+            input
+                .iter()
+                .tuple_windows::<(_,_)>()
+                .filter(|(a, b)| b.as_ref().unwrap() > a.as_ref().unwrap())
+                .collect_vec()
+                .len()
     }
 
-    total
+    fn pt_2 (&self, input: &[Result<i32, <i32 as FromStr>::Err>]) -> usize 
+    where
+    i32: FromStr + std::cmp::PartialOrd,
+    <i32 as FromStr>::Err: std::fmt::Debug {
+        input
+            .iter()
+            .tuple_windows::<(_,_,_)>()
+            .map(|(a, b, c)|
+                 a.as_ref().unwrap() + b.as_ref().unwrap() + c.as_ref().unwrap())
+            .tuple_windows::<(_,_)>()
+            .filter(|(a, b)| b > a)
+            .collect_vec()
+            .len()
+    }
+}
+
+impl Day01 {
+    pub fn new() -> Day01 {
+        Day01 {}
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day_01::{input::get, solution_pt_1, solution_pt_2, solution_pt_2_algorithmic};
+    use crate::{day_01::solution::Day01, common::Solution};
 
     #[test]
     fn solution_pt_1_total_increases_greater_than_0_and_less_than_len() {
-        let result = solution_pt_1();
+        let day01 = Day01::new();
+        let input = day01.read_input("src/day_01/input.txt");
+        let result = day01.pt_1(&input);
         assert!(result > 0);
-        assert!((result as usize) < get().len());
+        assert!((result as usize) < input.len());
     }   
     
     #[test]
     fn solution_pt_1_total_is_solution_result() {
-        assert_eq!(solution_pt_1(), 1393);
+        let day01 = Day01::new();
+        let input = day01.read_input("src/day_01/input.txt");
+        let result = day01.pt_1(&input);
+        assert_eq!(result, 1393);
     }
 
     #[test]
     fn solution_pt_2_total_increases_greater_than_0_and_less_than_len() {
-        let result = solution_pt_2();
+        let day01 = Day01::new();
+        let input = day01.read_input("src/day_01/input.txt");
+        let result = day01.pt_2(&input);
         assert!(result > 0);
-        assert!((result as usize) < get().len());
+        assert!((result as usize) < input.len());
     }   
     
     #[test]
     fn solution_pt_2_total_is_solution_result() {
-        assert_eq!(solution_pt_2(), 1359);
-    }
-
-    #[test]
-    fn solution_pt_2_algorithmic_is_equivalent_to_functional() {
-        assert_eq!(solution_pt_2(), solution_pt_2_algorithmic());
+        let day01 = Day01::new();
+        let input = day01.read_input("src/day_01/input.txt");
+        let result = day01.pt_2(&input);
+        assert_eq!(result, 1359);
     }
 }
