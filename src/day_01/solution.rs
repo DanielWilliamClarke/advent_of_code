@@ -43,31 +43,11 @@ mod tests {
     use crate::{common::Solution, day_01::solution::Day01};
 
     #[test]
-    fn solution_pt_1_2_total_increases_greater_than_0_and_less_than_len() {
+    fn solution_is_correct() {
         let day01 = Day01::new();
         let input = day01.read_input("src/day_01/input.txt");
-
-        vec![day01.pt_1(&input), day01.pt_2(&input)]
+        vec![(day01.pt_1(&input), 1393), (day01.pt_2(&input), 1359)]
             .iter()
-            .for_each(|result| {
-                assert!(result > &0);
-                assert!(result < &input.len());
-            })
-    }
-
-    #[test]
-    fn solution_pt_1_total_is_solution_result() {
-        let day01 = Day01::new();
-        let input = day01.read_input("src/day_01/input.txt");
-        let result = day01.pt_1(&input);
-        assert_eq!(result, 1393);
-    }
-
-    #[test]
-    fn solution_pt_2_total_is_solution_result() {
-        let day01 = Day01::new();
-        let input = day01.read_input("src/day_01/input.txt");
-        let result = day01.pt_2(&input);
-        assert_eq!(result, 1359);
+            .for_each(|test| assert_eq!(test.0, test.1))
     }
 }
