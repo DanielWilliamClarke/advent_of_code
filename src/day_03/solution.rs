@@ -24,7 +24,7 @@ impl Day03 {
 
     fn calculate(&self, bytes: Vec<Vec<i32>>, inverse: bool) -> i32 {
         (0..bytes[0].len())
-            .fold(bytes, move |acc, index| {
+            .fold(bytes, |acc, index| {
                 if acc.len() == 1 {
                     return acc;
                 }
