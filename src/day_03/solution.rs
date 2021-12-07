@@ -7,14 +7,13 @@ pub struct Day03 {}
 
 impl Solution<String, i32> for Day03 {
     fn pt_1(&self, input: &[String]) -> i32 {
-        let value =  self.render(&self.transpose(&self.input_to_bits(input)));
+        let value = self.render(input);
         value * (value ^ 0xFFF)
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
         let bytes = self.input_to_bits(input);
-        let transposed = self.transpose(&bytes);
-        self.calculate(bytes.clone(), &transposed, false) * self.calculate(bytes, &transposed,  true)
+        self.calculate(bytes.clone(), false) * self.calculate(bytes, true)
     }
 }
 
@@ -23,42 +22,36 @@ impl Day03 {
         Day03 {}
     }
 
-    fn calculate(&self, bytes: Vec<Vec<i32>>, transposed: &[Vec<i32>], inverse: bool) -> i32 {
-        let a = (0..transposed.len())
-            .map(|index| {
-                let average = transposed[index].iter().sum::<i32>() as f32 / transposed[0].len() as f32;
-                let popular = if (average >= 0.5) ^ inverse { 1 } else { 0 };
-                (index, popular)
-            })
-            .fold(bytes, |acc, (index, bit)| {
-                println!("index: {} - len of acc: {}, current bit {}", index, acc.len(), bit);
+    fn calculate(&self, bytes: Vec<Vec<i32>>, inverse: bool) -> i32 {
+        (0..bytes[0].len())
+            .fold(bytes, move |acc, index| {
                 if acc.len() == 1 {
                     return acc;
                 }
 
-                acc  
-                    .iter()
-                    .filter(|byte| byte[index] == bit)
+                let popular = self.popular(
+                    &acc.iter().map(|byte| byte[index]).collect::<Vec<i32>>(),
+                    inverse,
+                );
+
+                acc.iter()
+                    .filter(|byte| byte[index] == popular)
                     .cloned()
                     .collect::<Vec<Vec<i32>>>()
             })
             .iter()
             .map(|byte| self.to_decimal(&byte.iter().join("")))
-            .sum::<i32>();
-            
-        println!("{}", a);
-        a
+            .sum::<i32>()
     }
 
-    fn render(&self, input: &[Vec<i32>]) -> i32 {
+    fn render(&self, input: &[String]) -> i32 {
         self.to_decimal(
-            &input
-            .iter()
-            .map(|channel| {
-                let average = channel.iter().sum::<i32>() as f32 / channel.len() as f32;
-                if average >= 0.5 { 1 } else { 0 }
-            })
-            .join(""))
+            &self
+                .transpose(&self.input_to_bits(input))
+                .iter()
+                .map(|channel| self.popular(channel, false))
+                .join(""),
+        )
     }
 
     fn transpose<T>(&self, input: &[Vec<T>]) -> Vec<Vec<T>>
@@ -89,6 +82,15 @@ impl Day03 {
     fn to_decimal(&self, input: &str) -> i32 {
         i32::from_str_radix(input, 2).unwrap()
     }
+
+    fn popular(&self, input: &[i32], inverse: bool) -> i32 {
+        let average = input.iter().sum::<i32>() as f32 / input.len() as f32;
+        if (average >= 0.5) ^ inverse {
+            1
+        } else {
+            0
+        }
+    }
 }
 
 #[cfg(test)]
@@ -97,9 +99,9 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        let day02 = Day03::new();
-        let input = day02.read_input("src/day_03/input.txt");
-        vec![(day02.pt_1(&input), 1131506)]
+        let day03 = Day03::new();
+        let input = day03.read_input("src/day_03/input.txt");
+        vec![(day03.pt_1(&input), 1131506), (day03.pt_2(&input), 7863147)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))
     }
