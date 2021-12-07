@@ -27,7 +27,6 @@ impl Day03 {
         let a = (0..transposed.len())
             .map(|index| {
                 let average = transposed[index].iter().sum::<i32>() as f32 / transposed[0].len() as f32;
-                println!("average at {} is {}", index, average);
                 let popular = if (average >= 0.5) ^ inverse { 1 } else { 0 };
                 (index, popular)
             })
