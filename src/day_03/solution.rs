@@ -12,10 +12,7 @@ impl Solution<String, i32> for Day03 {
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        let bytes = self.input_to_bits(input);
-        let gamma = self.calculate(bytes.clone(), false);
-        let epsilon = self.calculate(bytes, true);
-        gamma * epsilon
+        self.calculate(input, false) * self.calculate(input, true)
     }
 }
 
@@ -24,9 +21,9 @@ impl Day03 {
         Day03 {}
     }
 
-    fn calculate(&self, bytes: Vec<Vec<i32>>, inverse: bool) -> i32 {
-        (0..bytes[0].len())
-            .fold(bytes, |acc, index| {
+    fn calculate(&self, input: &[String], inverse: bool) -> i32 {
+        (0..input[0].len())
+            .fold(self.input_to_bits(input), |acc, index| {
                 if acc.len() == 1 {
                     return acc;
                 }
