@@ -13,7 +13,9 @@ impl Solution<String, i32> for Day03 {
 
     fn pt_2(&self, input: &[String]) -> i32 {
         let bytes = self.input_to_bits(input);
-        self.calculate(bytes.clone(), false) * self.calculate(bytes, true)
+        let gamma = self.calculate(bytes.clone(), false);
+        let epsilon = self.calculate(bytes, true);
+        gamma * epsilon
     }
 }
 
