@@ -2,17 +2,18 @@
 
 use crate::common::Solution;
 use itertools::Itertools;
+use std::{iter::Enumerate, str::Chars};
 
 pub struct Day03 {}
 
 impl Solution<String, i32> for Day03 {
     fn pt_1(&self, input: &[String]) -> i32 {
-        let value = self.render(input);
+        let value = self.calculate_1(input);
         value * (value ^ 0xFFF)
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        self.calculate(input, false) * self.calculate(input, true)
+        self.calculate_2(input, false) * self.calculate_2(input, true)
     }
 }
 
@@ -21,21 +22,15 @@ impl Day03 {
         Day03 {}
     }
 
-    fn render(&self, input: &[String]) -> i32 {
+    fn calculate_1(&self, input: &[String]) -> i32 {
         self.to_decimal(
-        &input.get(0)
-                .unwrap()
-                .chars()
-                .enumerate()
+        &self.enumerate_bits(input)
                 .map(|(index, _)| self.popular(input, index, false))
                 .join(""))
     }
 
-    fn calculate(&self, input: &[String], inverse: bool) -> i32 {
-        input.get(0)
-            .unwrap()
-            .chars()
-            .enumerate()
+    fn calculate_2(&self, input: &[String], inverse: bool) -> i32 {
+        self.enumerate_bits(input)
             .fold(input.to_owned(), |acc, (index, _)| {
                 if acc.len() == 1 {
                     return acc;
@@ -50,6 +45,13 @@ impl Day03 {
             .iter()
             .map(|byte| self.to_decimal(byte))
             .sum::<i32>()
+    }
+
+    fn enumerate_bits<'a>(&self, input: &'a [String]) -> Enumerate<Chars<'a>> {
+        input.get(0)
+            .unwrap()
+            .chars()
+            .enumerate()
     }
 
     fn to_decimal(&self, input: &str) -> i32 {
