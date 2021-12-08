@@ -12,8 +12,7 @@ impl Solution<String, i32> for Day03 {
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        let bytes = self.input_to_bits(input);
-        self.calculate(bytes.clone(), false) * self.calculate(bytes, true)
+        self.calculate(input, false) * self.calculate(input, true)
     }
 }
 
@@ -22,70 +21,57 @@ impl Day03 {
         Day03 {}
     }
 
-    fn calculate(&self, input: Vec<Vec<i32>>, inverse: bool) -> i32 {
-        input[0]
-            .iter()
+    fn render(&self, input: &[String]) -> i32 {
+        self.to_decimal(
+        &input.get(0)
+                .unwrap()
+                .chars()
+                .enumerate()
+                .map(|(index, _)| self.popular(&self.transpose(input, index), false))
+                .join(""))
+    }
+
+    fn calculate(&self, input: &[String], inverse: bool) -> i32 {
+        input.get(0)
+            .unwrap()
+            .chars()
             .enumerate()
-            .fold(input.clone(), |acc, (index, _)| {
+            .fold(input.to_owned(), |acc, (index, _)| {
                 if acc.len() == 1 {
                     return acc;
                 }
 
-                let popular = self.popular(
-                    &acc.iter().map(|byte| byte[index]).collect::<Vec<i32>>(),
-                    inverse,
-                );
-
+                let popular = self.popular(&self.transpose(&acc, index), inverse);
                 acc.iter()
-                    .filter(|byte| byte[index] == popular)
+                    .filter(|byte| self.string_at_to_i32(byte, index) == popular)
                     .cloned()
-                    .collect::<Vec<Vec<i32>>>()
+                    .collect::<Vec<String>>()
             })
             .iter()
-            .map(|byte| self.to_decimal(&byte.iter().join("")))
+            .map(|byte| self.to_decimal(byte))
             .sum::<i32>()
-    }
-
-    fn render(&self, input: &[String]) -> i32 {
-        self.to_decimal(
-            &self
-                .transpose(&self.input_to_bits(input))
-                .iter()
-                .map(|channel| self.popular(channel, false))
-                .join(""),
-        )
-    }
-
-    fn transpose<T>(&self, input: &[Vec<T>]) -> Vec<Vec<T>>
-    where
-        T: Clone,
-    {
-        input[0]
-            .iter()
-            .enumerate()
-            .map(|(index, _)| {
-                input
-                    .iter()
-                    .map(|inner| inner[index].clone())
-                    .collect::<Vec<T>>()
-            })
-            .collect()
-    }
-
-    fn input_to_bits(&self, input: &[String]) -> Vec<Vec<i32>> {
-        input
-            .iter()
-            .map(|byte| {
-                byte.chars()
-                    .map(|bit| bit.to_string().parse::<i32>().unwrap())
-                    .collect()
-            })
-            .collect()
     }
 
     fn to_decimal(&self, input: &str) -> i32 {
         i32::from_str_radix(input, 2).unwrap()
     }
+
+    fn string_at_to_i32(&self, input: &str, index: usize) -> i32 {
+        input
+            .chars()
+            .nth(index)
+            .unwrap()
+            .to_string()
+            .parse::<i32>()
+            .unwrap()
+    }
+
+    fn transpose (&self, input: &[String], index: usize) -> Vec<i32> {
+        input
+            .iter()
+            .map(|inner| self.string_at_to_i32(inner, index))
+            .collect::<Vec<i32>>()
+    }   
 
     fn popular(&self, input: &[i32], inverse: bool) -> i32 {
         let average = input.iter().sum::<i32>() as f32 / input.len() as f32;
@@ -94,8 +80,8 @@ impl Day03 {
         } else {
             0
         }
-    }
-}
+    } 
+ }
 
 #[cfg(test)]
 mod tests {
