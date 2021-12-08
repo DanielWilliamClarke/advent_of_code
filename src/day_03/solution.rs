@@ -27,7 +27,7 @@ impl Day03 {
                 .unwrap()
                 .chars()
                 .enumerate()
-                .map(|(index, _)| self.popular(&self.transpose(input, index), false))
+                .map(|(index, _)| self.popular(input, index, false))
                 .join(""))
     }
 
@@ -41,7 +41,7 @@ impl Day03 {
                     return acc;
                 }
 
-                let popular = self.popular(&self.transpose(&acc, index), inverse);
+                let popular = self.popular(&acc, index, inverse);
                 acc.iter()
                     .filter(|byte| self.string_at_to_i32(byte, index) == popular)
                     .cloned()
@@ -56,6 +56,15 @@ impl Day03 {
         i32::from_str_radix(input, 2).unwrap()
     }
 
+    fn popular(&self, input: &[String], index: usize, inverse: bool) -> i32 {
+        let average = input
+            .iter()
+            .map(|inner| self.string_at_to_i32(inner, index))
+            .sum::<i32>() as f32 / input.len() as f32;
+
+        if (average >= 0.5) ^ inverse { 1 } else { 0 }
+    }
+
     fn string_at_to_i32(&self, input: &str, index: usize) -> i32 {
         input
             .chars()
@@ -65,22 +74,6 @@ impl Day03 {
             .parse::<i32>()
             .unwrap()
     }
-
-    fn transpose (&self, input: &[String], index: usize) -> Vec<i32> {
-        input
-            .iter()
-            .map(|inner| self.string_at_to_i32(inner, index))
-            .collect::<Vec<i32>>()
-    }   
-
-    fn popular(&self, input: &[i32], inverse: bool) -> i32 {
-        let average = input.iter().sum::<i32>() as f32 / input.len() as f32;
-        if (average >= 0.5) ^ inverse {
-            1
-        } else {
-            0
-        }
-    } 
  }
 
 #[cfg(test)]
