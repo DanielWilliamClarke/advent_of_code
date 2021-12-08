@@ -28,7 +28,7 @@ mod tests {
     fn solution_is_correct() {
         let day04 = Day04::new();
         let input = day04.read_input("src/day_04/input.txt");
-        vec![]
+        vec![(1, 1)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))
     }
