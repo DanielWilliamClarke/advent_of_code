@@ -12,7 +12,8 @@ impl Solution<String, i32> for Day03 {
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        self.calculate(input, false) * self.calculate(input, true)
+        let bytes = self.input_to_bits(input);
+        self.calculate(bytes.clone(), false) * self.calculate(bytes, true)
     }
 }
 
@@ -21,9 +22,11 @@ impl Day03 {
         Day03 {}
     }
 
-    fn calculate(&self, input: &[String], inverse: bool) -> i32 {
-        (0..input[0].len())
-            .fold(self.input_to_bits(input), |acc, index| {
+    fn calculate(&self, input: Vec<Vec<i32>>, inverse: bool) -> i32 {
+        input[0]
+            .iter()
+            .enumerate()
+            .fold(input.clone(), |acc, (index, _)| {
                 if acc.len() == 1 {
                     return acc;
                 }
@@ -57,8 +60,10 @@ impl Day03 {
     where
         T: Clone,
     {
-        (0..input[0].len())
-            .map(|index| {
+        input[0]
+            .iter()
+            .enumerate()
+            .map(|(index, _)| {
                 input
                     .iter()
                     .map(|inner| inner[index].clone())

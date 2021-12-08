@@ -1,5 +1,4 @@
 // src/main.rs
-#![feature(drain_filter)]
 
 mod common;
 mod day_01;
