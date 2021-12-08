@@ -2,7 +2,6 @@
 
 use crate::common::Solution;
 use itertools::Itertools;
-use std::str::FromStr;
 
 pub struct Day01 {}
 
