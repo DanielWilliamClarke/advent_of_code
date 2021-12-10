@@ -54,8 +54,16 @@ impl Day04 {
 
     fn parse(&self, input: &[String]) -> Bingo {
         (
-            self.parse_numbers(input.get(0).unwrap()),
-            self.parse_boards(&input.iter().skip(1).cloned().collect::<Vec<String>>()),
+            self.parse_numbers(
+                input
+                    .get(0)
+                    .unwrap()),
+            self.parse_boards(
+                &input
+                    .iter()
+                    .skip(1)
+                    .cloned()
+                    .collect::<Vec<String>>()),
         )
     }
 
@@ -87,7 +95,10 @@ impl Day04 {
     }
 
     fn string_to_i32(&self, input: &str) -> i32 {
-        input.to_string().parse::<i32>().unwrap()
+        input
+            .to_string()
+            .parse::<i32>()
+            .unwrap()
     }
 
     fn play(&self, (numbers, card): Bingo) -> i32 {
@@ -99,7 +110,8 @@ impl Day04 {
     }
 
     fn call_number(&self, number: &i32, card: CardRef) -> Option<i32> {
-        card.iter()
+        card
+            .iter()
             .find_map(|board| 
                 self.find_winning_board(number, board))
     }
@@ -126,7 +138,10 @@ impl Day04 {
     }
 
     fn is_row(&self, line: LineRef) -> bool {
-        line.iter().all(|element| element.as_ref().borrow().called)
+        line
+            .iter()
+            .all(|element| 
+                element.as_ref().borrow().called)
     }
 
     fn is_column(&self, index: usize, board: BoardRef) -> bool {
