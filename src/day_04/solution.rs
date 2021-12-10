@@ -159,7 +159,6 @@ impl Day04 {
         board
             .iter()
             .flatten()
-            .inspect(|element| println!("{:?}", element))
             .filter(|element| !element.as_ref().borrow().called)
             .map(|element| element.as_ref().borrow().number)
             .sum::<i32>()
