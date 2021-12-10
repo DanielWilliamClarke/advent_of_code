@@ -1,6 +1,6 @@
 // src/day_04/solution.rs
 
-use std::{cell::RefCell, rc::Rc, borrow::Borrow};
+use std::{borrow::Borrow, cell::RefCell, rc::Rc};
 
 use itertools::Itertools;
 
@@ -93,40 +93,44 @@ impl Day04 {
     fn play(&self, (numbers, card): Bingo) -> i32 {
         numbers
             .iter()
-            .find_map(|number| self.call_number(number, &card))
+            .find_map(|number| 
+                self.call_number(number, &card))
             .unwrap_or(0)
     }
 
     fn call_number(&self, number: &i32, card: CardRef) -> Option<i32> {
-        card
-            .iter()
-            .find_map(|board| {
-               
-                let winning = board
-                    .iter()
-                    .find_map(|line| {
-                        line
-                            .iter()
-                            .enumerate()
-                            .find(|(index, element)| {
-                                if element.as_ref().borrow().number == *number {
-                                    element.borrow_mut().call();
-                                    return self.winning_line(line) || self.winning_column(*index, board)
-                                }
-                                false
-                            })
-                    });
+        card.iter()
+            .find_map(|board| 
+                self.find_winning_board(number, board))
+    }
 
-                winning.map(|_| self.count_unmarked(board) * number)
+    fn find_winning_board(&self, number: &i32, board: BoardRef) -> Option<i32> {
+        board
+            .iter()
+            .find_map(|line| 
+                self.find_winning_row_column(number, line, board))
+            .map(|_| self.count_unmarked(board) * number)
+    }
+
+    fn find_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> Option<(usize, &'a RcElement)> {
+        line
+            .iter()
+            .enumerate()
+            .find(|(index, element)| {
+                if element.as_ref().borrow().number == *number {
+                    element.borrow_mut().call();
+                    return self.is_row(line) ^ self.is_column(*index, board);
+                }
+                false
             })
     }
 
-    fn winning_line(&self, line: LineRef) -> bool {
+    fn is_row(&self, line: LineRef) -> bool {
         line.iter().all(|element| element.as_ref().borrow().called)
     }
 
-    fn winning_column(&self, index: usize, board: BoardRef) -> bool {
-        self.winning_line(&self.board_to_line(index, board))
+    fn is_column(&self, index: usize, board: BoardRef) -> bool {
+        self.is_row(&self.board_to_line(index, board))
     }
 
     fn board_to_line(&self, index: usize, board: BoardRef) -> Line {
@@ -155,7 +159,7 @@ mod tests {
     fn solution_is_correct() {
         let day04 = Day04::new();
         let input = day04.read_input("src/day_04/input.txt");
-        vec![(1, 1)]
+        vec![(day04.pt_1(&input), 35670)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))
     }
