@@ -104,19 +104,17 @@ impl Day04 {
                
                 let winning = board
                     .iter()
-                    .enumerate()
-                    .find(|(index, line)| {
-                        let element = line
+                    .find_map(|line| {
+                        line
                             .iter()
-                            .find(|element| element.as_ref().borrow().number == *number);
-
-                        match element {
-                            Some(element) => {
-                                element.borrow_mut().call();
-                                self.winning_line(line) || self.winning_column(*index, board)
-                            }
-                            None => false
-                        }  
+                            .enumerate()
+                            .find(|(index, element)| {
+                                if element.as_ref().borrow().number == *number {
+                                    element.borrow_mut().call();
+                                    return self.winning_line(line) || self.winning_column(*index, board)
+                                }
+                                false
+                            })
                     });
 
                 winning.map(|_| self.count_unmarked(board) * number)
