@@ -145,10 +145,10 @@ impl Day04 {
     }
 
     fn is_column(&self, index: usize, board: BoardRef) -> bool {
-        self.is_row(&self.board_to_line(index, board))
+        self.is_row(&self.col_to_row(index, board))
     }
 
-    fn board_to_line(&self, index: usize, board: BoardRef) -> Line {
+    fn col_to_row(&self, index: usize, board: BoardRef) -> Line {
         board
             .iter()
             .map(|line| line.get(index).unwrap().clone())
