@@ -1,6 +1,6 @@
 // src/day_04/solution.rs
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, borrow::Borrow};
 
 use itertools::Itertools;
 
@@ -32,6 +32,7 @@ type LineRef<'a> = &'a [RcElement];
 type Board = Vec<Line>;
 type BoardRef<'a> = &'a [Line];
 type Card = Vec<Board>;
+type CardRef<'a> = &'a [Board];
 type Bingo = (Numbers, Card);
 
 pub struct Day04 {}
@@ -54,7 +55,7 @@ impl Day04 {
     fn parse(&self, input: &[String]) -> Bingo {
         (
             self.parse_numbers(input.get(0).unwrap()),
-            self.parse_boards(&input.iter().skip(2).cloned().collect::<Vec<String>>()),
+            self.parse_boards(&input.iter().skip(1).cloned().collect::<Vec<String>>()),
         )
     }
 
@@ -86,53 +87,48 @@ impl Day04 {
     }
 
     fn string_to_i32(&self, input: &str) -> i32 {
-        match input.to_string().parse::<i32>() {
-            Ok(value) => value,
-            Err(err) => panic!("failed parsing {}: {:?}", input, err),
-        }
+        input.to_string().parse::<i32>().unwrap()
     }
 
     fn play(&self, (numbers, card): Bingo) -> i32 {
-        let result = numbers.iter().find_map(|number| {
-            card
-                .iter()
-                .for_each(|board| self.call(number, board));
-
-            let winning_board = card
-                .iter().
-                find_map(|board| {
-                    let horizontal = board
-                        .iter()
-                        .any(|line| self.winning_line(line));
-
-                    if horizontal {
-                        return Some(board);
-                    }
-
-                    let vertical = board
-                        .iter()
-                        .take(1)
-                        .enumerate()
-                        .any(|(index, _)| self.winning_line(&self.board_to_line(index, board)));
-
-                    if vertical {
-                        return Some(board);
-                    }
-                    None
-                });
-
-                winning_board.map(|winning| self.count_unmarked(winning) * number)
-        });
-
-        result.unwrap_or(0)
+        numbers
+            .iter()
+            .find_map(|number| self.call_number(number, &card))
+            .unwrap_or(0)
     }
 
-    fn call(&self, number: &i32, board: BoardRef) {
-        board.iter().flatten().for_each(|element| {
-            if element.borrow().number == *number {
-                element.borrow_mut().call();
-            }
-        });
+    fn call_number(&self, number: &i32, card: CardRef) -> Option<i32> {
+        card
+            .iter()
+            .find_map(|board| {
+               
+                let winning = board
+                    .iter()
+                    .enumerate()
+                    .find(|(index, line)| {
+                        let element = line
+                            .iter()
+                            .find(|element| element.as_ref().borrow().number == *number);
+
+                        match element {
+                            Some(element) => {
+                                element.borrow_mut().call();
+                                self.winning_line(line) || self.winning_column(*index, board)
+                            }
+                            None => false
+                        }  
+                    });
+
+                winning.map(|_| self.count_unmarked(board) * number)
+            })
+    }
+
+    fn winning_line(&self, line: LineRef) -> bool {
+        line.iter().all(|element| element.as_ref().borrow().called)
+    }
+
+    fn winning_column(&self, index: usize, board: BoardRef) -> bool {
+        self.winning_line(&self.board_to_line(index, board))
     }
 
     fn board_to_line(&self, index: usize, board: BoardRef) -> Line {
@@ -142,16 +138,13 @@ impl Day04 {
             .collect::<Line>()
     }
 
-    fn winning_line(&self, line: LineRef) -> bool {
-        line.iter().all(|element| element.borrow().called)
-    }
-
     fn count_unmarked(&self, board: BoardRef) -> i32 {
         board
             .iter()
             .flatten()
-            .filter(|element| !element.borrow().called)
-            .map(|element| element.borrow().number)
+            .inspect(|element| println!("{:?}", element))
+            .filter(|element| !element.as_ref().borrow().called)
+            .map(|element| element.as_ref().borrow().number)
             .sum::<i32>()
     }
 }
