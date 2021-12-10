@@ -1,6 +1,6 @@
 // src/day_04/solution.rs
 
-use std::{borrow::Borrow, cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use itertools::Itertools;
 
@@ -106,6 +106,7 @@ impl Day04 {
             .iter()
             .find_map(|number| 
                 self.call_number(number, &card))
+            .map(|(number, board)| self.count_unmarked(board) * number)
             .unwrap_or(0)
     }
 
@@ -113,29 +114,29 @@ impl Day04 {
         0
     }
 
-    fn call_number(&self, number: &i32, card: CardRef) -> Option<i32> {
+    fn call_number<'a>(&self, number: &'a i32, card: CardRef<'a>) -> Option<(&'a i32, &'a Board)> {
         card
             .iter()
-            .find_map(|board| 
+            .find(|board| 
                 self.is_winning_board(number, board))
+            .map(|board| (number, board))
     }
 
-    fn is_winning_board(&self, number: &i32, board: BoardRef) -> Option<i32> {
+    fn is_winning_board(&self, number: &i32, board: BoardRef) -> bool {
         board
             .iter()
-            .find_map(|line| 
+            .any(|line| 
                 self.is_winning_row_column(number, line, board))
-            .map(|_| self.count_unmarked(board) * number)
     }
 
-    fn is_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> Option<(usize, &'a RcElement)> {
+    fn is_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> bool {
         line
             .iter()
             .enumerate()
-            .find(|(index, element)| {
+            .any(|(index, element)| {
                 if element.as_ref().borrow().number == *number {
                     element.borrow_mut().call();
-                    return self.is_row(line) ^ self.is_column(*index, board);
+                    return self.is_row(line) ^ self.is_column(index, board);
                 }
                 false
             })
