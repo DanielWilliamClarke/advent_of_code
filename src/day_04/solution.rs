@@ -43,7 +43,7 @@ impl Solution<String, i32> for Day04 {
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        0
+        self.play_to_lose(self.parse(input))
     }
 }
 
@@ -109,22 +109,26 @@ impl Day04 {
             .unwrap_or(0)
     }
 
+    fn play_to_lose(&self, (numbers, card): Bingo) -> i32 {
+        0
+    }
+
     fn call_number(&self, number: &i32, card: CardRef) -> Option<i32> {
         card
             .iter()
             .find_map(|board| 
-                self.find_winning_board(number, board))
+                self.is_winning_board(number, board))
     }
 
-    fn find_winning_board(&self, number: &i32, board: BoardRef) -> Option<i32> {
+    fn is_winning_board(&self, number: &i32, board: BoardRef) -> Option<i32> {
         board
             .iter()
             .find_map(|line| 
-                self.find_winning_row_column(number, line, board))
+                self.is_winning_row_column(number, line, board))
             .map(|_| self.count_unmarked(board) * number)
     }
 
-    fn find_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> Option<(usize, &'a RcElement)> {
+    fn is_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> Option<(usize, &'a RcElement)> {
         line
             .iter()
             .enumerate()
