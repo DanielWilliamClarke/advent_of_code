@@ -54,16 +54,8 @@ impl Day04 {
 
     fn parse(&self, input: &[String]) -> Bingo {
         (
-            self.parse_numbers(
-                input
-                    .get(0)
-                    .unwrap()),
-            self.parse_boards(
-                &input
-                    .iter()
-                    .skip(1)
-                    .cloned()
-                    .collect::<Vec<String>>()),
+            self.parse_numbers(input.get(0).unwrap()),
+            self.parse_boards(&input.iter().skip(1).cloned().collect::<Vec<String>>()),
         )
     }
 
@@ -95,58 +87,71 @@ impl Day04 {
     }
 
     fn string_to_i32(&self, input: &str) -> i32 {
-        input
-            .to_string()
-            .parse::<i32>()
-            .unwrap()
+        input.to_string().parse::<i32>().unwrap()
     }
 
     fn play(&self, (numbers, card): Bingo) -> i32 {
         numbers
             .iter()
-            .find_map(|number| 
-                self.call_number(number, &card))
-            .map(|(number, board)| self.count_unmarked(board) * number)
+            .find_map(|number| self.call_number(number, &card))
+            .map(|(_, number, board)| self.count_unmarked(board) * number)
             .unwrap_or(0)
     }
 
     fn play_to_lose(&self, (numbers, card): Bingo) -> i32 {
-        0
+        let (acc, number, board) = numbers
+            .iter()
+            .fold((card, 0, Board::new()), 
+            |acc, number| {
+                println!("calling number {}", number);
+                match self.call_number(number, &acc.0) {
+                    Some((index, number, winning)) => {
+                        // println!("removing index {}, acc size {}", index, acc.0.len() - 1);
+                        (self.remove_winning(index, &acc.0), *number, winning.to_vec())
+                        // (acc.0.clone(), *number, winning.to_vec())
+                    }
+                    None => acc,
+                }
+            });
+
+        // self.play((numbers, acc))
+        self.count_unmarked(&board) * number
     }
 
-    fn call_number<'a>(&self, number: &'a i32, card: CardRef<'a>) -> Option<(&'a i32, &'a Board)> {
-        card
-            .iter()
-            .find(|board| 
-                self.is_winning_board(number, board))
-            .map(|board| (number, board))
+    fn call_number<'a>(
+        &self,
+        number: &'a i32,
+        card: CardRef<'a>,
+    ) -> Option<(usize, &'a i32, &'a Board)> {
+        card.iter()
+            .enumerate()
+            .find(|(_, board)| self.is_winning_board(number, board))
+            .map(|(index, board)| (index, number, board))
     }
 
     fn is_winning_board(&self, number: &i32, board: BoardRef) -> bool {
         board
             .iter()
-            .any(|line| 
-                self.is_winning_row_column(number, line, board))
+            .any(|line| self.is_winning_row_column(number, line, board))
     }
 
-    fn is_winning_row_column<'a>(&self, number: &i32, line: LineRef<'a>, board: BoardRef<'a>) -> bool {
-        line
-            .iter()
-            .enumerate()
-            .any(|(index, element)| {
-                if element.as_ref().borrow().number == *number {
-                    element.borrow_mut().call();
-                    return self.is_row(line) ^ self.is_column(index, board);
-                }
-                false
-            })
+    fn is_winning_row_column<'a>(
+        &self,
+        number: &i32,
+        line: LineRef<'a>,
+        board: BoardRef<'a>,
+    ) -> bool {
+        line.iter().enumerate().any(|(index, element)| {
+            if element.as_ref().borrow().number == *number {
+                element.borrow_mut().call();
+                return self.is_row(line) ^ self.is_column(index, board);
+            }
+            false
+        })
     }
 
     fn is_row(&self, line: LineRef) -> bool {
-        line
-            .iter()
-            .all(|element| 
-                element.as_ref().borrow().called)
+        line.iter().all(|element| element.as_ref().borrow().called)
     }
 
     fn is_column(&self, index: usize, board: BoardRef) -> bool {
@@ -167,6 +172,16 @@ impl Day04 {
             .filter(|element| !element.as_ref().borrow().called)
             .map(|element| element.as_ref().borrow().number)
             .sum::<i32>()
+    }
+
+    fn remove_winning(&self, index: usize, card: CardRef) -> Card {       
+        card
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != index)
+            .map(|(_, board)| board)
+            .cloned()
+            .collect::<Card>()
     }
 }
 
