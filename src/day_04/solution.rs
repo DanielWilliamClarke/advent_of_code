@@ -33,6 +33,7 @@ type Board = Vec<Line>;
 type BoardRef<'a> = &'a [Line];
 type Card = Vec<Board>;
 type CardRef<'a> = &'a [Board];
+type EnumeratedCard = Vec<(usize, Board)>;
 type Bingo = (Numbers, Card);
 
 pub struct Day04 {}
@@ -91,30 +92,40 @@ impl Day04 {
     }
 
     fn play(&self, (numbers, card): Bingo) -> i32 {
-        numbers
+        let winner = numbers
             .iter()
-            .find_map(|number| self.call_number(number, &card))
-            .map(|(_, number, board)| self.count_unmarked(board) * number)
-            .unwrap_or(0)
+            .find_map(|number| {
+                self.call_number(number, &card).first().map(|(_, winner)| (winner.clone(), number))
+            });
+
+        match winner {
+            Some((board, number)) => self.count_unmarked(&board) * number,
+            None => 0,
+        }
     }
 
     fn play_to_lose(&self, (numbers, card): Bingo) -> i32 {
         let (acc, number, board) = numbers
             .iter()
             .fold((card, 0, Board::new()), 
-            |acc, number| {
-                println!("calling number {}", number);
-                match self.call_number(number, &acc.0) {
-                    Some((index, number, winning)) => {
-                        // println!("removing index {}, acc size {}", index, acc.0.len() - 1);
-                        (self.remove_winning(index, &acc.0), *number, winning.to_vec())
-                        // (acc.0.clone(), *number, winning.to_vec())
-                    }
-                    None => acc,
+            |(card, previous, board), number| {
+                if card.len() == 1 {
+                    return (card, previous, board);
+                }
+
+                let winners = self.call_number(number, &card);
+                let card = winners
+                    .iter()
+                    .rev()
+                    .fold(card, |mut acc, (index, _)| 
+                        self.remove_winning(*index, acc.as_mut()).to_vec());
+
+                match winners.iter().last() {
+                    Some((_, winner)) => (card, *number, winner.to_vec()),
+                    None => (card, previous, board),
                 }
             });
-
-        // self.play((numbers, acc))
+ 
         self.count_unmarked(&board) * number
     }
 
@@ -122,11 +133,24 @@ impl Day04 {
         &self,
         number: &'a i32,
         card: CardRef<'a>,
-    ) -> Option<(usize, &'a i32, &'a Board)> {
-        card.iter()
+    ) -> EnumeratedCard {
+        self.mark_number(number, card);
+        
+        card
+            .iter()
             .enumerate()
-            .find(|(_, board)| self.is_winning_board(number, board))
-            .map(|(index, board)| (index, number, board))
+            .filter(|(_, board)| self.is_winning_board(number, board))
+            .map(|(index, board)| (index, board.clone()))
+            .collect::<EnumeratedCard>()
+    }
+
+    fn mark_number(&self, number: &i32, card: CardRef) {
+        card
+            .iter()
+            .flatten()
+            .flatten()
+            .filter(|element| element.as_ref().borrow().number == *number)
+            .for_each(|element| element.as_ref().borrow_mut().call());
     }
 
     fn is_winning_board(&self, number: &i32, board: BoardRef) -> bool {
@@ -141,13 +165,11 @@ impl Day04 {
         line: LineRef<'a>,
         board: BoardRef<'a>,
     ) -> bool {
-        line.iter().enumerate().any(|(index, element)| {
-            if element.as_ref().borrow().number == *number {
-                element.borrow_mut().call();
-                return self.is_row(line) ^ self.is_column(index, board);
-            }
-            false
-        })
+        line
+            .iter()
+            .enumerate()
+            .filter(|(_, element)| element.as_ref().borrow().number == *number)
+            .any(|(index, _)| self.is_row(line) ^ self.is_column(index, board))
     }
 
     fn is_row(&self, line: LineRef) -> bool {
@@ -174,14 +196,9 @@ impl Day04 {
             .sum::<i32>()
     }
 
-    fn remove_winning(&self, index: usize, card: CardRef) -> Card {       
+    fn remove_winning<'a>(&self, index: usize, card: &'a mut Card) -> &'a Card {     
+        card.remove(index);
         card
-            .iter()
-            .enumerate()
-            .filter(|(i, _)| *i != index)
-            .map(|(_, board)| board)
-            .cloned()
-            .collect::<Card>()
     }
 }
 
