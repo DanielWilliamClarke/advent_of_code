@@ -1,30 +1,16 @@
+
 use itertools::Itertools;
 
 use crate::common::Solution;
 
-#[derive(Copy, Clone, Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl Point {
-    fn new (x: i32, y: i32) -> Point {
-        Point{x, y}
-    } 
-}
-
-type Stream = Vec<Point>; 
-type Streams = Vec<Stream>;
+type Line = (usize, usize, usize, usize);
+type Streams = Vec<Line>;
 
 pub struct Day05;
 
-impl Solution<String, i32> for Day05{
+impl Solution<String, i32> for Day05 {
     fn pt_1(&self, input: &[String]) -> i32 {
-        let points = self.filter_axis_aligned(self.parse(input));
-        println!("{:?}", points);
-
-        0
+        self.accumulate_overlaps(self.parse(input))
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
@@ -37,37 +23,56 @@ impl Day05 {
         Day05 {}
     }
 
-    fn parse (&self, input: &[String]) -> Streams {
+    fn parse(&self, input: &[String]) -> Streams {
         input
             .iter()
             .map(|line| {
-                line
+                let points = line
                     .split(" -> ")
                     .map(|coordinate| {
                         let mut split = coordinate.split(',');
-                        Point::new(
-                            self.str_i32(split.next().unwrap()),
-                            self.str_i32(split.next().unwrap()))
+                        (
+                            self.str_usize(split.next().unwrap()),
+                            self.str_usize(split.next().unwrap()),
+                        )
                     })
-                    .collect::<Stream>()
+                    .collect::<Vec<(usize, usize)>>();
+
+                let (x, y) = *points.first().unwrap();
+                let (xx, yy) = *points.last().unwrap();
+
+                (x.min(xx), y.min(yy), x.max(xx), y.max(yy))
             })
             .collect::<Streams>()
     }
 
-    fn str_i32(&self, input: &str) -> i32 {
-        input.to_string().parse::<i32>().unwrap()
+    fn str_usize(&self, input: &str) -> usize {
+        input.to_string().parse::<usize>().unwrap()
     }
 
-    fn filter_axis_aligned (&self, points: Streams) -> Streams {
+    fn accumulate_overlaps(&self, points: Streams) -> i32 {
+        let mut map = vec![0u8; 1000 * 1000];
+        let mut overlaps = 0;
+
+        let mut mark = |x: usize, y: usize| {
+            if map[(x + y * 1000) as usize] == 1 {
+                overlaps += 1;
+            }
+            map[(x + y * 1000) as usize] += 1;
+        };
+
         points
             .iter()
-            .filter(|line| 
-                line
-                    .iter()
-                    .any(|point| point.x == point.y))
-            .cloned()
-            .collect::<Streams>()
-    }
+            .for_each(|(x, y, xx, yy)| {
+                if x == xx {
+                    (*y..=*yy).for_each(|y| mark(*x, y));
+                } else if y == yy {
+                    (*x..=*xx).for_each(|x| mark(x, *y));
+                }
+            });
+
+        overlaps
+    } 
 }
 
 #[cfg(test)]
@@ -78,7 +83,7 @@ mod tests {
     fn solution_is_correct() {
         let day05 = Day05::new();
         let input = day05.read_input("src/day_05/input.txt");
-        vec![(0, 0)]
+        vec![(day05.pt_1(&input), 5167)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))
     }
