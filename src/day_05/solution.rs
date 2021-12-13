@@ -1,4 +1,3 @@
-
 use std::iter;
 
 use itertools::Itertools;
@@ -34,8 +33,8 @@ impl Day05 {
                     .map(|coordinate| {
                         let mut split = coordinate.split(',');
                         (
-                            self.str_usize(split.next().unwrap()),
-                            self.str_usize(split.next().unwrap()),
+                            self.str_isize(split.next().unwrap()),
+                            self.str_isize(split.next().unwrap()),
                         )
                     })
                     .collect::<Vec<(isize, isize)>>();
@@ -47,7 +46,7 @@ impl Day05 {
             .collect::<Streams>()
     }
 
-    fn str_usize(&self, input: &str) -> isize {
+    fn str_isize(&self, input: &str) -> isize {
         input.to_string().parse::<isize>().unwrap()
     }
 
@@ -64,8 +63,9 @@ impl Day05 {
 
         points
             .iter()
-            .map(|(x, y, xx, yy)| (x.min(xx), y.min(yy), x.max(xx), y.max(yy)))
-            .for_each(|(x, y, xx, yy)| {                
+            .map(|(x, y, xx, yy)| 
+                (x.min(xx), y.min(yy), x.max(xx), y.max(yy)))
+            .for_each(|(x, y, xx, yy)| {
                 if x == xx {
                     (*y..=*yy).for_each(|y| mark(*x, y));
                 } else if y == yy {
@@ -74,31 +74,30 @@ impl Day05 {
             });
 
         overlaps
-    } 
+    }
 
     fn accumulate_cardinal_overlaps(&self, points: Streams) -> i32 {
         let mut map = vec![0u8; 1000 * 1000];
         let mut overlaps = 0;
 
-        points
-            .iter()
-            .for_each(|(x, y, xx, yy)| {
-                let range = |a: isize, b: isize| 
-                    iter::successors(Some(a), move |n| Some(*n + (b - a).signum()));
+        let range = |a: isize, b: isize| {
+            iter::successors(Some(a), move |n| Some(*n + (b - a).signum()))
+        };
 
-                range(*x, *xx)
-                    .zip(range(*y, *yy))
-                    .take(x.abs_diff(*xx).max(y.abs_diff(*yy)) + 1)
-                    .for_each(|(x, y)| {
-                        if map[(x + y * 1000) as usize] == 1 {
-                            overlaps += 1;
-                        }
-                        map[(x + y * 1000) as usize] += 1;
-                    });
-            });
+        points.iter().for_each(|(x, y, xx, yy)| {
+            range(*x, *xx)
+                .zip(range(*y, *yy))
+                .take(x.abs_diff(*xx).max(y.abs_diff(*yy)) + 1)
+                .for_each(|(x, y)| {
+                    if map[(x + y * 1000) as usize] == 1 {
+                        overlaps += 1;
+                    }
+                    map[(x + y * 1000) as usize] += 1;
+                });
+        });
 
         overlaps
-    } 
+    }
 }
 
 #[cfg(test)]
@@ -109,7 +108,7 @@ mod tests {
     fn solution_is_correct() {
         let day05 = Day05::new();
         let input = day05.read_input("src/day_05/input.txt");
-        vec![(day05.pt_1(&input), 5167)]
+        vec![(day05.pt_1(&input), 5167), (day05.pt_2(&input), 17604)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))
     }
