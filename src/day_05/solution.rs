@@ -1,20 +1,22 @@
 
+use std::iter;
+
 use itertools::Itertools;
 
 use crate::common::Solution;
 
-type Line = (usize, usize, usize, usize);
+type Line = (isize, isize, isize, isize);
 type Streams = Vec<Line>;
 
 pub struct Day05;
 
 impl Solution<String, i32> for Day05 {
     fn pt_1(&self, input: &[String]) -> i32 {
-        self.accumulate_overlaps(self.parse(input))
+        self.accumulate_axis_overlaps(self.parse(input))
     }
 
     fn pt_2(&self, input: &[String]) -> i32 {
-        0
+        self.accumulate_cardinal_overlaps(self.parse(input))
     }
 }
 
@@ -36,25 +38,24 @@ impl Day05 {
                             self.str_usize(split.next().unwrap()),
                         )
                     })
-                    .collect::<Vec<(usize, usize)>>();
+                    .collect::<Vec<(isize, isize)>>();
 
                 let (x, y) = *points.first().unwrap();
                 let (xx, yy) = *points.last().unwrap();
-
-                (x.min(xx), y.min(yy), x.max(xx), y.max(yy))
+                (x, y, xx, yy)
             })
             .collect::<Streams>()
     }
 
-    fn str_usize(&self, input: &str) -> usize {
-        input.to_string().parse::<usize>().unwrap()
+    fn str_usize(&self, input: &str) -> isize {
+        input.to_string().parse::<isize>().unwrap()
     }
 
-    fn accumulate_overlaps(&self, points: Streams) -> i32 {
+    fn accumulate_axis_overlaps(&self, points: Streams) -> i32 {
         let mut map = vec![0u8; 1000 * 1000];
         let mut overlaps = 0;
 
-        let mut mark = |x: usize, y: usize| {
+        let mut mark = |x: isize, y: isize| {
             if map[(x + y * 1000) as usize] == 1 {
                 overlaps += 1;
             }
@@ -63,12 +64,37 @@ impl Day05 {
 
         points
             .iter()
-            .for_each(|(x, y, xx, yy)| {
+            .map(|(x, y, xx, yy)| (x.min(xx), y.min(yy), x.max(xx), y.max(yy)))
+            .for_each(|(x, y, xx, yy)| {                
                 if x == xx {
                     (*y..=*yy).for_each(|y| mark(*x, y));
                 } else if y == yy {
                     (*x..=*xx).for_each(|x| mark(x, *y));
                 }
+            });
+
+        overlaps
+    } 
+
+    fn accumulate_cardinal_overlaps(&self, points: Streams) -> i32 {
+        let mut map = vec![0u8; 1000 * 1000];
+        let mut overlaps = 0;
+
+        points
+            .iter()
+            .for_each(|(x, y, xx, yy)| {
+                let range = |a: isize, b: isize| 
+                    iter::successors(Some(a), move |n| Some(*n + (b - a).signum()));
+
+                range(*x, *xx)
+                    .zip(range(*y, *yy))
+                    .take(x.abs_diff(*xx).max(y.abs_diff(*yy)) + 1)
+                    .for_each(|(x, y)| {
+                        if map[(x + y * 1000) as usize] == 1 {
+                            overlaps += 1;
+                        }
+                        map[(x + y * 1000) as usize] += 1;
+                    });
             });
 
         overlaps
