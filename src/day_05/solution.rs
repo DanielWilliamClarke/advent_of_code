@@ -14,13 +14,15 @@ impl Point {
     } 
 }
 
-pub struct Day05 {}
+type Stream = Vec<Point>; 
+type Streams = Vec<Stream>;
+
+pub struct Day05;
 
 impl Solution<String, i32> for Day05{
     fn pt_1(&self, input: &[String]) -> i32 {
-
-        let points = self.parse(input);
-        // println!("{:?}", points);
+        let points = self.filter_axis_aligned(self.parse(input));
+        println!("{:?}", points);
 
         0
     }
@@ -35,7 +37,7 @@ impl Day05 {
         Day05 {}
     }
 
-    fn parse (&self, input: &[String]) -> Vec<Vec<Point>> {
+    fn parse (&self, input: &[String]) -> Streams {
         input
             .iter()
             .map(|line| {
@@ -47,13 +49,24 @@ impl Day05 {
                             self.str_i32(split.next().unwrap()),
                             self.str_i32(split.next().unwrap()))
                     })
-                    .collect::<Vec<Point>>()
+                    .collect::<Stream>()
             })
-            .collect::<Vec<Vec<Point>>>()
+            .collect::<Streams>()
     }
 
     fn str_i32(&self, input: &str) -> i32 {
         input.to_string().parse::<i32>().unwrap()
+    }
+
+    fn filter_axis_aligned (&self, points: Streams) -> Streams {
+        points
+            .iter()
+            .filter(|line| 
+                line
+                    .iter()
+                    .any(|point| point.x == point.y))
+            .cloned()
+            .collect::<Streams>()
     }
 }
 
