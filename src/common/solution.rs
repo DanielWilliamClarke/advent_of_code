@@ -19,12 +19,23 @@ pub trait Solution<T, U> {
         T: FromStr,
         <T as FromStr>::Err: std::fmt::Debug,
         U: std::fmt::Display {
-        println!("Running Advent Of Code: {}", std::any::type_name::<Self>());
-
-        let input = self.read_input(file_name);
-        println!("Part 1 result: {}", self.pt_1(&input));
-        println!("Part 2 result: {}", self.pt_2(&input));
+        self.print_div();
+        {
+            println!("🎅 Running Advent Of Code: {} 🎅", std::any::type_name::<Self>());
+        }
+        self.print_div();
+        {
+            let input = self.read_input(file_name);
+            println!("Part 1 result: {}", self.pt_1(&input));
+            println!("Part 2 result: {}", self.pt_2(&input));
+        }
+        self.print_div();
+        println!();
     }
+
+    fn print_div (&self) {
+        println!("🎄{:=<1$}🎄", "", 69 /* nice */);    
+    } 
 
     fn pt_1(&self, input: &[T]) -> U;
 

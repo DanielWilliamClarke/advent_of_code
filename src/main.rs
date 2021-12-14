@@ -9,6 +9,7 @@ mod day_03;
 mod day_04;
 mod day_05;
 mod day_06;
+mod day_07;
 
 use common::Solution;
 use day_01::Day01;
@@ -17,6 +18,7 @@ use day_03::Day03;
 use day_04::Day04;
 use day_05::Day05;
 use day_06::Day06;
+use day_07::Day07;
 
 fn main() {
     Day01::new().run("src/day_01/input.txt");
@@ -25,4 +27,5 @@ fn main() {
     Day04::new().run("src/day_04/input.txt");
     Day05::new().run("src/day_05/input.txt");
     Day06::new().run("src/day_06/input.txt");
+    Day07::new().run("src/day_07/input.txt");
 }
