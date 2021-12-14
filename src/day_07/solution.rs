@@ -2,20 +2,17 @@ use crate::common::Solution;
 
 pub struct Day07;
 
-impl Solution<String, i32> for Day07 {
-    fn pt_1(&self, input: &[String]) -> i32 {
+impl Solution<String, u32> for Day07 {
+    fn pt_1(&self, input: &[String]) -> u32 {
         self.optimize(
             &self.parse(input),
-        |index, position| index.abs_diff(*position) as i32)
+        |n| n)
     }
 
-    fn pt_2(&self, input: &[String]) -> i32 {
+    fn pt_2(&self, input: &[String]) -> u32 {
         self.optimize(
             &self.parse(input),
-        |index, position| {
-                let n = index.abs_diff(*position) as i32;
-                n * (n + 1) / 2 // Triangular number yo
-            })
+            |n| n * (n + 1) / 2)
     }
 }
 
@@ -24,7 +21,7 @@ impl Day07 {
         Day07 {}
     }
 
-    fn parse(&self, input: &[String]) -> Vec<i32> {
+    fn parse(&self, input: &[String]) -> Vec<u32> {
         input
             .first()
             .unwrap()
@@ -33,7 +30,7 @@ impl Day07 {
             .collect()
     }
 
-    fn optimize (&self, input: &[i32], cost_predicate: fn(&i32, &i32) -> i32) -> i32 {
+    fn optimize (&self, input: &[u32], cost_predicate: fn(u32) -> u32) -> u32 {
         let max = input.iter().max().unwrap();
         let min = input.iter().min().unwrap();
 
@@ -41,8 +38,9 @@ impl Day07 {
             .map(|index| {
                 input
                     .iter()
-                    .map(|position| cost_predicate(&index, position))
-                    .sum::<i32>()
+                    .map(|position|
+                        cost_predicate(index.abs_diff(*position)))
+                    .sum::<u32>()
             })
             .min()
             .unwrap()
@@ -51,6 +49,7 @@ impl Day07 {
 
 #[cfg(test)]
 mod tests {
+    use criterion::{criterion_group, criterion_main, Criterion};
     use crate::{common::Solution, day_07::solution::Day07};
 
     #[test]
