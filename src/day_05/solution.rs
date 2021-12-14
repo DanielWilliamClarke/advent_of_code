@@ -1,7 +1,5 @@
 use std::iter;
 
-use itertools::Itertools;
-
 use crate::common::Solution;
 
 type Line = (isize, isize, isize, isize);

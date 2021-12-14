@@ -1,21 +1,19 @@
-use std::{cell::{RefCell}, rc::Rc};
-use itertools::Itertools;
-
 use crate::common::Solution;
 
-const SPAWN: i32 = 0;
-const RESET: i32 = 6;
-const FRESH: i32 = 8;
+const CHANNELS: usize = 9;
+const SPAWN: usize = 0;
+const RESET: usize = 6;
+const FRESH: usize = 8;
 
 pub struct Day06;
 
-impl Solution<String, i32> for Day06 {
-    fn pt_1(&self, input: &[String]) -> i32 {
-       self.simulate(&self.parse(input), 80)
+impl Solution<String, usize> for Day06 {
+    fn pt_1(&self, input: &[String]) -> usize {
+        self.simulate(&self.parse(input), 80)
     }
 
-    fn pt_2(&self, input: &[String]) -> i32 {
-       0
+    fn pt_2(&self, input: &[String]) -> usize {
+        self.simulate(&self.parse(input), 256)
     }
 }
 
@@ -24,7 +22,7 @@ impl Day06 {
         Day06 {}
     }
 
-    fn parse(&self, input: &[String]) -> Vec<i32> {
+    fn parse(&self, input: &[String]) -> Vec<usize> {
         input
             .first()
             .unwrap()
@@ -33,37 +31,40 @@ impl Day06 {
             .collect()
     }
 
-    fn simulate(&self, input: &[i32], iterations: usize) -> i32 {
-        let mut snapshots = vec![self.create_mut_snapshot(input.to_vec())];
-        for _ in 0..iterations {
-            snapshots.push(self.create_mut_snapshot(Vec::<i32>::new()));
-        }
-
-        snapshots
+    fn simulate(&self, input: &[usize], iterations: usize) -> usize {
+        let mut dict = self.list_to_dict(input);
+        (0..iterations).for_each(|_| dict = self.one_pass(&dict));
+        dict.iter().sum()
+    }
+    
+    fn list_to_dict(&self,  input: &[usize]) -> Vec<usize> {
+        input
             .iter()
-            .tuple_windows::<(_,_)>()
-            .map(|(current, next)| {
-                let mut next = next.borrow_mut();
-                current
-                    .borrow()
-                    .iter()
-                    .for_each(|timer| {
-                        match *timer == SPAWN {
-                            true =>  next.append(&mut vec![RESET, FRESH]),
-                            false => next.push(timer - 1)
-                        }
-                    });
-
-                next.len()
-            })
-            .collect::<Vec<usize>>()
-            .last()
-            .unwrap_or(&0)
-            .to_owned() as i32
+            .fold(self.make_dict(), 
+                |mut dict, timer| {
+                    dict[*timer] += 1;
+                    dict
+                })
     }
 
-    fn create_mut_snapshot(&self, input: Vec<i32>) -> Rc<RefCell<Vec<i32>>>{
-        Rc::new(RefCell::new(input))
+    fn one_pass(&self, dict: &[usize]) -> Vec<usize> {
+        let mut snapshot = self.make_dict();
+
+        dict.iter()
+            .enumerate()
+            .for_each(|(time, _)| match time == SPAWN {
+                true => {
+                    snapshot[RESET] += dict[0];
+                    snapshot[FRESH] += dict[0];
+                }
+                false => snapshot[time - 1] += dict[time],
+            });
+
+        snapshot
+    }
+
+    fn make_dict(&self) -> Vec<usize>{
+        vec![0usize; CHANNELS]
     }
 }
 
@@ -75,8 +76,11 @@ mod tests {
     fn solution_is_correct() {
         let day = Day06::new();
         let input = day.read_input("src/day_06/input.txt");
-        vec![(day.pt_1(&input), 390011)]
-            .iter()
-            .for_each(|test| assert_eq!(test.0, test.1))
+        vec![
+            (day.pt_1(&input), 390011),
+            (day.pt_2(&input), 1746710169834),
+        ]
+        .iter()
+        .for_each(|test| assert_eq!(test.0, test.1))
     }
 }
