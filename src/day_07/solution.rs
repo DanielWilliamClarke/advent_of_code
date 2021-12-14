@@ -49,7 +49,6 @@ impl Day07 {
 
 #[cfg(test)]
 mod tests {
-    use criterion::{criterion_group, criterion_main, Criterion};
     use crate::{common::Solution, day_07::solution::Day07};
 
     #[test]
