@@ -54,12 +54,12 @@ impl Day06 {
                         }
                     });
 
-                next.len() as i32
+                next.len()
             })
-            .collect::<Vec<i32>>()
+            .collect::<Vec<usize>>()
             .last()
             .unwrap_or(&0)
-            .to_owned()
+            .to_owned() as i32
     }
 
     fn create_mut_snapshot(&self, input: Vec<i32>) -> Rc<RefCell<Vec<i32>>>{
