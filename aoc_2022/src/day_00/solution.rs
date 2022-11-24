@@ -6,10 +6,6 @@ impl Solution<i32, usize> for Day00 {
     fn new() -> Self {
         Self {}
     }
-    
-    fn package() -> Box<dyn Fn(&str)> {
-        Box::new(|file_name| Self::new().run(file_name))
-    }
 
     fn pt_1(&self, input: &[i32]) -> usize {
         0

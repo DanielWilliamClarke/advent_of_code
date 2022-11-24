@@ -5,11 +5,18 @@ use std::{str::FromStr};
 pub trait Solution<T, U> {
     fn new() -> Self;
 
-    fn package() -> Box<dyn Fn(&str)>;
-
     fn pt_1(&self, input: &[T]) -> U;
 
     fn pt_2(&self, input: &[T]) -> U;
+
+    fn package() -> Box<dyn Fn(&str)>
+    where
+        T: std::str::FromStr,
+        U: std::fmt::Display,
+        <T as FromStr>::Err: std::fmt::Debug,
+        Self: Sized {
+        Box::new(|file_name| Self::new().run(file_name))
+    }
 
     fn read_input(&self, file_name: &str) -> Vec<T>
     where 
