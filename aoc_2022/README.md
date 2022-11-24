@@ -1,6 +1,6 @@
 # AdventOfCode2021 🎄
 
-[![aoc_2021_badge](https://img.shields.io/badge/Advent%20of%20Code%202021-🌟%2014-blue)](https://adventofcode.com/)
+[![aoc_2021_badge](https://img.shields.io/badge/Advent%20of%20Code%202022-🌟%200-blue)](https://adventofcode.com/)
 
 ## 🎅 Run
 
