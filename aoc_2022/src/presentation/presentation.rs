@@ -5,7 +5,7 @@ use std::{str::FromStr};
 use std::fmt::{Display, Debug};
 
 use crate::solution::Solution;
-å
+
 pub struct Presentation;
 
 impl Presentation {
