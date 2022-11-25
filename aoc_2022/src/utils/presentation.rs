@@ -21,8 +21,9 @@ impl<S> Presentation<S> {
     where
         S: Solution<T, U>,
         T: FromStr,
+        <T as FromStr>::Err: Debug,
         U: Display,
-        <T as FromStr>::Err: Debug {
+    {
         Box::new(
             |file_name| self.print_results(file_name)
         )
