@@ -4,6 +4,9 @@ mod utils {
     pub mod reader;
     pub mod solution;
 }
+mod test_utils {
+   pub mod validator;
+}
 
 use days::{Day00, Day01};
 use utils::{
