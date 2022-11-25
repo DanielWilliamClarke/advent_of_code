@@ -7,11 +7,11 @@ impl Solution<i32, usize> for Day00 {
         Self {}
     }
 
-    fn pt_1(&self, input: &[i32]) -> usize {
+    fn pt_1(&self, _: &[i32]) -> usize {
         0
     }
 
-    fn pt_2(&self, input: &[i32]) -> usize {
+    fn pt_2(&self, _: &[i32]) -> usize {
         0
     }
 }
