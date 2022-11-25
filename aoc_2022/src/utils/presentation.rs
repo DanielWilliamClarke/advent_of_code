@@ -34,11 +34,11 @@ impl<S> Presentation<S> {
         U: Display,
     {
         self.print_div();
-        println!("   🎅 Running Advent Of Code 2022: {} 🎅", type_name::<S>());
+        println!("     🎅 Running Advent Of Code 2022: {} 🎅", type_name::<S>());
         self.print_div();
         let input = self.solution.read_input(file_name);
-        println!("   Part 1 result: {}", self.solution.pt_1(&input));
-        println!("   Part 2 result: {}", self.solution.pt_2(&input));
+        println!("     🥁 Part 1 result: {}", self.solution.pt_1(&input));
+        println!("     🥁 Part 2 result: {}", self.solution.pt_2(&input));
         self.print_div();
     }
 
