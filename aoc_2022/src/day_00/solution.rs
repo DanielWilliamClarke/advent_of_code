@@ -1,5 +1,6 @@
 use crate::solution::Solution;
 
+#[derive(Copy, Clone)]
 pub struct Day00;
 
 impl Solution<i32, usize> for Day00 {

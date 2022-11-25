@@ -9,7 +9,18 @@ use super::Solution;
 pub struct Presentation;
 
 impl Presentation {
-    pub fn print_results<S, T, U>(solution: S, file_name: &str)
+    pub fn display<S, T, U>(solution: S) -> Box<dyn Fn(&str)>
+    where
+        S: Solution<T, U> + Copy + 'static,
+        T: FromStr,
+        U: Display,
+        <T as FromStr>::Err: Debug {
+        Box::new(
+            move |file_name| Presentation::print_results(solution, file_name)
+        )
+    }
+
+    fn print_results<S, T, U>(solution: S, file_name: &str)
     where
         S: Solution<T, U>,
         T: FromStr,
