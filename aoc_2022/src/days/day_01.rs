@@ -5,10 +5,9 @@ use crate::utils::solution::Solution;
 #[derive(Copy, Clone)]
 pub struct Day01;
 
-impl Solution<i64, usize> for Day01 {
-    fn new() -> Self {
-        Self {}
-    }
+impl Solution for Day01 {
+    type Input = i64;
+    type Output = usize;
 
     fn pt_1(&self, _: &[i64]) -> usize {
         0
@@ -25,7 +24,7 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        let day = Day01::new();
+        let day = Day01 { };
         let input = day.read_input("src/days/input/day_1.txt");
         vec![(day.pt_1(&input), 0), (day.pt_2(&input), 0)]
             .iter()

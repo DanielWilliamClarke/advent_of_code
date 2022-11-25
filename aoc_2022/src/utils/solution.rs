@@ -1,25 +1,47 @@
 // src/solution/solution.rs
 
-use std::{str::FromStr};
+use std::any::type_name;
+use std::str::FromStr;
 use std::fs::read_to_string;
-use std::fmt::Debug;
+use std::fmt::{Display, Debug};
 
-pub trait Solution<T, U> {
-    fn new() -> Self;
+use super::presentation::Presentation;
 
-    fn pt_1(&self, input: &[T]) -> U;
+pub trait Solution {
+    type Input;
+    type Output;
 
-    fn pt_2(&self, input: &[T]) -> U;
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output;
 
-    fn read_input(&self, file_name: &str) -> Vec<T>
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output;
+
+    fn read_input(&self, file_name: &str) -> Vec<Self::Input>
     where
-        T: FromStr,
-        <T as FromStr>::Err: Debug,
+        Self::Input: FromStr,
+        <Self::Input as FromStr>::Err: Debug,
     {
         read_to_string(file_name)
             .expect("file not found!")
             .lines()
             .map(|x| x.parse().unwrap())
             .collect()
+    }
+}
+
+impl<S: Solution> Presentation for S 
+where   
+    <S as Solution>::Input: FromStr,
+    <<S as Solution>::Input as FromStr>::Err: Debug,
+    <S as Solution>::Output: Display
+{
+    fn print_results(&self, file_name: &str)
+    {
+        self.print_div();
+        println!("     🎅 Running Advent Of Code 2022: {} 🎅", type_name::<S>());
+        self.print_div();
+        let input = self.read_input(file_name);
+        println!("     🥁 Part 1 result: {}", self.pt_1(&input));
+        println!("     🥁 Part 2 result: {}", self.pt_2(&input));
+        self.print_div();
     }
 }
