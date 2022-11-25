@@ -15,6 +15,8 @@ impl<S> Presentation<S> {
         Presentation { solution }
     }
 
+    // this method provides some indirection allowing use to push 
+    // a bunch of these structs into a vector and iterate over them 
     pub fn display<T, U>(&self) -> Box<dyn Fn(&str) + '_>
     where
         S: Solution<T, U>,
