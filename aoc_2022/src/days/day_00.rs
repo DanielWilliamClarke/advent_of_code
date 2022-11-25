@@ -19,16 +19,16 @@ impl Solution for Day00 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        utils::{reader::Reader, solution::Solution},
         test_utils::validator::validator::validate_solution,
         Day00
     };
 
     #[test]
     fn solution_is_correct() {
-        let day00 = Day00 {};
-        let input = day00.read_input("src/days/input/day_0.txt");
-        let results = vec![(day00.pt_1(&input), 0), (day00.pt_2(&input), 0)];
-        validate_solution(results);
+        validate_solution(
+            Day00, 
+            "src/days/input/day_0.txt", 
+            (0, 0)
+        );
     }
 }

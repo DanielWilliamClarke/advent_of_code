@@ -2,15 +2,22 @@
 
 #[cfg(test)]
 pub mod validator {
-    use std::fmt::Debug;
     use std::cmp::PartialEq;
+    use std::fmt::Debug;
 
-    pub fn validate_solution<T>(expectations: Vec<(T, T)>)
-    where 
-        T: Debug + PartialEq 
+    use crate::utils::reader::Reader;
+    use crate::utils::solution::Solution;
+
+    pub fn validate_solution<S, O>(solution: S, file_name: &str, expectations: (O, O))
+    where
+        S: Solution<Output = O> + Reader<Data = <S as Solution>::Input>,
+        O: Debug + PartialEq,
     {
-        expectations
-            .iter()
-            .for_each(|test| assert_eq!(test.0, test.1))
+        let input = solution.read_input(file_name);
+        let results = vec![
+            (solution.pt_1(&input), expectations.0),
+            (solution.pt_2(&input), expectations.1),
+        ];
+        results.iter().for_each(|test| assert_eq!(test.0, test.1))
     }
 }
