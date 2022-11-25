@@ -1,6 +1,7 @@
 mod days;
 mod utils {
     pub mod presentation;
+    pub mod reader;
     pub mod solution;
 }
 

@@ -6,6 +6,7 @@ use std::fs::read_to_string;
 use std::fmt::{Display, Debug};
 
 use super::presentation::Presentation;
+use super::reader::Reader;
 
 pub trait Solution {
     type Input;
@@ -14,12 +15,16 @@ pub trait Solution {
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output;
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output;
+}
 
-    fn read_input(&self, file_name: &str) -> Vec<Self::Input>
-    where
-        Self::Input: FromStr,
-        <Self::Input as FromStr>::Err: Debug,
-    {
+impl <S: Solution> Reader for S
+where
+    <S as Solution>::Input: FromStr,
+    <<S as Solution>::Input as FromStr>::Err: Debug,
+{
+    type Data = <S as Solution>::Input;
+
+    fn read_input(&self, file_name: &str) -> Vec<Self::Data> {
         read_to_string(file_name)
             .expect("file not found!")
             .lines()
