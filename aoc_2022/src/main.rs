@@ -1,10 +1,12 @@
 mod day_00;
 mod day_01;
+mod presentation;
 mod solution;
 
 use day_00::Day00;
 use day_01::Day01;
-use solution::{Solution, Presentation};
+use presentation::Presentation;
+use solution::Solution;
 
 fn main() {
     vec![

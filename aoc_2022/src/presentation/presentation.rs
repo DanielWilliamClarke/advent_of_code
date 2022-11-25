@@ -4,8 +4,8 @@ use std::any::type_name;
 use std::{str::FromStr};
 use std::fmt::{Display, Debug};
 
-use super::Solution;
-
+use crate::solution::Solution;
+å
 pub struct Presentation;
 
 impl Presentation {
