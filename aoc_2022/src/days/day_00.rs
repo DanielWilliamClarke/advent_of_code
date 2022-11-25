@@ -1,5 +1,6 @@
-use crate::solution::Solution;
+// src/days/day_00/solution.rs
 
+use crate::utils::solution::Solution;
 #[derive(Copy, Clone)]
 pub struct Day00;
 
@@ -19,12 +20,12 @@ impl Solution<i32, usize> for Day00 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{solution::Solution, Day00};
+    use crate::{utils::solution::Solution, Day00};
 
     #[test]
     fn solution_is_correct() {
         let day00 = Day00::new();
-        let input = day00.read_input("src/day_00/input.txt");
+        let input = day00.read_input("src/days/input/day_0.txt");
         vec![(day00.pt_1(&input), 0), (day00.pt_2(&input), 0)]
             .iter()
             .for_each(|test| assert_eq!(test.0, test.1))

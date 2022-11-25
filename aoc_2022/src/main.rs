@@ -1,20 +1,23 @@
-mod day_00;
-mod day_01;
-mod presentation;
-mod solution;
+mod days;
+mod utils {
+    pub mod presentation;
+    pub mod solution;
+}
 
-use day_00::Day00;
-use day_01::Day01;
-use presentation::Presentation;
-use solution::Solution;
+use days::{Day00, Day01};
+use utils::{
+    presentation::Presentation, 
+    solution::Solution
+};
 
 fn main() {
     vec![
-        Presentation::display(Day00::new()),
-        Presentation::display(Day01::new()),
-    ].iter()
+        Presentation::new(Box::new(Day00::new())).display(),
+        Presentation::new(Box::new(Day01::new())).display(),
+    ]
+    .iter()
     .enumerate()
     .for_each(|(index, runner)| {
-        runner(&format!("src/day_0{}/input.txt", index));
+        runner(&format!("src/days/input/day_{}.txt", index));
     });
 }
