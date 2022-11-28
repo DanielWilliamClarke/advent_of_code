@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::fs::read_to_string;
 use std::fmt::{Display, Debug};
 
-use super::presentation::Presentation;
+use super::presentation::Printer;
 use super::reader::Reader;
 
 pub trait Solution {
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<S: Solution> Presentation for S 
+impl<S: Solution> Printer for S 
 where   
     <S as Solution>::Input: FromStr,
     <<S as Solution>::Input as FromStr>::Err: Debug,

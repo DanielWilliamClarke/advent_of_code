@@ -10,11 +10,11 @@ mod test_utils {
 
 use days::{Day00, Day01};
 use utils::{
-    presentation::Presentation, 
+    presentation::Printer, 
 };
 
 fn main() {
-    let solutions: Vec<&dyn Presentation> = vec![
+    let solutions: Vec<&dyn Printer> = vec![
         &Day00,
         &Day01,
     ];
