@@ -24,7 +24,7 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day01{}.validate_solution(
+        Day01{}.validate(
             "src/days/input/day_1.txt", 
             (0, 0)
         );

@@ -3,5 +3,5 @@
 pub trait Reader {
     type Data;
 
-    fn read_input(&self, file_name: &str) -> Vec<Self::Data>;
+    fn read(&self, file_name: &str) -> Vec<Self::Data>;
 }

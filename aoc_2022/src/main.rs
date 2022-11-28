@@ -21,6 +21,6 @@ fn main() {
         .iter()
         .enumerate()
         .for_each(|(index, solution)| {
-            solution.print_results(&format!("src/days/input/day_{}.txt", index));
+            solution.print(&format!("src/days/input/day_{}.txt", index));
         });
 }

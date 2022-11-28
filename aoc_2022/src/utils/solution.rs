@@ -24,7 +24,7 @@ where
 {
     type Data = <S as Solution>::Input;
 
-    fn read_input(&self, file_name: &str) -> Vec<Self::Data> {
+    fn read(&self, file_name: &str) -> Vec<Self::Data> {
         read_to_string(file_name)
             .expect("file not found!")
             .lines()
@@ -39,17 +39,17 @@ where
     <<S as Solution>::Input as FromStr>::Err: Debug,
     <S as Solution>::Output: Display,
 {
-    fn print_results(&self, file_name: &str) {
-        self.print_div();
+    fn print(&self, file_name: &str) {
+        self.div();
         println!(
             "     🎅 Running Advent Of Code 2022: {} 🎅",
             type_name::<S>()
         );
-        self.print_div();
-        let input = self.read_input(file_name);
+        self.div();
+        let input = self.read(file_name);
         println!("     🥁 Part 1 result: {}", self.pt_1(&input));
         println!("     🥁 Part 2 result: {}", self.pt_2(&input));
-        self.print_div();
+        self.div();
     }
 }
 
@@ -67,8 +67,8 @@ pub mod validation {
     {
         type Output = <S as Solution>::Output;
 
-        fn validate_solution(&self, file_name: &str, expectations: (Self::Output, Self::Output)) {
-            let input = self.read_input(file_name);
+        fn validate(&self, file_name: &str, expectations: (Self::Output, Self::Output)) {
+            let input = self.read(file_name);
             let results = vec![
                 (self.pt_1(&input), expectations.0),
                 (self.pt_2(&input), expectations.1),
