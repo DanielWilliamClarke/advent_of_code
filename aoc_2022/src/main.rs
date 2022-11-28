@@ -1,6 +1,6 @@
 mod days;
 mod utils {
-    pub mod presentation;
+    pub mod printer;
     pub mod reader;
     pub mod solution;
 }
@@ -10,7 +10,7 @@ mod test_utils {
 
 use days::{Day00, Day01};
 use utils::{
-    presentation::Printer, 
+    printer::Printer, 
 };
 
 fn main() {

@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::fs::read_to_string;
 use std::fmt::{Display, Debug};
 
-use super::presentation::Printer;
+use super::printer::Printer;
 use super::reader::Reader;
 
 pub trait Solution {
