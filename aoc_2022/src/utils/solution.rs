@@ -56,7 +56,7 @@ where
 #[cfg(test)]
 pub mod validation {
     use super::Solution;
-    use crate::{utils::validator::validator::Validator, utils::reader::Reader};
+    use crate::{utils::reader::Reader, utils::validator::validator::Validator};
     use std::{fmt::Debug, str::FromStr};
 
     impl<S: Solution> Validator for S
