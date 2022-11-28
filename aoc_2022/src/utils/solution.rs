@@ -1,9 +1,9 @@
 // src/solution/solution.rs
 
 use std::any::type_name;
-use std::str::FromStr;
+use std::fmt::{Debug, Display};
 use std::fs::read_to_string;
-use std::fmt::{Display, Debug};
+use std::str::FromStr;
 
 use super::printer::Printer;
 use super::reader::Reader;
@@ -17,7 +17,7 @@ pub trait Solution {
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output;
 }
 
-impl <S: Solution> Reader for S
+impl<S: Solution> Reader for S
 where
     <S as Solution>::Input: FromStr,
     <<S as Solution>::Input as FromStr>::Err: Debug,
@@ -33,20 +33,47 @@ where
     }
 }
 
-impl<S: Solution> Printer for S 
-where   
+impl<S: Solution> Printer for S
+where
     <S as Solution>::Input: FromStr,
     <<S as Solution>::Input as FromStr>::Err: Debug,
-    <S as Solution>::Output: Display
+    <S as Solution>::Output: Display,
 {
-    fn print_results(&self, file_name: &str)
-    {
+    fn print_results(&self, file_name: &str) {
         self.print_div();
-        println!("     🎅 Running Advent Of Code 2022: {} 🎅", type_name::<S>());
+        println!(
+            "     🎅 Running Advent Of Code 2022: {} 🎅",
+            type_name::<S>()
+        );
         self.print_div();
         let input = self.read_input(file_name);
         println!("     🥁 Part 1 result: {}", self.pt_1(&input));
         println!("     🥁 Part 2 result: {}", self.pt_2(&input));
         self.print_div();
+    }
+}
+
+#[cfg(test)]
+pub mod validation {
+    use super::Solution;
+    use crate::{utils::validator::validator::Validator, utils::reader::Reader};
+    use std::{fmt::Debug, str::FromStr};
+
+    impl<S: Solution> Validator for S
+    where
+        <S as Solution>::Input: FromStr,
+        <<S as Solution>::Input as FromStr>::Err: Debug,
+        <S as Solution>::Output: Debug + PartialEq,
+    {
+        type Output = <S as Solution>::Output;
+
+        fn validate_solution(&self, file_name: &str, expectations: (Self::Output, Self::Output)) {
+            let input = self.read_input(file_name);
+            let results = vec![
+                (self.pt_1(&input), expectations.0),
+                (self.pt_2(&input), expectations.1),
+            ];
+            results.iter().for_each(|test| assert_eq!(test.0, test.1))
+        }
     }
 }

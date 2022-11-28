@@ -3,9 +3,7 @@ mod utils {
     pub mod printer;
     pub mod reader;
     pub mod solution;
-}
-mod test_utils {
-   pub mod validator;
+    pub mod validator;
 }
 
 use days::{Day00, Day01};

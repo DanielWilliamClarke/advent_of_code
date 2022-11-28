@@ -19,14 +19,12 @@ impl Solution for Day01 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        test_utils::validator::validator::validate_solution,
-        Day01
+        Day01, utils::validator::validator::Validator
     };
 
     #[test]
     fn solution_is_correct() {
-        validate_solution(
-            Day01, 
+        Day01{}.validate_solution(
             "src/days/input/day_1.txt", 
             (0, 0)
         );
