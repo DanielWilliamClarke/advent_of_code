@@ -6,21 +6,21 @@ mod utils {
     pub mod validator;
 }
 
+use std::fmt::Display;
+
 use days::{Day00, Day01};
-use utils::{
-    printer::Printer, 
-};
+use utils::printer::Printer;
+
 
 fn main() {
-    let solutions: Vec<&dyn Printer> = vec![
-        &Day00,
-        &Day01,
+    let solutions: Vec<&dyn Display> = vec![
+        &Printer(Day00),
+        &Printer(Day01),
     ];
 
     solutions
         .iter()
-        .enumerate()
-        .for_each(|(index, solution)| {
-            solution.print(&format!("src/days/input/day_{}.txt", index));
+        .for_each(|solution| {
+            println!("{}", solution)
         });
 }

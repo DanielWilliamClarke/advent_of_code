@@ -7,6 +7,10 @@ impl Solution for Day01 {
     type Input = i64;
     type Output = usize;
 
+    fn file_name(&self) -> &'static str {
+        "src/days/input/day_1.txt"
+    }
+
     fn pt_1(&self, _: &[Self::Input]) -> Self::Output {
         0
     }
@@ -24,9 +28,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day01{}.validate(
-            "src/days/input/day_1.txt", 
-            (0, 0)
-        );
+        Day01{}.validate((0, 0));
     }
 }
