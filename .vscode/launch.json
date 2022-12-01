@@ -5,15 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
+            "name": "(OSX) Launch AOC 2022",
+            "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/target/debug/advent_of_code2021.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "console": "externalTerminal"
+            "program": "${workspaceFolder}/aoc_2022/target/debug/aoc_2022",
+            "args": [],  
+            "cwd": "${workspaceFolder}/aoc_2022",
+            "preLaunchTask": "Cargo Build 2022",
         }
     ]
 }
