@@ -1,6 +1,7 @@
 // src/days/day_01.rs
+
+use std::collections::BinaryHeap;
 use crate::utils::solution::Solution;
-use std::{slice::Iter, iter::{Map, self}, collections::BinaryHeap, ops::Deref};
 
 pub struct Day01;
 
@@ -57,6 +58,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day01{}.validate((72511, 0));
+        Day01{}.validate((72511, 212117));
     }
 }
