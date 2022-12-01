@@ -1,5 +1,6 @@
 // src/days/day_01.rs
 use crate::utils::solution::Solution;
+use std::{slice::Iter, iter::{Map, self}, collections::BinaryHeap, ops::Deref};
 
 pub struct Day01;
 
@@ -12,20 +13,25 @@ impl Solution for Day01 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        self.parse(&input)
+        self.sum_per_elf(input)
             .iter()
-            .map(|list| list.iter().sum::<i32>())
             .max()
             .unwrap()
+            .to_owned()
     } 
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output {
-        0
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+        BinaryHeap::from(self.sum_per_elf(input))
+            .into_sorted_vec()
+            .iter()
+            .rev()
+            .take(3)
+            .sum::<i32>()
     }
 }
 
 impl Day01 {
-    fn parse(&self, input: &[String]) -> Vec<Vec<i32>> {
+    fn parse_elves(&self, input: &[String]) -> Vec<Vec<i32>> {
         input
             .split(|line| line.is_empty())
             .map(|group| group
@@ -33,6 +39,13 @@ impl Day01 {
                 .map(|line| line.to_string().parse::<i32>().unwrap())
                 .collect::<Vec<i32>>())
             .collect::<Vec<Vec<i32>>>()
+    }
+
+    fn sum_per_elf(&self, input: &[String]) -> Vec<i32> {
+        self.parse_elves(&input)
+            .iter()
+            .map(|list| list.iter().sum::<i32>())
+            .collect::<Vec<i32>>()
     }
 }
 
