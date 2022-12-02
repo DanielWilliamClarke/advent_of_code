@@ -62,8 +62,8 @@ impl Day02 {
             .collect()
     }
 
-    fn interpret(&self, round: &str) -> RPSState {
-        match round {
+    fn interpret(&self, instruction: &str) -> RPSState {
+        match instruction {
             "A" | "X" => RPSState::ROCK,
             "B" | "Y" => RPSState::PAPER,
             "C" | "Z" => RPSState::SCISSORS,
