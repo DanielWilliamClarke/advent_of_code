@@ -24,7 +24,7 @@ pub trait Solution {
 
     fn measure_pt_2(&self, input: &[Self::Input]) -> (Self::Output, f32) {
         let now = Instant::now();
-        (self.pt_1(&input), now.elapsed().as_secs_f32())
+        (self.pt_2(&input), now.elapsed().as_secs_f32())
     }
 }
 
