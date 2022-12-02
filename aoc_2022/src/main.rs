@@ -9,7 +9,7 @@ mod utils {
 
 use std::fmt::Display;
 
-use days::{Day00, Day01};
+use days::{Day00, Day01, Day02};
 use utils::printer::Printer;
 
 
@@ -17,6 +17,7 @@ fn main() {
     let solutions: Vec<&dyn Display> = vec![
         &Printer(Day00),
         &Printer(Day01),
+        &Printer(Day02),
     ];
 
     solutions
