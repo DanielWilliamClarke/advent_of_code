@@ -4,6 +4,7 @@ mod utils {
     pub mod reader;
     pub mod solution;
     pub mod validator;
+    pub mod timer;
 }
 
 use std::fmt::Display;
