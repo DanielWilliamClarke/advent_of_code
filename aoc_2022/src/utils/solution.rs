@@ -3,6 +3,7 @@
 use std::fmt::Debug;
 use std::fs::read_to_string;
 use std::str::FromStr;
+use std::time::Instant;
 
 use super::reader::Reader;
 
@@ -15,6 +16,16 @@ pub trait Solution {
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output;
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output;
+
+    fn measure_pt_1(&self, input: &[Self::Input]) -> (Self::Output, f32) {
+        let now = Instant::now();
+        (self.pt_1(&input), now.elapsed().as_secs_f32())
+    }
+
+    fn measure_pt_2(&self, input: &[Self::Input]) -> (Self::Output, f32) {
+        let now = Instant::now();
+        (self.pt_1(&input), now.elapsed().as_secs_f32())
+    }
 }
 
 impl<S: Solution> Reader for S
