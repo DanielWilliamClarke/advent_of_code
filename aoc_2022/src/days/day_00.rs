@@ -28,6 +28,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day00{}.validate((0, 0));
+        Day00{}.validate(0, 0);
     }
 }

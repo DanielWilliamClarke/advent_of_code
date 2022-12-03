@@ -58,11 +58,11 @@ pub mod validation {
     {
         type Output = <S as Solution>::Output;
 
-        fn validate(&self, expectations: (Self::Output, Self::Output)) {
+        fn validate(&self, pt1: Self::Output, pt2: Self::Output) {
             let input = self.read();
             let results = vec![
-                (self.pt_1(&input), expectations.0),
-                (self.pt_2(&input), expectations.1),
+                (self.pt_1(&input), pt1),
+                (self.pt_2(&input), pt2),
             ];
             results.iter().for_each(|test| assert_eq!(test.0, test.1))
         }

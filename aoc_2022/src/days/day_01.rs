@@ -62,6 +62,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day01{}.validate((72511, 212117));
+        Day01{}.validate(72511, 212117);
     }
 }
