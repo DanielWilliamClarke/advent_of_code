@@ -30,39 +30,27 @@ impl Solution for Day02 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        self.calculate_score(input, |_, instruction| self.interpret(instruction))
+        self.calculate_score(input, &|_, instruction| self.interpret(instruction))
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
-        self.calculate_score(input, |opponent, instruction| self.anticpate(opponent, instruction))
+        self.calculate_score(input, &|opponent, instruction| self.anticpate(opponent, instruction))
     }
 }
 
 impl Day02 {
-    fn calculate_score<F>(&self, input: &[String], resolver: F) -> i32
+    fn calculate_score<F>(&self, input: &[String], resolver: &F) -> i32
     where  
-        F: Fn(RPSState, &str) -> RPSState
-    {
-        self.parse_rounds(input, resolver)
-            .iter()
-            .fold(0,|acc, round| acc + self.resolve_round(round))
-    }
-
-    fn parse_rounds<F>(&self, input: &[String], resolver: F) -> Vec<Round>
-    where  
-        F: Fn(RPSState, &str) -> RPSState
+        F: Fn(&RPSState, &str) -> RPSState
     {
         input
             .iter()
-            .map(|round| {
+            .fold(0, |acc, round| {
                 let mut split_iter = round.split_whitespace();
-
                 let opponents_choice = self.interpret(split_iter.next().unwrap());
-                let my_choice = resolver(opponents_choice, split_iter.next().unwrap());
-
-                ( opponents_choice, my_choice )
+                let my_choice = resolver(&opponents_choice, split_iter.next().unwrap());
+                acc + self.resolve_round(&( opponents_choice, my_choice ))
             })
-            .collect()
     }
 
     fn interpret(&self, instruction: &str) -> RPSState {
@@ -74,7 +62,7 @@ impl Day02 {
         } 
     }
     
-    fn anticpate(&self, opponent: RPSState, instruction: &str) -> RPSState {
+    fn anticpate(&self, opponent: &RPSState, instruction: &str) -> RPSState {
         match (opponent, instruction) {
             (ROCK, "Y") | (PAPER, "X") | (SCISSORS, "Z") => ROCK,
             (ROCK, "Z") | (PAPER, "Y") | (SCISSORS, "X") => PAPER,
