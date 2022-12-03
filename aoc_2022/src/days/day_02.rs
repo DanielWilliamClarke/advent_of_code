@@ -18,6 +18,9 @@ enum Outcome {
 
 type Round = (RPSState, RPSState);
 
+use RPSState::*;
+use Outcome::*;
+
 impl Solution for Day02 {
     type Input = String;
     type Output = i32;
@@ -64,52 +67,28 @@ impl Day02 {
 
     fn interpret(&self, instruction: &str) -> RPSState {
         match instruction {
-            "A" | "X" => RPSState::ROCK,
-            "B" | "Y" => RPSState::PAPER,
-            "C" | "Z" => RPSState::SCISSORS,
+            "A" | "X" => ROCK,
+            "B" | "Y" => PAPER,
+            "C" | "Z" => SCISSORS,
             _ => panic!("unknown state encountered")
         } 
     }
     
     fn anticpate(&self, opponent: RPSState, instruction: &str) -> RPSState {
-        match opponent {
-            RPSState::ROCK => match instruction {
-                "X" => RPSState::SCISSORS,
-                "Y" => RPSState::ROCK,
-                "Z" => RPSState::PAPER,
-                _ => panic!("unknown state encountered")
-            },
-            RPSState::PAPER => match instruction {
-                "X" => RPSState::ROCK,
-                "Y" => RPSState::PAPER,
-                "Z" => RPSState::SCISSORS,
-                _ => panic!("unknown state encountered")
-            },
-            RPSState::SCISSORS => match instruction {
-                "X" => RPSState::PAPER,
-                "Y" => RPSState::SCISSORS,
-                "Z" => RPSState::ROCK,
-                _ => panic!("unknown state encountered")
-            }
+        match (opponent, instruction) {
+            (ROCK, "Y") | (PAPER, "X") | (SCISSORS, "Z") => ROCK,
+            (ROCK, "Z") | (PAPER, "Y") | (SCISSORS, "X") => PAPER,
+            (ROCK, "X") | (PAPER, "Z") | (SCISSORS, "Y") => SCISSORS,
+            _ => panic!("unknown state encountered")
         }
     }
 
     fn resolve_round(&self, round: &Round) -> i32 {
-        let outcome_score = match &round {
-            // Rock
-            (RPSState::SCISSORS, RPSState::ROCK) => Outcome::WIN,
-            (RPSState::PAPER, RPSState::ROCK) => Outcome::LOSS,
-            // Paper
-            (RPSState::ROCK, RPSState::PAPER) => Outcome::WIN,
-            (RPSState::SCISSORS, RPSState::PAPER) => Outcome::LOSS,
-            // Scissors
-            (RPSState::PAPER, RPSState::SCISSORS) => Outcome::WIN,
-            (RPSState::ROCK, RPSState::SCISSORS) => Outcome::LOSS,
-
-            _ => Outcome::DRAW
-        };
-
-        (outcome_score as i32) + (round.1 as i32)
+        (round.1 as i32) + match round {
+            (SCISSORS, ROCK) | (ROCK, PAPER) | (PAPER, SCISSORS) => WIN,
+            (ROCK, SCISSORS) | (PAPER, ROCK) | (SCISSORS, PAPER) => LOSS,
+            _ => DRAW
+        } as i32
     }
 }
 
