@@ -24,39 +24,46 @@ impl Solution for Day03 {
 
 impl Day03 {
     fn prioritize(&self, input: &[String]) -> u32 {
-        input.iter().fold(0, |acc, backpack| {
-            let compartments = backpack.split_at(backpack.len() / 2);
-            let left = self.categorize(compartments.0);
-            let right = self.categorize(compartments.1);
+        input
+            .iter()
+            .fold(0, |acc, backpack| {
+                let compartments = backpack.split_at(backpack.len() / 2);
+                let left = self.categorize(compartments.0);
+                let right = self.categorize(compartments.1);
 
-            acc + left
-                .intersection(&right)
-                .into_iter()
-                .fold(0, |acc, mismatch| {
-                    acc + self.bucket_priority(mismatch)
-                })
-        })
+                acc + left
+                    .intersection(&right)
+                    .into_iter()
+                    .fold(0, |acc, mismatch| {
+                        acc + self.bucket_priority(mismatch)
+                    })
+            })
     }
 
     fn find_badges(&self, input: &[String]) -> u32 {
-        input.chunks(3).fold(0, |acc, group| {
-            let group = (
-                self.categorize(&group[0]),
-                self.categorize(&group[1]),
-                self.categorize(&group[2])
-            );
+        input
+            .chunks(3)
+            .fold(0, |acc, group| {
+                let group = (
+                    self.categorize(&group[0]),
+                    self.categorize(&group[1]),
+                    self.categorize(&group[2])
+                );
 
-            acc + group.0
-                .intersection(&group.1)
-                .cloned()
-                .collect::<HashSet<char>>()
-                .intersection(&group.2)
-                .fold(0, |acc, badge| acc + self.bucket_priority(badge))
-        })
+                acc + group.0
+                    .intersection(&group.1)
+                    .cloned()
+                    .collect::<HashSet<char>>()
+                    .intersection(&group.2)
+                    .fold(0, |acc, badge| acc + self.bucket_priority(badge))
+            })
     }
 
     fn categorize(&self, compartment: &str) -> HashSet<char> {
-        compartment.chars().into_iter().collect::<HashSet<char>>()
+        compartment
+            .chars()
+            .into_iter()
+            .collect::<HashSet<char>>()
     }
 
     fn bucket_priority(&self, mismatch: &char) -> u32 {
