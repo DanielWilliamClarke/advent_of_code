@@ -12,22 +12,34 @@ impl Solution for Day04 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        self.count_intersections(input)
+        self.count_full_intersections(input)
     }
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output {
-        0
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+        self.count_all_intersections(input)
     }
 }
 
 impl Day04 {
-    fn count_intersections(&self, input: &[String]) -> usize {
+    fn count_full_intersections(&self, input: &[String]) -> usize {
         input
             .iter()
             .filter(|zones| {
                 let zones = self.expand_ranges(zones);
                 let intersection = zones.0.intersection(&zones.1).cloned().collect::<HashSet<usize>>();   
                 intersection == zones.1 || intersection == zones.0
+            })
+            .collect::<Vec<&String>>()
+            .len()
+    }
+
+    fn count_all_intersections(&self, input: &[String]) -> usize {
+        input
+            .iter()
+            .filter(|zones| {
+                let zones = self.expand_ranges(zones);
+                let intersection = zones.0.intersection(&zones.1).cloned().collect::<HashSet<usize>>();   
+                !intersection.is_empty()
             })
             .collect::<Vec<&String>>()
             .len()
@@ -57,6 +69,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day04{}.validate(498, 0);
+        Day04{}.validate(498, 859);
     }
 }
