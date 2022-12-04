@@ -78,7 +78,7 @@ impl Day03 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{utils::validator::validator::Validator, Day03};
+    use crate::{utils::validator::Validator, Day03};
 
     #[test]
     fn solution_is_correct() {

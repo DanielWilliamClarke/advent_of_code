@@ -23,7 +23,7 @@ impl Solution for Day00 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        Day00, utils::validator::validator::Validator
+        Day00, utils::validator::Validator
     };
 
     #[test]

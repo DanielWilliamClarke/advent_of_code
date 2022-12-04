@@ -4,21 +4,21 @@ use crate::utils::solution::Solution;
 pub struct Day02;
 
 #[derive(Clone, Copy)]
-enum RPSState {
-    ROCK = 1,
-    PAPER = 2,
-    SCISSORS = 3
+enum RPS {
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3
 }
 
 enum Outcome {
-    WIN = 6,
-    DRAW = 3,
-    LOSS = 0
+    Win = 6,
+    Draw = 3,
+    Loss = 0
 }
 
-type Round = (RPSState, RPSState);
+type Round = (RPS, RPS);
 
-use RPSState::*;
+use RPS::*;
 use Outcome::*;
 
 impl Solution for Day02 {
@@ -41,7 +41,7 @@ impl Solution for Day02 {
 impl Day02 {
     fn calculate_score<F>(&self, input: &[String], resolver: &F) -> i32
     where  
-        F: Fn(&RPSState, &str) -> RPSState
+        F: Fn(&RPS, &str) -> RPS
     {
         input
             .iter()
@@ -53,29 +53,29 @@ impl Day02 {
             })
     }
 
-    fn interpret(&self, instruction: &str) -> RPSState {
+    fn interpret(&self, instruction: &str) -> RPS {
         match instruction {
-            "A" | "X" => ROCK,
-            "B" | "Y" => PAPER,
-            "C" | "Z" => SCISSORS,
+            "A" | "X" => Rock,
+            "B" | "Y" => Paper,
+            "C" | "Z" => Scissors,
             _ => panic!("unknown state encountered")
         } 
     }
     
-    fn anticpate(&self, opponent: &RPSState, instruction: &str) -> RPSState {
+    fn anticpate(&self, opponent: &RPS, instruction: &str) -> RPS {
         match (opponent, instruction) {
-            (ROCK, "Y") | (PAPER, "X") | (SCISSORS, "Z") => ROCK,
-            (ROCK, "Z") | (PAPER, "Y") | (SCISSORS, "X") => PAPER,
-            (ROCK, "X") | (PAPER, "Z") | (SCISSORS, "Y") => SCISSORS,
+            (Rock, "Y") | (Paper, "X") | (Scissors, "Z") => Rock,
+            (Rock, "Z") | (Paper, "Y") | (Scissors, "X") => Paper,
+            (Rock, "X") | (Paper, "Z") | (Scissors, "Y") => Scissors,
             _ => panic!("unknown state encountered")
         }
     }
 
     fn resolve_round(&self, round: &Round) -> i32 {
         (round.1 as i32) + match round {
-            (SCISSORS, ROCK) | (ROCK, PAPER) | (PAPER, SCISSORS) => WIN,
-            (ROCK, SCISSORS) | (PAPER, ROCK) | (SCISSORS, PAPER) => LOSS,
-            _ => DRAW
+            (Scissors, Rock) | (Rock, Paper) | (Paper, Scissors) => Win,
+            (Rock, Scissors) | (Paper, Rock) | (Scissors, Paper) => Loss,
+            _ => Draw
         } as i32
     }
 }
@@ -83,7 +83,7 @@ impl Day02 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        Day02, utils::validator::validator::Validator
+        Day02, utils::validator::Validator
     };
 
     #[test]

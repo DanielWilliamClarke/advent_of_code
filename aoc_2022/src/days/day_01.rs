@@ -57,7 +57,7 @@ impl Day01 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        Day01, utils::validator::validator::Validator
+        Day01, utils::validator::Validator
     };
 
     #[test]

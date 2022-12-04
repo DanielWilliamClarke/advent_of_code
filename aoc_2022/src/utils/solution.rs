@@ -19,12 +19,12 @@ pub trait Solution {
 
     fn measure_pt_1(&self, input: &[Self::Input]) -> (Self::Output, f32) {
         let now = Instant::now();
-        (self.pt_1(&input), now.elapsed().as_secs_f32())
+        (self.pt_1(input), now.elapsed().as_secs_f32())
     }
 
     fn measure_pt_2(&self, input: &[Self::Input]) -> (Self::Output, f32) {
         let now = Instant::now();
-        (self.pt_2(&input), now.elapsed().as_secs_f32())
+        (self.pt_2(input), now.elapsed().as_secs_f32())
     }
 }
 
@@ -47,7 +47,7 @@ where
 #[cfg(test)]
 pub mod validation {
     use super::Solution;
-    use crate::{utils::reader::Reader, utils::validator::validator::Validator};
+    use crate::{utils::reader::Reader, utils::validator::Validator};
     use std::{fmt::Debug, str::FromStr};
 
     impl<S: Solution> Validator for S
