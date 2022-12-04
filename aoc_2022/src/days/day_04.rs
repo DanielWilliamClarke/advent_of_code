@@ -49,10 +49,14 @@ impl Day04 {
     }
 
     fn fully_overlaps(&self, left: (usize, usize), right: (usize, usize)) -> bool {
+        // .....2.......6.....
+        // .......3...5.......
         left.0 <= right.0 && left.1 >= right.1
     }
 
     fn overlaps(&self, left: (usize, usize), right: (usize, usize)) -> bool {
+        // ......4....6...
+        // ...3....5......
         left.1 >= right.0 && right.1 >= left.0
     }
 }
