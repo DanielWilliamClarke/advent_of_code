@@ -11,3 +11,6 @@ pub use day_02::Day02;
 
 mod day_03;
 pub use day_03::Day03;
+
+mod day_04;
+pub use day_04::Day04;
