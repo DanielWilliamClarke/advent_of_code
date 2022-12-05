@@ -29,25 +29,24 @@ impl Solution for Day05 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        self.stack_crates(input, CM9000)
+        self.stack_crates(CM9000, input)
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
-        self.stack_crates(input, CM9001)
+        self.stack_crates(CM9001, input)
     }
 }
 
 impl Day05 {
-    fn stack_crates(&self, input: &[String], model: CraneModel) -> String {
+    fn stack_crates(&self, model: CraneModel, input: &[String],) -> String {
         let split_input = self.split_input(input);
 
         let mut stacks = self.parse_stacks(split_input[0]);
         let instructions = self.parse_instructions(split_input[1]);
 
-        self.rearrange_crates(&mut stacks, instructions, model)
-            
-            .iter_mut()
-            .map(|stack| stack.pop().unwrap())
+        self.rearrange_crates(model, &mut stacks, instructions)
+            .iter()
+            .map(|stack| stack.last().unwrap())
             .collect()
     }
 
@@ -102,12 +101,12 @@ impl Day05 {
             .collect::<Vec<_>>()
     }
 
-    fn rearrange_crates(
+    fn rearrange_crates<'a>(
         &self,
-        stacks: &mut Stacks,
-        instructions: Vec<Instruction>,
         model: CraneModel,
-    ) -> Stacks {
+        stacks: &'a mut Stacks,
+        instructions: Vec<Instruction>
+    ) -> &'a Stacks {
         instructions.iter().for_each(|instruction| {
             let drain_index = stacks[instruction.from].len() - instruction.quantity;
             let detached = stacks[instruction.from].drain(drain_index..);
@@ -120,7 +119,7 @@ impl Day05 {
             stacks[instruction.to].append(&mut detached);
         });
 
-        stacks.clone()
+        stacks
     }
 }
 
