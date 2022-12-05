@@ -111,12 +111,12 @@ impl Day05 {
             let drain_index = stacks[instruction.from].len() - instruction.quantity;
             let detached = stacks[instruction.from].drain(drain_index..);
 
-            let mut detached = match model {
+            let detached = &mut match model {
                 CM9000 => detached.rev().collect(),
                 CM9001 => detached.collect(),
             };
 
-            stacks[instruction.to].append(&mut detached);
+            stacks[instruction.to].append(detached);
         });
 
         stacks
