@@ -38,14 +38,14 @@ impl Solution for Day05 {
 }
 
 impl Day05 {
-    fn stack_crates(&self,  input: &[String], model: CraneModel) -> String {
+    fn stack_crates(&self, input: &[String], model: CraneModel) -> String {
         let split_input = self.split_input(input);
 
         let mut stacks = self.parse_stacks(split_input[0]);
         let instructions = self.parse_instructions(split_input[1]);
 
         self.rearrange_crates(&mut stacks, instructions, model)
-            .to_owned()
+            
             .iter_mut()
             .map(|stack| stack.pop().unwrap())
             .collect()
@@ -70,20 +70,22 @@ impl Day05 {
 
         // transpose and compact rows into stacks for easier sorting
         (0..rows[0].len())
-            .map(|index| rows
-                .iter()
-                .map(|item| item[index])
-                .rev()
-                .filter(|item| item != &' ')
-                .collect::<Vec<_>>()
-            )
+            .map(|index| {
+                rows.iter()
+                    .rev()
+                    .filter_map(|item| match item[index] {
+                        i if i.is_whitespace() => None,
+                        i => Some(i),
+                    })
+                    .collect::<Vec<_>>()
+            })
             .collect::<Vec<_>>()
     }
 
     fn parse_instructions(&self, instructions: &[String]) -> Vec<Instruction> {
         let regex = Regex::new("move (\\d*) from (\\d*) to (\\d*)").unwrap();
 
-        fn get_nr(cap: &Captures, i: usize) -> usize {
+        fn extract(cap: &Captures, i: usize) -> usize {
             cap.at(i).unwrap().parse::<usize>().unwrap()
         }
 
@@ -92,28 +94,31 @@ impl Day05 {
             .map(|instruction| {
                 let captures = regex.captures(instruction).unwrap();
                 Instruction {
-                    quantity: get_nr(&captures, 1),
-                    from: get_nr(&captures, 2) - 1, // transform number to index
-                    to: get_nr(&captures, 3) - 1,
+                    quantity: extract(&captures, 1),
+                    from: extract(&captures, 2) - 1, // transform number to index
+                    to: extract(&captures, 3) - 1,
                 }
             })
             .collect::<Vec<_>>()
     }
 
-    fn rearrange_crates(&self, stacks: &mut Stacks, instructions: Vec<Instruction>, model: CraneModel) -> Stacks {
-        instructions 
-            .iter() 
-            .for_each(|instruction| {
-                let drain_index = stacks[instruction.from].len() - instruction.quantity; 
-                let detached =  stacks[instruction.from].drain(drain_index..);
+    fn rearrange_crates(
+        &self,
+        stacks: &mut Stacks,
+        instructions: Vec<Instruction>,
+        model: CraneModel,
+    ) -> Stacks {
+        instructions.iter().for_each(|instruction| {
+            let drain_index = stacks[instruction.from].len() - instruction.quantity;
+            let detached = stacks[instruction.from].drain(drain_index..);
 
-                let mut detached = match model {
-                    CM9000 => detached.rev().collect(),
-                    CM9001 => detached.collect(),
-                };
+            let mut detached = match model {
+                CM9000 => detached.rev().collect(),
+                CM9001 => detached.collect(),
+            };
 
-                stacks[instruction.to].append(&mut detached);
-            });
+            stacks[instruction.to].append(&mut detached);
+        });
 
         stacks.clone()
     }
