@@ -25,13 +25,12 @@ impl Solution for Day06 {
 
 impl Day06 {
     fn process_signal(&self, stream: &str, marker_length: usize) -> usize {
-        let mut skip = 0;
-        for i in 0..stream.len() {
+        for mut i in 0..stream.len() {
             let mut buffer = "".to_string();
 
-            for bit in stream[skip..skip+marker_length].chars().take(marker_length) {
+            for bit in stream[i..i+marker_length].chars().take(marker_length) {
                 if buffer.contains(bit) {
-                    skip = i + buffer.len();
+                    i = i + buffer.len();
                     break;
                 }
 
@@ -39,7 +38,7 @@ impl Day06 {
             }
 
             if buffer.len() == marker_length {
-                return skip + buffer.len();
+                return i + buffer.len();
             }
         }
 
