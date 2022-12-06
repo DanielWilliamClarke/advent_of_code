@@ -28,7 +28,7 @@ impl Day06 {
         for mut i in 0..stream.len() {
             let mut buffer = "".to_string();
 
-            for bit in stream[i..i+marker_length].chars().take(marker_length) {
+            for bit in stream[i..i+marker_length].chars() {
                 if buffer.contains(bit) {
                     i = i + buffer.len();
                     break;
