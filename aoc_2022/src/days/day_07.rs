@@ -79,16 +79,11 @@ impl Solution for Day07 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        let fs = self.parse(input);
-            
-        let mut fs = fs.as_ref().borrow_mut();
-        
-        let fs = fs.compute_size();
-        
-        let fs = self.find_root(Rc::new(RefCell::new(fs.to_owned())));
-
-        let result = fs.as_ref().borrow().sum::<1_00_000>(); 
-        result
+        self.parse(input)
+            .as_ref()
+            .borrow_mut()
+            .compute_size()
+            .sum::<1_00_000>()
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
