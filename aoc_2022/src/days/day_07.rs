@@ -1,18 +1,24 @@
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
-use std::{borrow::{BorrowMut, Borrow}, cell::RefCell, collections::HashMap, rc::Rc, slice::{Iter, IterMut}};
+use std::{
+    borrow::{Borrow, BorrowMut},
+    cell::RefCell,
+    collections::HashMap,
+    rc::Rc,
+    slice::{Iter, IterMut},
+};
 
 #[derive(Clone, Debug)]
-struct FileSystem<'a> {
-    pub parent: Option<&'a Box<FileSystem<'a>>>,
-    pub dirs: HashMap<String, Option<&'a Box<FileSystem<'a>>>>,
+struct FileSystem {
+    pub parent: Option<Rc<RefCell<FileSystem>>>,
+    pub dirs: HashMap<String, Rc<RefCell<FileSystem>>>,
     pub files: HashMap<String, usize>,
 
     pub size: usize,
 }
 
-impl<'a> FileSystem<'a> {
-    fn new(parent: Option<&'a Box<FileSystem<'a>>>) -> Self {
+impl FileSystem {
+    fn new(parent: Option<Rc<RefCell<FileSystem>>>) -> Self {
         Self {
             parent,
             dirs: HashMap::new(),
@@ -21,80 +27,44 @@ impl<'a> FileSystem<'a> {
         }
     }
 
-    fn build(mut self, mut instruction: IterMut<String>) -> Self {
-        let mut command = match instruction.next() {
-            Some(instruction) => {
-                println!("{}", instruction); 
-                instruction.split_whitespace()
-            }
-            None => return self,
-        };
+    fn add_dir(&mut self, name: String, dir: Rc<RefCell<FileSystem>>) {
+        self.dirs.insert(name, dir);
+    }
 
-        let op = command.next().unwrap();
-        let op_2 = command.next().unwrap();
+    fn add_file(&mut self, name: String, size: usize) {
+        self.files.insert(name, size);
+    }
+
+    fn cd_into(&self, op: &str) -> Option<Rc<RefCell<FileSystem>>> {
         match op {
-            "$" => match op_2 {
-                    "cd" => {
-                        let op_3 = command.next().unwrap();
-                        match op_3 {
-                            "/" => self.build(instruction),
-                            ".." => self.parent.unwrap().build(instruction),
-                            dir @ _ => self.dirs[dir].as_ref().unwrap().build(instruction),
-                        }
-                    }
-                    // "ls" => {
-                    //     self
-                    // }
-                    _ => self.build(instruction)
-                },
-            "dir" => {
-                self.dirs.insert(
-                    op_2.to_string(),
-                    Some(&Box::new(FileSystem::new(Some(&Box::new(self))))),
-                );
-                self.build(instruction)
-            }
-            size @ _ => {
-                self.files.insert(
-                    op_2.to_string(),
-                    size.parse::<usize>().unwrap(),
-                );
-                self.build(instruction) 
-            }
+            "/" => Some(Rc::new(RefCell::new(FileSystem::new(None)))),
+            ".." => Some(Rc::clone(self.parent.as_ref().borrow().unwrap())),
+            dir @ _ => match self.dirs.get(dir) {
+                Some(dir) => Some(Rc::clone(dir)),
+                None => panic!("dir not found"),
+            },
         }
     }
 
-    fn find_root(&mut self) -> &Self {
-        while let Some(p) = self.parent {
-            self = &mut p.find_root();
-        }
+    fn compute_size (&mut self) -> &mut Self {
+        let size = self.files.iter().map(|(_, s)| s).sum::<usize>();
 
-        self
-    }
+        self.size = self.dirs.iter().fold(size, |acc, (_, dir)| {
+            acc + dir.as_ref().borrow_mut().compute_size().size
+        }); 
 
-    fn size(&mut self) -> &Self {
-        let self_size = self.files.iter().map(|(_, v)| v).sum::<usize>();
-
-        // size of all children
-        self.size = self.dirs.iter().fold(self_size, |acc, (_, mut dir)| {
-            acc + dir.unwrap().size().size
-        });
-
-        // size of self
         self
     }
 
     fn sum<const THRESHOLD: usize>(&self) -> usize {
-        self.dirs
-            .iter()
-            .filter_map(|(_, dir)| -> Option<usize> {
-                let size = dir.unwrap().size;
-                if size >= THRESHOLD {
-                    return Some(size);
-                }
-                None
-            })
-            .sum::<usize>()
+       let mut size = 0;
+       if self.size <= THRESHOLD {
+         size = self.size
+       }
+
+       self.dirs.iter().fold(size, |acc, (_, dir)| {
+            acc + dir.as_ref().borrow().sum::<THRESHOLD>()
+       })
     }
 }
 
@@ -109,16 +79,67 @@ impl Solution for Day07 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        FileSystem::new(None)
-            .build(input.to_owned().iter_mut())
-            .find_root()
-            .size()
-            .sum::<1_00_000>()
+        let fs = self.parse(input);
+            
+        let mut fs = fs.as_ref().borrow_mut();
+        
+        let fs = fs.compute_size();
+        
+        let fs = self.find_root(Rc::new(RefCell::new(fs.to_owned())));
+
+        let result = fs.as_ref().borrow().sum::<1_00_000>(); 
+        result
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
-        let a = input.iter();
         0
+    }
+}
+
+impl Day07 {
+    fn parse(&self, commands: &[String]) -> Rc<RefCell<FileSystem>> {
+        let mut fs = Rc::new(RefCell::new(FileSystem::new(None)));
+
+        for command in commands {
+            let mut command = command.split_whitespace();
+            let op = command.next().unwrap();
+
+            fs = match op {
+                "$" => match command.next().unwrap() {
+                    "cd" => fs
+                        .as_ref()
+                        .borrow_mut()
+                        .cd_into(command.next().unwrap())
+                        .unwrap(),
+                    _ => fs,
+                },
+                "dir" => {
+                    fs.as_ref().borrow_mut().add_dir(
+                        command.next().unwrap().to_string(),
+                        Rc::new(RefCell::new(FileSystem::new(Some(Rc::clone(&fs))))),
+                    );
+                    fs
+                }
+                size @ _ => {
+                    fs.as_ref().borrow_mut().add_file(
+                        command.next().unwrap().to_string(),
+                        size.parse::<usize>().unwrap(),
+                    );
+                    fs
+                }
+            }
+        }
+
+        // rewind to root?
+        self.find_root(fs)
+    }
+
+    fn find_root (&self, mut fs: Rc<RefCell<FileSystem>>) -> Rc<RefCell<FileSystem>> {
+        while let Some (p) = Rc::clone(&fs).as_ref().borrow().parent.as_ref().map(Rc::clone) {
+            fs = Rc::clone(&p);
+        }
+
+        fs
     }
 }
 
@@ -128,6 +149,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day07 {}.validate(0, 0);
+        Day07 {}.validate(1477771, 0);
     }
 }
