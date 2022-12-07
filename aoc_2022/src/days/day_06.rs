@@ -39,7 +39,7 @@ impl Day06 {
             }
 
             if buffer.len() == LEN {
-                return Some(i + buffer.len());
+                return Some(i + LEN);
             }
         }
 
