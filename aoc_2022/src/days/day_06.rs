@@ -1,8 +1,8 @@
+use std::collections::HashSet;
+
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
 
-const START_OF_PACKET_LEN: usize = 4;
-const START_OF_MESSAGE_LEN: usize = 14;
 
 pub struct Day06;
 
@@ -15,34 +15,35 @@ impl Solution for Day06 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
-        self.process_signal(&input[0], START_OF_PACKET_LEN)
+        self.process_signal::<4>(&input[0]).unwrap_or(0)
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
-        self.process_signal(&input[0], START_OF_MESSAGE_LEN)
+        self.process_signal::<14>(&input[0]).unwrap_or(0)
     }
 }
 
 impl Day06 {
-    fn process_signal(&self, stream: &str, marker_length: usize) -> usize {
-        for mut i in 0..stream.len() {
-            let mut buffer = "".to_string();
+    fn process_signal<const LEN: usize>(&self, stream: &str) -> Option<usize> {
+        let mut buffer = Vec::<char>::new();
+        buffer.reserve(LEN);
 
-            for bit in stream[i..i+marker_length].chars() {
-                if buffer.contains(bit) {
-                    i = i + buffer.len();
-                    break;
+        'n: for i in 0..stream.len() {
+            for bit in stream[i..i+LEN].chars() {
+                if buffer.contains(&bit) {
+                    buffer.clear();
+                    continue 'n;
                 }
 
                 buffer.push(bit);
             }
 
-            if buffer.len() == marker_length {
-                return i + buffer.len();
+            if buffer.len() == LEN {
+                return Some(i + buffer.len());
             }
         }
 
-        0
+        None
     }
 }
 
