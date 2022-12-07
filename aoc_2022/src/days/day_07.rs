@@ -64,6 +64,16 @@ impl FileSystem {
             acc + dir.as_ref().borrow().sum::<THRESHOLD>()
        })
     }
+    
+    fn find_deletion_candidate<const REQUIRED_SPACE: usize>(&self, unused_space: usize, mut candidate: usize) -> usize {
+        if self.size + unused_space >= REQUIRED_SPACE && self.size < candidate {
+          candidate = self.size;
+        }
+
+        self.dirs.iter().fold(candidate, |candidate, (_, dir)| {
+            dir.as_ref().borrow().find_deletion_candidate::<REQUIRED_SPACE>(unused_space, candidate)
+        })
+    }
 }
 
 pub struct Day07;
@@ -84,8 +94,11 @@ impl Solution for Day07 {
             .sum::<100_000>()
     }
 
-    fn pt_2(&self, _input: &[Self::Input]) -> Self::Output {
-        0
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+        let fs = self.parse(input);
+        let mut fs = fs.as_ref().borrow_mut();
+        let fs = fs.compute_size();
+        fs.find_deletion_candidate::<30_000_000>(70_000_000 - fs.size, fs.size)
     }
 }
 
@@ -142,6 +155,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day07 {}.validate(1477771, 0);
+        Day07 {}.validate(1477771, 3579501);
     }
 }
