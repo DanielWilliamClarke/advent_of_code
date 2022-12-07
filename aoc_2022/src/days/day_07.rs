@@ -1,19 +1,17 @@
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
 use std::{
-    borrow::{Borrow, BorrowMut},
+    borrow::Borrow,
     cell::RefCell,
     collections::HashMap,
     rc::Rc,
-    slice::{Iter, IterMut},
 };
 
 #[derive(Clone, Debug)]
 struct FileSystem {
     pub parent: Option<Rc<RefCell<FileSystem>>>,
     pub dirs: HashMap<String, Rc<RefCell<FileSystem>>>,
-    pub files: HashMap<String, usize>,
-
+    pub files: HashMap<String, usize>, 
     pub size: usize,
 }
 
@@ -39,7 +37,7 @@ impl FileSystem {
         match op {
             "/" => Some(Rc::new(RefCell::new(FileSystem::new(None)))),
             ".." => Some(Rc::clone(self.parent.as_ref().borrow().unwrap())),
-            dir @ _ => match self.dirs.get(dir) {
+            dir => match self.dirs.get(dir) {
                 Some(dir) => Some(Rc::clone(dir)),
                 None => panic!("dir not found"),
             },
@@ -47,7 +45,7 @@ impl FileSystem {
     }
 
     fn compute_size (&mut self) -> &mut Self {
-        let size = self.files.iter().map(|(_, s)| s).sum::<usize>();
+        let size = self.files.values().sum::<usize>();
 
         self.size = self.dirs.iter().fold(size, |acc, (_, dir)| {
             acc + dir.as_ref().borrow_mut().compute_size().size
@@ -83,10 +81,10 @@ impl Solution for Day07 {
             .as_ref()
             .borrow_mut()
             .compute_size()
-            .sum::<1_00_000>()
+            .sum::<100_000>()
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, _input: &[Self::Input]) -> Self::Output {
         0
     }
 }
@@ -115,7 +113,7 @@ impl Day07 {
                     );
                     fs
                 }
-                size @ _ => {
+                size => {
                     fs.as_ref().borrow_mut().add_file(
                         command.next().unwrap().to_string(),
                         size.parse::<usize>().unwrap(),
