@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
 
