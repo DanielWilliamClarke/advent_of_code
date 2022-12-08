@@ -10,7 +10,7 @@ mod utils {
 
 use std::fmt::Display;
 
-use days::{Day00, Day01, Day02, Day03, Day04, Day05, Day06, Day07};
+use days::{Day00, Day01, Day02, Day03, Day04, Day05, Day06, Day07, Day08};
 use utils::printer::Printer;
 
 
@@ -24,6 +24,7 @@ fn main() {
         &Printer(Day05),
         &Printer(Day06),
         &Printer(Day07),
+        &Printer(Day08),
     ];
 
     solutions
