@@ -1,4 +1,5 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::{Add, Sub, AddAssign, SubAssign}};
+use std::hash::{Hash};
 
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
@@ -24,18 +25,77 @@ impl Movement {
     }
 }
 
-type Coordinate = (isize, isize);
+#[derive(Hash, PartialEq, Clone, Eq)]
+struct Coordinate {
+    x: isize,
+    y: isize
+}
+
+impl Coordinate {
+    fn new (x: isize, y: isize) -> Self {
+        Coordinate { x, y }
+    }
+
+    fn mag(&self) -> f32 {
+        ((self.x.pow(2) + self.y.pow(2)) as f32).sqrt()
+    }
+
+    fn unit (&self) -> Self {
+        let mag = self.mag();
+
+        let x = self.x as f32 / mag;
+        let x = if x < 0.0 { x.floor() } else { x.ceil() };
+        let y = self.y as f32 / mag;
+        let y = if y < 0.0 { y.floor() } else { y.ceil() };
+
+        Coordinate::new(x as isize, y as isize)
+    }
+
+    fn distance_to(&self, rhs: &Self) -> isize {
+        (self.to_owned() - rhs.to_owned()).mag() as isize
+    }
+}
+
+impl Add for Coordinate {
+    type Output = Coordinate;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Coordinate::new( self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl AddAssign for Coordinate {
+    fn add_assign(&mut self, rhs: Self) {
+        let result = self.to_owned() + rhs;
+        self.x = result.x;
+        self.y = result.y;
+    }
+}
+
+impl Sub for Coordinate {
+    type Output = Coordinate;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Coordinate::new( self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
+impl SubAssign for Coordinate {
+    fn sub_assign(&mut self, rhs: Self) {
+        let result = self.to_owned() - rhs;
+        self.x = result.x;
+        self.y = result.y;
+    }
+}
 
 struct Rope {
-    head: Coordinate, 
-    tail: Coordinate,
+    knots: Vec<Coordinate>,
 }
 
 impl Rope {
-    fn new() -> Self {
+    fn new(size: usize) -> Self {
         Rope {
-            head: (0, 0),
-            tail: (0, 0),
+            knots: (0..size).map(|_| Coordinate::new(0, 0)).collect(),
         }
     }
 
@@ -50,35 +110,45 @@ impl Rope {
     }
 
     fn north(&mut self) -> Coordinate {
-        let current_head = self.head.clone();
-        self.head.1 += 1;
-        self.move_tail(current_head)
+        self.knots[0] += Coordinate::new(0, 1);
+        self.drag()
     }
 
     fn east(&mut self) -> Coordinate {
-        let current_head = self.head.clone();
-        self.head.0 += 1;
-        self.move_tail(current_head)
+        self.knots[0] += Coordinate::new(1, 0);
+        self.drag()
     }
 
     fn south(&mut self) -> Coordinate {
-        let current_head = self.head.clone();
-        self.head.1 -= 1;
-        self.move_tail(current_head)
+        self.knots[0] -= Coordinate::new(0, 1);
+        self.drag()
     }
 
     fn west(&mut self) -> Coordinate {
-        let current_head = self.head.clone();
-        self.head.0 -= 1;
-        self.move_tail(current_head)
+        self.knots[0] -= Coordinate::new(1, 0);
+        self.drag()
     }
 
-    fn move_tail (&mut self, prev_head: Coordinate)  -> Coordinate {
-        let distance = self.distance_between();
-        if distance > 1 {
-            self.tail = prev_head;
+    fn drag(&mut self) -> Coordinate {
+        (1..self.knots.len()).for_each(|index| {
+            self.knots[index] = self.find_tail(
+                self.knots[index - 1].clone(), 
+                self.knots[index].clone()
+            );
+        });
+
+        self.knots.last().unwrap().clone()
+    }
+
+    fn find_tail(
+        &mut self,
+        head: Coordinate,
+        tail: Coordinate,
+    ) -> Coordinate {
+        match head.distance_to(&tail) {
+            2.. => tail.clone() + (head - tail.clone()).unit(),
+            _ => tail
         }
-        self.tail
     }
 
     fn move_in_direction(
@@ -90,15 +160,6 @@ impl Rope {
             visited.insert(mover());
             visited
         })
-    }
-
-    fn direction_between(&self) -> Coordinate {
-        (self.head.0 - self.tail.0, self.head.1 - self.tail.1)
-    }
-
-    fn distance_between(&self) -> usize {
-        let direction = self.direction_between();
-        ((direction.0.pow(2) + direction.1.pow(2)) as f32).sqrt().abs() as usize
     }
 }
 
@@ -113,10 +174,20 @@ impl Solution for Day09 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+        self.follow_tail::<2>(input)
+    }
+
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+        self.follow_tail::<10>(input)
+    }
+}
+
+impl Day09 {
+    fn follow_tail<const SIZE: usize>(&self, input: &[String]) -> usize {
         self.parse(input)
             .iter()
             .fold(
-                (Rope::new(), HashSet::<Coordinate>::new()),
+                (Rope::new(SIZE), HashSet::<Coordinate>::new()),
                 |(mut rope, mut visited), movement| {
                     visited.extend(rope.apply(movement));
 
@@ -127,12 +198,6 @@ impl Solution for Day09 {
             .len()
     }
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output {
-        0
-    }
-}
-
-impl Day09 {
     fn parse(&self, input: &[String]) -> Vec<Movement> {
         input
             .iter()
@@ -153,6 +218,7 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day09 {}.validate(13, 0);
+        //6011
+        Day09 {}.validate(6011, 2419);
     }
 }
