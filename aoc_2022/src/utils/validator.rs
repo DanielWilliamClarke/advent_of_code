@@ -2,8 +2,9 @@
 
 #[cfg(test)]
 pub trait Validator {
-    type Output;
+    type Output1;
+    type Output2 = Self::Output1;
 
-    fn validate(&self, pt1: Self::Output, pt2: Self::Output);
-}
+    fn validate(&self, pt1: Self::Output1, pt2: Self::Output2);
+} 
 

@@ -22,17 +22,17 @@ pub struct Day05;
 
 impl Solution for Day05 {
     type Input = String;
-    type Output = String;
+    type Output1 = String;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_5.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.stack_crates(CM9000, input)
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.stack_crates(CM9001, input)
     }
 }

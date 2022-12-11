@@ -1,4 +1,5 @@
 #![feature(arbitrary_enum_discriminant)]
+#![feature(associated_type_defaults)]
 
 mod days;
 mod utils {

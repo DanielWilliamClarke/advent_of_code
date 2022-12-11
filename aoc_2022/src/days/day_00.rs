@@ -5,17 +5,17 @@ pub struct Day00;
 
 impl Solution for Day00 {
     type Input = i32;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_0.txt"
     }
 
-    fn pt_1(&self, _: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, _: &[Self::Input]) -> Self::Output1 {
         0
     }
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, _: &[Self::Input]) -> Self::Output2 {
         0
     }
 }

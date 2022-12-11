@@ -167,17 +167,17 @@ pub struct Day09;
 
 impl Solution for Day09 {
     type Input = String;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_9.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.follow_tail::<2>(input)
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.follow_tail::<10>(input)
     }
 }

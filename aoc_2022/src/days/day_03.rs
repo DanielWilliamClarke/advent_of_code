@@ -7,17 +7,17 @@ pub struct Day03;
 
 impl Solution for Day03 {
     type Input = String;
-    type Output = u32;
+    type Output1 = u32;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_3.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.prioritize(input)
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.find_badges(input)
     }
 }

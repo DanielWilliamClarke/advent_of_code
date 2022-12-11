@@ -23,17 +23,17 @@ use Outcome::*;
 
 impl Solution for Day02 {
     type Input = String;
-    type Output = i32;
+    type Output1 = i32;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_2.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.calculate_score(input, &|_, instruction| self.interpret(instruction))
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.calculate_score(input, &|opponent, instruction| self.anticpate(opponent, instruction))
     }
 }

@@ -80,13 +80,13 @@ pub struct Day07;
 
 impl Solution for Day07 {
     type Input = String;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_7.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.parse(input)
             .as_ref()
             .borrow_mut()
@@ -94,7 +94,7 @@ impl Solution for Day07 {
             .sum::<100_000>()
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         let fs = self.parse(input);
         let mut fs = fs.as_ref().borrow_mut();
         let fs = fs.compute_size();

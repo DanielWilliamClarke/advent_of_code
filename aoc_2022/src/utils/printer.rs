@@ -9,7 +9,8 @@ impl<S: Solution> Display for Printer<S>
 where
     <S as Solution>::Input: FromStr + Display,
     <<S as Solution>::Input as FromStr>::Err: Debug,
-    <S as Solution>::Output: Display + Debug,
+    <S as Solution>::Output1: Display + Debug,
+    <S as Solution>::Output2: Display + Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "🎄{:=<1$}🎄", "", 70)?;

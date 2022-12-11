@@ -6,17 +6,17 @@ pub struct Day06;
 
 impl Solution for Day06 {
     type Input = String;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_6.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.process_signal::<4>(&input[0]).unwrap_or(0)
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.process_signal::<14>(&input[0]).unwrap_or(0)
     }
 }

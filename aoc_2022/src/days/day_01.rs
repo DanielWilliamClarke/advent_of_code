@@ -8,17 +8,17 @@ pub struct Day01;
 
 impl Solution for Day01 {
     type Input = String;
-    type Output = u32;
+    type Output1 = u32;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_1.txt"
     }
 
-    fn pt_1(&self, snacks: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, snacks: &[Self::Input]) -> Self::Output1 {
         self.sum_per_elf(snacks, 1)
     } 
 
-    fn pt_2(&self, snacks: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, snacks: &[Self::Input]) -> Self::Output2 {
         self.sum_per_elf(snacks, 3)
     }
 }

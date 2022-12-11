@@ -9,20 +9,21 @@ use super::reader::Reader;
 
 pub trait Solution {
     type Input;
-    type Output;
+    type Output1;
+    type Output2 = Self::Output1;
 
     fn file_name(&self) -> &'static str;
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output;
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1;
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output;
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2;
 
-    fn measure_pt_1(&self, input: &[Self::Input]) -> (Self::Output, f32) {
+    fn measure_pt_1(&self, input: &[Self::Input]) -> (Self::Output1, f32) {
         let now = Instant::now();
         (self.pt_1(input), now.elapsed().as_secs_f32())
     }
 
-    fn measure_pt_2(&self, input: &[Self::Input]) -> (Self::Output, f32) {
+    fn measure_pt_2(&self, input: &[Self::Input]) -> (Self::Output2, f32) {
         let now = Instant::now();
         (self.pt_2(input), now.elapsed().as_secs_f32())
     }
@@ -54,17 +55,16 @@ pub mod validation {
     where
         <S as Solution>::Input: FromStr,
         <<S as Solution>::Input as FromStr>::Err: Debug,
-        <S as Solution>::Output: Debug + PartialEq,
+        <S as Solution>::Output1: Debug + PartialEq,
+        <S as Solution>::Output2: Debug + PartialEq,
     {
-        type Output = <S as Solution>::Output;
+        type Output1 = <S as Solution>::Output1;
+        type Output2 = <S as Solution>::Output2;
 
-        fn validate(&self, pt1: Self::Output, pt2: Self::Output) {
+        fn validate(&self, pt1: Self::Output1, pt2: Self::Output2) {
             let input = self.read();
-            let results = vec![
-                (self.pt_1(&input), pt1),
-                (self.pt_2(&input), pt2),
-            ];
-            results.iter().for_each(|test| assert_eq!(test.0, test.1))
+            assert_eq!(self.pt_1(&input), pt1);
+            assert_eq!(self.pt_2(&input), pt2);
         }
     }
 }

@@ -5,19 +5,19 @@ pub struct Day08;
 
 impl Solution for Day08 {
     type Input = String;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_8.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         let grid = self.parse(input);
 
         self.count_perimeter(&grid) + self.count_visible(&grid)
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         let grid = self.parse(input);
         self.calculate_scenic_score(&grid)
     }

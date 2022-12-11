@@ -7,19 +7,19 @@ pub struct Day04;
 
 impl Solution for Day04 {
     type Input = String;
-    type Output = usize;
+    type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
         "src/days/input/day_4.txt"
     }
 
-    fn pt_1(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
         self.count_overlaps(input, |(left, right)| {
             self.fully_overlaps(left, right) || self.fully_overlaps(right, left)
         })
     }
 
-    fn pt_2(&self, input: &[Self::Input]) -> Self::Output {
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         self.count_overlaps(input, |(left, right)| self.overlaps(left, right))
     }
 }
