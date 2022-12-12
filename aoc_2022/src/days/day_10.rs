@@ -134,24 +134,22 @@ impl Day10 {
             };
 
             let (cycle, x_register) = register_iter.next().unwrap();
-
-            let row_index = cycle / COLS;
-            let col_index = cycle % COLS;
-            let row = display.get_mut(row_index).unwrap();    
+            let row = display.get_mut(cycle / COLS).unwrap();    
             
-            if col_index as isize >= x_register - 1 && col_index as isize <= x_register + 1 {
-                row.insert(col_index, '#');
-            } else {
-                row.insert(col_index, '.');
-            }
+            let col_index = cycle % COLS;
+            let pixel = match col_index as isize {
+                c if c >= x_register - 1 && c <= x_register + 1 => '#',
+                _ => '.'
+            };
+            row.insert(col_index, pixel);
 
             match command {
                 ADDX(command) => {
-                    if command.borrow_mut().consume_cycle() == true  {
+                    if command.borrow_mut().consume_cycle() {
                         current_command = program_iter.next();
                     }
                 },
-                NOOP =>  current_command = program_iter.next()
+                NOOP => current_command = program_iter.next()
             };
         }
     }
