@@ -6,18 +6,24 @@ use crate::utils::solution::Solution;
 #[derive(Clone)]
 struct Command {
     val: isize,
-    cycles: usize
+    cycles: usize,
+    max_cycles: usize
 }
 
 impl Command {
     fn new(val: isize, cycles: usize) -> Self {
-        Command { val, cycles }
+        Command { val, cycles, max_cycles: cycles }
     }
 
     fn consume_cycle(&mut self) -> bool {
         self.cycles -= 1;
-
-        if self.cycles == 0 { true } else { false }
+        match self.cycles {
+            0 => {
+                self.cycles = self.max_cycles;
+                true
+            },
+            _ => false
+        }
     }
 }
 
@@ -49,9 +55,7 @@ impl Solution for Day10 {
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
         let program = self.compile(input);
         let cycles = self.execute(&program);
-
-        let clean_program = self.compile(input);
-        let output = self.display::<40>(&clean_program, &cycles);
+        let output = self.display::<40>(&program, &cycles);
 
         output
             .iter()
