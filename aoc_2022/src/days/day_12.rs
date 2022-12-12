@@ -51,7 +51,11 @@ impl Grid {
         Grid { map, start, end }
     }
 
-    fn dijkstra(&mut self) -> usize {
+    fn dijkstra(
+        &mut self, 
+        arrival_criteria: impl Fn(&Grid, &Coord) -> bool, 
+        candidate_criteria: impl Fn(u8, u8) -> bool
+    ) -> usize {
         let mut priority_queue = BinaryHeap::new();
         let mut visited = HashSet::new();
 
@@ -59,18 +63,14 @@ impl Grid {
         visited.insert(self.start);
 
         while let Some(Candidate { cost, coord }) = priority_queue.pop() {
-            if coord == self.end {
+            if arrival_criteria(self, &coord) {
                 return cost;
             }
 
-            let current_elevation = self.map[coord.x][coord.y];
-
-            // compute distances
             self.get_neighbors(&coord)
                 .iter()
                 .filter(|neighbor| {
-                    let elevation = self.map[neighbor.x][neighbor.y];
-                    elevation <= current_elevation || elevation == current_elevation + 1
+                    candidate_criteria(self.map[coord.x][coord.y], self.map[neighbor.x][neighbor.y])
                 })
                 .filter(|neighbor| {
                     visited.insert(**neighbor)
@@ -118,11 +118,21 @@ impl Solution for Day12 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
-        self.parse(input).dijkstra()
+        self.parse(input).dijkstra(
+            |grid, coord| *coord == grid.end, 
+            |current, neighbor| neighbor <= current || neighbor == current + 1
+        )
     }
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output2 {
-        0
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
+        let mut grid = self.parse(input);
+        // Monkey patch start as end
+        grid.start = grid.end;
+        // find closest lowest point
+        grid.dijkstra(
+            |grid, coord| grid.map[coord.x][coord.y] == 0,
+            |current, neighbor| neighbor >= current || neighbor == current - 1
+        )
     }
 }
 
@@ -165,6 +175,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day12 {}.validate(0, 0);
+        Day12 {}.validate(456, 454);
     }
 }
