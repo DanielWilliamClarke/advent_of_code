@@ -41,9 +41,9 @@ impl PartialOrd for Candidate {
 }
 
 struct Grid {
+    map: Vec<Vec<u8>>,
     start: Coord,
     end: Coord,
-    map: Vec<Vec<u8>>,
 }
 
 impl Grid {
@@ -52,7 +52,7 @@ impl Grid {
     }
 
     fn dijkstra(
-        &mut self, 
+        &self, 
         arrival_criteria: impl Fn(&Grid, &Coord) -> bool, 
         candidate_criteria: impl Fn(u8, u8) -> bool
     ) -> usize {
