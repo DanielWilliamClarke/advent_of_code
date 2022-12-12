@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 onig = "6.4.0"
+num-bigint = "0.4.3"

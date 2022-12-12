@@ -1,21 +1,21 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 // src/days/day_00/solution.rs
 use crate::utils::solution::Solution;
 
 struct Monkey {
-    items: Vec<isize>,
+    items: VecDeque<usize>,
     inspections: usize,
-    worrier: Box<dyn Fn(&isize) -> isize>,
-    test: isize,
+    worrier: Box<dyn Fn(&usize) -> usize>,
+    test: usize,
     brothers: (usize, usize),
 }
 
 impl Monkey {
     fn new(
-        items: Vec<isize>,
-        worrier: Box<dyn Fn(&isize) -> isize>,
-        test: isize,
+        items: VecDeque<usize>,
+        worrier: Box<dyn Fn(&usize) -> usize>,
+        test: usize,
         brothers: (usize, usize),
     ) -> Self {
         Monkey {
@@ -27,18 +27,26 @@ impl Monkey {
         }
     }
 
-    fn turn(&mut self, brothers: &[Rc<RefCell<Monkey>>]) {
-        self.inspections += self.items.drain(..).map(|item| {
-            let item = (self.worrier)(&item) / 3;
-            let brother = if item % self.test == 0 {
-                self.brothers.0
-            } else {
-                self.brothers.1
-            };
-
-            brothers[brother].borrow_mut().items.push(item)
-        })
-        .count()
+    fn turn<const RELIEF: usize>(
+        &mut self,
+        brothers: &[Rc<RefCell<Monkey>>],
+        common_divisor: usize,
+    ) {
+        self.inspections += self
+            .items
+            .drain(..)
+            .map(|item| {
+                let item = (self.worrier)(&item) / RELIEF % common_divisor;
+                brothers[if item % self.test == 0 {
+                    self.brothers.0
+                } else {
+                    self.brothers.1
+                }]
+                .borrow_mut()
+                .items
+                .push_back(item);
+            })
+            .count() as usize
     }
 }
 
@@ -53,11 +61,11 @@ impl Solution for Day11 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
-        self.play::<20>(&mut self.parse(input))
+        self.play::<20, 3>(&mut self.parse(input))
     }
 
-    fn pt_2(&self, _: &[Self::Input]) -> Self::Output2 {
-        0
+    fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
+        self.play::<10000, 1>(&mut self.parse(input))
     }
 }
 
@@ -78,18 +86,16 @@ impl Day11 {
         )))
     }
 
-    fn parse_items(&self, line: &String) -> Vec<isize> {
+    fn parse_items(&self, line: &String) -> VecDeque<usize> {
         line.split(":")
             .last()
             .unwrap()
             .split(",")
-            .map(|item| {
-                item.trim().parse::<isize>().unwrap()
-            })
+            .map(|item| item.trim().parse::<usize>().unwrap())
             .collect()
     }
 
-    fn parse_worrier(&self, line: &String) -> Box<dyn Fn(&isize) -> isize> {
+    fn parse_worrier(&self, line: &String) -> Box<dyn Fn(&usize) -> usize> {
         let equation = line
             .split(":")
             .last()
@@ -102,17 +108,17 @@ impl Day11 {
 
         let operator = equation[1];
         let old = equation[2];
-        let value = equation[2].trim().parse::<isize>().unwrap_or(0);
+        let value = equation[2].trim().parse::<usize>().unwrap_or(0);
 
         match operator {
-            "+" => Box::new(move |item| item + value),
-            "*" if old == "old" => Box::new(move |item| item * item),
-            "*" => Box::new(move |item| item * value),
+            "+" => Box::new(move |item| (item + value)),
+            "*" if old == "old" => Box::new(move |item| (item * item)),
+            "*" => Box::new(move |item| (item * value)),
             _ => panic!("unknown operation"),
         }
     }
 
-    fn parse_test(&self, line: &String) -> isize {
+    fn parse_test(&self, line: &String) -> usize {
         line.split_whitespace().last().unwrap().parse().unwrap()
     }
 
@@ -131,21 +137,25 @@ impl Day11 {
         (brothers[0], brothers[1])
     }
 
-    fn play<const ROUNDS: usize>(&self, monkeys: &mut [Rc<RefCell<Monkey>>]) -> usize {
+    fn play<const ROUNDS: usize, const RELIEF: usize>(
+        &self,
+        monkeys: &mut [Rc<RefCell<Monkey>>],
+    ) -> usize {
+        let common_divisor = monkeys.iter().map(|m| m.borrow().test).product();
+
         (0..ROUNDS).for_each(|_| {
             monkeys
                 .iter()
-                .for_each(|monkey| {
-                    monkey.borrow_mut().turn(monkeys)
-                });
+                .for_each(|monkey| monkey.borrow_mut().turn::<RELIEF>(monkeys, common_divisor));
         });
 
-        monkeys
-            .sort_by(|a, b| {
-                b.borrow().inspections.cmp(&a.borrow().inspections)
-            });
+        let mut inspections = monkeys
+            .iter()
+            .map(|m| m.borrow().inspections)
+            .collect::<Vec<_>>();
 
-        monkeys[0].borrow().inspections * monkeys[1].borrow().inspections
+        inspections.sort();
+        inspections.iter().rev().take(2).product()
     }
 }
 
@@ -155,6 +165,6 @@ mod tests {
 
     #[test]
     fn solution_is_correct() {
-        Day11 {}.validate(0, 0);
+        Day11 {}.validate(98908, 17673687232);
     }
 }
