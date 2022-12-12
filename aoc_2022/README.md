@@ -5,6 +5,9 @@
 ## 🎅 Run
 
 ```bash
+# Setup
+./add_day.sh <day_number>
+
 # build
 cargo build
 
