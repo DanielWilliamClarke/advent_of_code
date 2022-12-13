@@ -1,13 +1,13 @@
 use crate::utils::solution::Solution;
 
-pub struct Day00;
+pub struct Day13;
 
-impl Solution for Day00 {
+impl Solution for Day13 {
     type Input = i32;
     type Output1 = usize;
 
     fn file_name(&self) -> &'static str {
-        "src/days/input/day_0.txt"
+        "src/days/input/day_13.txt"
     }
 
     fn pt_1(&self, _: &[Self::Input]) -> Self::Output1 {
@@ -22,11 +22,11 @@ impl Solution for Day00 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        Day00, utils::validator::Validator
+        Day13, utils::validator::Validator
     };
 
     #[test]
     fn solution_is_correct() {
-        Day00{}.validate(0, 0);
+        Day13{}.validate(0, 0);
     }
 }
