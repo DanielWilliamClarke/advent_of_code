@@ -1,3 +1,5 @@
+use image::ImageBuffer;
+
 use crate::utils::solution::Solution;
 use std::{
     cmp::Ordering,
@@ -16,15 +18,16 @@ impl Coord {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone)]
 struct Candidate {
     cost: usize,
     coord: Coord,
+    parent: Option<Box<Candidate>>
 }
 
 impl Candidate {
-    fn new(cost: usize, coord: Coord) -> Self {
-        Candidate { cost, coord }
+    fn new(cost: usize, coord: Coord, parent: Option<Box<Candidate>>) -> Self {
+        Candidate { cost, coord, parent }
     }
 }
 
@@ -55,16 +58,17 @@ impl Grid {
         &self, 
         arrival_criteria: impl Fn(&Grid, &Coord) -> bool, 
         candidate_criteria: impl Fn(u8, u8) -> bool
-    ) -> usize {
+    ) -> Option<Candidate> {
         let mut priority_queue = BinaryHeap::new();
         let mut visited = HashSet::new();
 
-        priority_queue.push(Candidate::new(0, self.start));
+        priority_queue.push(Candidate::new(0, self.start, None));
         visited.insert(self.start);
 
-        while let Some(Candidate { cost, coord }) = priority_queue.pop() {
+        while let Some(candidate) = priority_queue.pop() {
+            let Candidate { coord, cost, ..} = candidate;
             if arrival_criteria(self, &coord) {
-                return cost;
+                return Some(candidate);
             }
 
             self.get_neighbors(&coord)
@@ -76,11 +80,15 @@ impl Grid {
                     visited.insert(**neighbor)
                 })
                 .for_each(|neighbor| {
-                    priority_queue.push(Candidate::new(cost + 1, *neighbor));
+                    priority_queue.push(Candidate::new(
+                        cost + 1, 
+                        *neighbor, 
+                        Some(Box::new(candidate.clone()))
+                    ));
                 });
         }
 
-        usize::MAX
+        None
     }
 
     fn get_neighbors(&self, current: &Coord) -> Vec<Coord> {
@@ -118,10 +126,20 @@ impl Solution for Day12 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
-        self.parse(input).dijkstra(
+         let grid = self.parse(input);
+        
+         let candidate = grid.dijkstra(
             |grid, coord| *coord == grid.end, 
             |current, neighbor| neighbor <= current || neighbor == current + 1
-        )
+        );
+
+        match candidate {
+            Some(c) => {
+                self.draw("part_1", &grid, &c);
+                c.cost
+            },
+            None => usize::MAX,
+        }
     }
 
     fn pt_2(&self, input: &[Self::Input]) -> Self::Output2 {
@@ -129,10 +147,18 @@ impl Solution for Day12 {
         // Monkey patch start as end
         grid.start = grid.end;
         // find closest lowest point
-        grid.dijkstra(
+        let candidate = grid.dijkstra(
             |grid, coord| grid.map[coord.x][coord.y] == 0,
             |current, neighbor| neighbor >= current || neighbor == current - 1
-        )
+        );
+
+        match candidate {
+            Some(c) => {
+                self.draw("part_2", &grid, &c);
+                c.cost
+            },
+            None => usize::MAX,
+        }
     }
 }
 
@@ -149,11 +175,11 @@ impl Day12 {
                     .map(|(y, point)| {
                         let letter = match point {
                             'S' => {
-                                start = Coord::new(x, y);
+                                start = Coord::new(y, x);
                                 'a'
                             }
                             'E' => {
-                                end = Coord::new(x, y);
+                                end = Coord::new(y, x);
                                 'z'
                             }
                             point => point,
@@ -165,7 +191,41 @@ impl Day12 {
             })
             .collect::<Vec<_>>();
 
+        let nodes = (0..nodes[0].len())
+            .map(|index| {
+                nodes.iter()
+                    .rev()
+                    .map(|item| item[index])
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+
         Grid::new(nodes.clone(), start, end)
+    }
+
+    fn draw(&self, name: &str, grid: &Grid, candidate: &Candidate) {
+        let mut candidate = candidate;
+        let mut path = vec![candidate.coord];
+        while let Some(p) = &candidate.parent {
+            candidate = &p;
+            path.push(candidate.coord);
+        }
+
+        let img = ImageBuffer::from_fn(
+            grid.map.len() as u32, 
+            grid.map[0].len() as u32, 
+            |x, y| {
+                let point = path.iter().find(|c| x == c.x as u32 && y == c.y as u32);
+
+                let col = grid.map[x as usize][y as usize] as u8 + b'Z'; 
+
+                match point {
+                    Some(p) => image::Rgb([255u8, 0u8, 0u8]),
+                    None => image::Rgb([0u8, col, 0u8])
+                }
+            });
+
+        img.save(format!("./artifacts/day_12_path-{}.png", name)).unwrap();
     }
 }
 
