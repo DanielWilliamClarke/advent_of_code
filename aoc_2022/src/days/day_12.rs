@@ -3,7 +3,8 @@ use image::ImageBuffer;
 use crate::utils::solution::Solution;
 use std::{
     cmp::Ordering,
-    collections::{BinaryHeap, HashSet}
+    collections::{BinaryHeap, HashSet},
+    fs,
 };
 
 #[derive(Hash, PartialEq, Eq, Clone, Copy)]
@@ -22,12 +23,16 @@ impl Coord {
 struct Candidate {
     cost: usize,
     coord: Coord,
-    parent: Option<Box<Candidate>>
+    parent: Option<Box<Candidate>>,
 }
 
 impl Candidate {
     fn new(cost: usize, coord: Coord, parent: Option<Box<Candidate>>) -> Self {
-        Candidate { cost, coord, parent }
+        Candidate {
+            cost,
+            coord,
+            parent,
+        }
     }
 }
 
@@ -55,9 +60,9 @@ impl Grid {
     }
 
     fn dijkstra(
-        &self, 
-        arrival_criteria: impl Fn(&Grid, &Coord) -> bool, 
-        candidate_criteria: impl Fn(u8, u8) -> bool
+        &self,
+        arrival_criteria: impl Fn(&Grid, &Coord) -> bool,
+        candidate_criteria: impl Fn(u8, u8) -> bool,
     ) -> Option<Candidate> {
         let mut priority_queue = BinaryHeap::new();
         let mut visited = HashSet::new();
@@ -66,7 +71,7 @@ impl Grid {
         visited.insert(self.start);
 
         while let Some(candidate) = priority_queue.pop() {
-            let Candidate { coord, cost, ..} = candidate;
+            let Candidate { coord, cost, .. } = candidate;
             if arrival_criteria(self, &coord) {
                 return Some(candidate);
             }
@@ -76,14 +81,12 @@ impl Grid {
                 .filter(|neighbor| {
                     candidate_criteria(self.map[coord.x][coord.y], self.map[neighbor.x][neighbor.y])
                 })
-                .filter(|neighbor| {
-                    visited.insert(**neighbor)
-                })
+                .filter(|neighbor| visited.insert(**neighbor))
                 .for_each(|neighbor| {
                     priority_queue.push(Candidate::new(
-                        cost + 1, 
-                        *neighbor, 
-                        Some(Box::new(candidate.clone()))
+                        cost + 1,
+                        *neighbor,
+                        Some(Box::new(candidate.clone())),
                     ));
                 });
         }
@@ -126,18 +129,18 @@ impl Solution for Day12 {
     }
 
     fn pt_1(&self, input: &[Self::Input]) -> Self::Output1 {
-         let grid = self.parse(input);
-        
-         let candidate = grid.dijkstra(
-            |grid, coord| *coord == grid.end, 
-            |current, neighbor| neighbor <= current || neighbor == current + 1
+        let grid = self.parse(input);
+
+        let candidate = grid.dijkstra(
+            |grid, coord| *coord == grid.end,
+            |current, neighbor| neighbor <= current || neighbor == current + 1,
         );
 
         match candidate {
             Some(c) => {
                 self.draw("part_1", &grid, &c);
                 c.cost
-            },
+            }
             None => usize::MAX,
         }
     }
@@ -149,14 +152,14 @@ impl Solution for Day12 {
         // find closest lowest point
         let candidate = grid.dijkstra(
             |grid, coord| grid.map[coord.x][coord.y] == 0,
-            |current, neighbor| neighbor >= current || neighbor == current - 1
+            |current, neighbor| neighbor >= current || neighbor == current - 1,
         );
 
         match candidate {
             Some(c) => {
                 self.draw("part_2", &grid, &c);
                 c.cost
-            },
+            }
             None => usize::MAX,
         }
     }
@@ -193,7 +196,8 @@ impl Day12 {
 
         let nodes = (0..nodes[0].len())
             .map(|index| {
-                nodes.iter()
+                nodes
+                    .iter()
                     .rev()
                     .map(|item| item[index])
                     .collect::<Vec<_>>()
@@ -211,21 +215,24 @@ impl Day12 {
             path.push(candidate.coord);
         }
 
-        let img = ImageBuffer::from_fn(
-            grid.map.len() as u32, 
-            grid.map[0].len() as u32, 
-            |x, y| {
-                let point = path.iter().find(|c| x == c.x as u32 && y == c.y as u32);
+        let img = ImageBuffer::from_fn(grid.map.len() as u32, grid.map[0].len() as u32, |x, y| {
+            let point = path.iter().find(|c| x == c.x as u32 && y == c.y as u32);
+            let green = grid.map[x as usize][y as usize] as u8 + b'Z';
 
-                let col = grid.map[x as usize][y as usize] as u8 + b'Z'; 
+            match point {
+                Some(p) => {
+                    let red = grid.map[p.x][p.y] as u8 - b'a';
+                    image::Rgb([red, 0u8, 0u8])
+                },
+                None => image::Rgb([0u8, green, 0u8]),
+            }
+        });
 
-                match point {
-                    Some(p) => image::Rgb([255u8, 0u8, 0u8]),
-                    None => image::Rgb([0u8, col, 0u8])
-                }
-            });
-
-        img.save(format!("./artifacts/day_12_path-{}.png", name)).unwrap();
+        let artifact_dir = "./artifacts/day_12";
+        match fs::create_dir_all(artifact_dir) {
+            Ok(_) =>  img.save(format!("{}/path-{}.png", artifact_dir, name)).unwrap(),
+            Err(_) => {},
+        };
     }
 }
 
