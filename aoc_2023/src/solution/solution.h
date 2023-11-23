@@ -28,7 +28,7 @@ void Solution<Input, Output1, Output2>::print() const {
     const auto input = this->readInput();
 
     std::cout << line << '\n';
-    std::cout << "🎅 Running Advent Of Code 2022: { " << solutionName <<  " } 🎅" << '\n';
+    std::cout << "🎅 Running Advent Of Code 2023: { " << solutionName <<  " } 🎅" << '\n';
     std::cout << "Part 1:" << std::setw(2) << this->part1(input) << '\n';
     std::cout << "Part 2:" << std::setw(2) << this->part2(input) << '\n';
     std::cout << line << '\n';
