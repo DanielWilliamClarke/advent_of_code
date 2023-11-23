@@ -1,5 +1,9 @@
 #include "gtest/gtest.h"
 
+#include "example/example.h"
+
 TEST(Test, ShouldBeTrue) {
-	EXPECT_TRUE(true);
+    Example example(true);
+	
+	EXPECT_TRUE(example.a);
 }

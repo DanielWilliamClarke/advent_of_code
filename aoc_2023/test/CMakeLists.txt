@@ -17,7 +17,10 @@ set(SOURCES
 add_executable(${BINARY} ${SOURCES})
 
 find_package(GTest)
-target_link_libraries(${BINARY} gtest::gtest)
+target_link_libraries(${BINARY} PUBLIC
+	gtest::gtest
+	${CMAKE_PROJECT_NAME}_lib
+)
 
 add_test(
 	NAME ${BINARY} 
