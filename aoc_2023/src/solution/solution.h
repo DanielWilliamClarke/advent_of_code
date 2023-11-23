@@ -16,7 +16,7 @@ public:
     virtual const std::vector<Input> readInput () const = 0;
     virtual Output1 part1 (const std::vector<Input> input) const = 0;
     virtual Output2 part2 (const std::vector<Input> input) const = 0;
-    void print() const override;
+    virtual void print() const override;
 };
 
 template <typename Input, typename Output1, typename Output2>
