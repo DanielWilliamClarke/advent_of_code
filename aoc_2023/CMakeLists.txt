@@ -11,25 +11,11 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
-# conan_basic_setup(TARGETS)
-
 # Add src
 include_directories(src)
 add_subdirectory (src)
 
-# Add tests
-add_subdirectory (test)
-
-# # Add the executable target
-# add_executable(AOC_2023 src/main.cpp)
-
-# Optionally, set compiler flags (e.g., for warnings)
-# target_compile_options(YourExecutableName PRIVATE -Wall -Wextra)
-
-# Optionally, configure any external dependencies or libraries
-# find_package(SomeLibrary REQUIRED)
-# target_link_libraries(YourExecutableName PRIVATE SomeLibrary)
-
-# Optionally, configure any include directories
-# target_include_directories(YourExecutableName PRIVATE ${SomeLibrary_INCLUDE_DIRS})
+# Add 
+if(CMAKE_BUILD_TYPE EQUAL Debug) 
+  add_subdirectory (test)
+endif()

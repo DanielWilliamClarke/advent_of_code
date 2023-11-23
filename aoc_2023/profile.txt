@@ -1,6 +1,6 @@
 [settings]
 arch=armv8
-build_type=Release
+build_type=Debug
 compiler=apple-clang
 compiler.cppstd=gnu20
 compiler.libcxx=libc++
