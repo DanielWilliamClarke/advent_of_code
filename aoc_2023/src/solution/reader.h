@@ -5,7 +5,7 @@
 template <typename Data>
 class Reader {
 public: 
-    Data read () const = 0;
+   virtual Data read () const = 0;
 };
 
 #endif // READER_H
