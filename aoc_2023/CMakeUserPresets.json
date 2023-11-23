@@ -1,0 +1,9 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/Users/dan.clarke/workspace/personal/advent_of_code/aoc_2023/dist/Debug/CMakePresets.json"
+    ]
+}
