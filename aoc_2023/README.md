@@ -10,3 +10,6 @@
     make runtests
     make run
 ```
+
+fix linking
+https://stackoverflow.com/questions/58077908/linking-conan-include-to-vs-code
