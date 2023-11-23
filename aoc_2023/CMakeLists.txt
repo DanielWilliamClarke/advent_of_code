@@ -16,6 +16,6 @@ include_directories(src)
 add_subdirectory (src)
 
 # Add 
-if(CMAKE_BUILD_TYPE EQUAL Debug) 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug") 
   add_subdirectory (test)
 endif()
