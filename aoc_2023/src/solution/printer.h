@@ -2,7 +2,8 @@
 #define PRINTER_H
 #pragma once
 
-class Printer {
+class Printer 
+{
 public: 
     virtual void print () const = 0;
 };

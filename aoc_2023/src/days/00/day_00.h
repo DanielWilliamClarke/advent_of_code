@@ -6,7 +6,8 @@
 
 #include "solution/solution.h"
 
-class Day00 : public Solution<int> {
+class Day00 : public Solution<int> 
+{
 public:
     constexpr std::string filename() const override;
     int part1(std::vector<std::string>) const override;

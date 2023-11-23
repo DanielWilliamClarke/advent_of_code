@@ -3,7 +3,8 @@
 #include "solution/printer.h"
 #include "days/00/day_00.h"
 
-TEST(Day00, ValidateDay00) {
+TEST(Day00, ValidateDay00) 
+{
     Day00 day00;
 
     auto input = day00.readInput();

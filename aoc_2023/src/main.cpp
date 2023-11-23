@@ -7,7 +7,8 @@
 
 #include "days/00/day_00.h"
 
-int main () {
+int main () 
+{
     run({
         std::make_shared<Day00>()
     });
