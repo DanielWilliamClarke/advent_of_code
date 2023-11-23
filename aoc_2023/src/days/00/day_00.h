@@ -8,7 +8,7 @@
 
 class Day00 : public Solution<int> {
 public:
-    const std::string filename() const override;
+    constexpr std::string filename() const override;
     int part1(std::vector<std::string>) const override;
     int part2(std::vector<std::string>) const override;
 };

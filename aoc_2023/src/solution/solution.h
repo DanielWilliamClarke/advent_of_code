@@ -18,7 +18,7 @@ class Solution : public Printer, public Reader {
 public: 
     virtual Output1 part1 (const std::vector<std::string> input) const = 0;
     virtual Output2 part2 (const std::vector<std::string> input) const = 0;
-    virtual const std::string filename () const = 0; 
+    virtual constexpr std::string filename () const = 0; 
 
     virtual std::vector<std::string> readInput () const override;
     virtual void print() const override;
