@@ -2,10 +2,9 @@
 #define READER_H
 #pragma once
 
-template <typename Data>
 class Reader {
 public: 
-   virtual const Data read () const = 0;
+   virtual std::vector<std::string> readInput () const = 0;
 };
 
 #endif // READER_H

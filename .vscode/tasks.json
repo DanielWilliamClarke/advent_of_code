@@ -9,5 +9,13 @@
                 "cwd": "${workspaceRoot}/aoc_2022"
             }
         },
+        {
+            "label": "C++ Build 2023",
+            "command": "make",
+            "args": ["build_debug"],
+            "options": {
+                "cwd": "${workspaceRoot}/aoc_2023"
+            }
+        },
     ]
   }
