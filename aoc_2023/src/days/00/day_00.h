@@ -7,9 +7,9 @@
 
 class Day00 : public Solution<int, int> {
 public:
-    std::vector<int> readInput() const override;
-    int part1(std::vector<int>) const override;
-    int part2(std::vector<int>) const override;
+    const std::vector<int> readInput() const override;
+    int part1(const std::vector<int>) const override;
+    int part2(const std::vector<int>) const override;
 };
 
 #endif // DAY_00_H
