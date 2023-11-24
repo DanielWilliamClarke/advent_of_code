@@ -2,7 +2,7 @@
 install:
 	mkdir -p dist/$(configuration); \
 	cd dist/$(configuration); \
-	conan install --build=missing --profile ../../profile.txt ../..; \
+	conan install -sbuild_type=$(configuration) --build=missing --profile ../../profile.txt ../..; \
 	cd ../..
 build:
 	cd dist/$(configuration); \
