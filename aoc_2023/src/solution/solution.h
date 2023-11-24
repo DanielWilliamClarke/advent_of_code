@@ -14,7 +14,13 @@
 #include "printer.h"
 #include "reader.h"
 
-template <typename Output1, typename Output2 = Output1>
+// Constrain types to those that can be printed via std::cout
+template <typename T>
+concept Printable = requires (T t) {
+    std::cout << t;
+};
+
+template <Printable Output1, Printable Output2 = Output1>
 class Solution : public Printer, public Reader
 {
 public:
@@ -26,7 +32,7 @@ public:
     virtual void print() const override; 
 };
 
-template <typename Output1, typename Output2>
+template <Printable Output1, Printable Output2>
 std::vector<std::string> Solution<Output1, Output2>::readInput() const
 {
     std::ifstream fs(this->filename());
@@ -44,7 +50,7 @@ std::vector<std::string> Solution<Output1, Output2>::readInput() const
     return input;
 }
 
-template <typename Output1, typename Output2>
+template <Printable Output1, Printable Output2>
 void Solution<Output1, Output2>::print() const
 {
     std::chrono::high_resolution_clock::time_point start;
