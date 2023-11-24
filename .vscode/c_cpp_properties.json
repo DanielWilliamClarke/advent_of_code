@@ -4,7 +4,7 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "~/.conan2/p/**"
+                "~/.conan/data/**"
             ],
             "defines": [],
             "macFrameworkPath": [

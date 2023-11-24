@@ -1,17 +1,23 @@
 # Tasks
-build:
+install:
 	mkdir -p dist/$(configuration); \
+	cd dist/$(configuration); \
+	conan install --build=missing --profile ../../profile.txt ../..; \
+	cd ../..
+build:
 	cd dist/$(configuration); \
 	cmake -DCMAKE_BUILD_TYPE=$(configuration) ../..; \
     make; \
 	cd ../..
 runtests: 
 	make build; \
-	./dist/$(configuration)/test/AOC_2023_test
+	./dist/$(configuration)/test/bin/AOC_2023_test
 run: 
 	./dist/$(configuration)/src/AOC_2023
 
 # Debug 
+install_debug:
+	make install configuration=Debug
 build_debug: 
 	make build configuration=Debug
 run_debug:
@@ -19,12 +25,14 @@ run_debug:
 runtests_debug:
 	make runtests configuration=Debug
 
-debug: build_debug run_debug
+debug: install_debug build_debug run_debug
 
 # Release
+install_release:
+	make install configuration=Release
 build_release: 
 	make build configuration=Release
 run_release: 
 	make run configuration=Release
 
-release: build_release run_release
+release: install_release build_release run_release
