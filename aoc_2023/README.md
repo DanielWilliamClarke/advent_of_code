@@ -5,7 +5,6 @@
 ```bash
     brew install make
     brew install cmake
-    brew install conan
     brew install llvm
 ```
 
@@ -13,13 +12,11 @@
 
 ```bash
 # Debug
-    make install_debug
     make build_debug
     make runtests_debug
     make run_debug
 
 # Release
-    make install_release
     make build_release
     make run_release
 ```
