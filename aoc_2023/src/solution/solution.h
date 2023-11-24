@@ -23,7 +23,7 @@ public:
     virtual constexpr std::string filename() const = 0;
 
     virtual std::vector<std::string> readInput() const override;
-    virtual void print() const override;
+    virtual void print() const override; 
 };
 
 template <typename Output1, typename Output2>
@@ -62,16 +62,16 @@ void Solution<Output1, Output2>::print() const
     const auto input = this->readInput();
     
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "Part 1:" << std::setw(2) << this->part1(input) << std::setw(15);
+    std::cout << "Part 1:" << std::setw(2) << this->part1(input);
     end = std::chrono::high_resolution_clock::now();
     duration = duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Timing: [" << duration.count() << "ms]" << std::endl;
+    std::cout << std::setfill(' ') << std::setw(20) << "🕰️  Timing: [" << duration.count() << "ms]" << std::endl;
 
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "Part 2:" << std::setw(2) << this->part2(input) << std::setw(15);
+    std::cout << "Part 2:" << std::setw(2) << this->part2(input);
     end = std::chrono::high_resolution_clock::now();
     duration = duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Timing: [" << duration.count() << "ms]" << std::endl;
+    std::cout << std::setfill(' ') << std::setw(20) << "🕰️  Timing: [" << duration.count() << "ms]" << std::endl;
 
     std::cout << line << '\n';
 }
