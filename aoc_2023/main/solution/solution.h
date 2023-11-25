@@ -20,27 +20,27 @@ concept Printable = requires (T t) {
     std::cout << t;
 };
 
-template <Printable Output1, Printable Output2 = Output1>
-class Solution : public Printer, public Reader
+template <Printable Input, Printable Output1, Printable Output2 = Output1>
+class Solution : public Printer, public Reader<Input>
 {
 public:
-    virtual Output1 part1(const std::vector<std::string>& input) const = 0;
-    virtual Output2 part2(const std::vector<std::string>& input) const = 0;
+    virtual Output1 part1(const std::vector<Input>& input) const = 0;
+    virtual Output2 part2(const std::vector<Input>& input) const = 0;
     virtual constexpr std::string filename() const = 0;
 
-    virtual std::vector<std::string> readInput() const override;
+    virtual std::vector<Input> readInput() const override;
     virtual void print() const override; 
 };
 
-template <Printable Output1, Printable Output2>
-std::vector<std::string> Solution<Output1, Output2>::readInput() const
+template <Printable Input, Printable Output1, Printable Output2>
+std::vector<Input> Solution<Input, Output1, Output2>::readInput() const
 {
     std::ifstream fs(this->filename());
-    std::vector<std::string> input;
+    std::vector<Input> input;
 
     std::copy(
-        std::istream_iterator<std::string>(fs),
-        std::istream_iterator<std::string>(),
+        std::istream_iterator<Input>(fs),
+        std::istream_iterator<Input>(),
         std::back_inserter(input));
 
     // std::for_each(input.begin(), input.end(), [](std::string line) {
@@ -50,8 +50,8 @@ std::vector<std::string> Solution<Output1, Output2>::readInput() const
     return input;
 }
 
-template <Printable Output1, Printable Output2>
-void Solution<Output1, Output2>::print() const
+template <Printable Input, Printable Output1, Printable Output2>
+void Solution<Input, Output1, Output2>::print() const
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;

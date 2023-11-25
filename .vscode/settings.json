@@ -63,7 +63,13 @@
         "unordered_set": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "csignal": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "span": "cpp",
+        "thread": "cpp",
+        "functional": "cpp"
     },
     "bazel.queriesShareServer": true
 }

@@ -2,7 +2,7 @@
 
 #include "main/solution/solution.h"
 
-class TestReader : public Solution<int> 
+class TestReader : public Solution<std::string, int> 
 {
 public:
     constexpr std::string filename() const override { return "test/solution/input.txt"; }
