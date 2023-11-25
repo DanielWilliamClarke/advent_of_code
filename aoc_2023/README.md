@@ -45,3 +45,4 @@ bazel run main/aoc-2023
 - <https://github.com/bazelbuild/examples/blob/main/cpp-tutorial/stage3/main/BUILD>
 - <https://stackoverflow.com/questions/72488330/mediapipe-how-to-configure-debugger-using-vs-code-and-bazel>
 - <https://youtu.be/-TUogVOs1Qg?feature=shared>
+- <https://ericniebler.github.io/range-v3/>
