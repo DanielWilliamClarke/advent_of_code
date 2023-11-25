@@ -17,10 +17,10 @@ int Day00::part1(const std::vector<int> &input) const
         | ranges::views::transform([=](auto i) { 
             return std::array{i, 2020 - i};
         })
-        | ranges::views::filter([&input](const auto& p) {
+        | ranges::views::filter([&input](const auto p) {
             return ranges::contains(input, p.back()); 
         })
-        | ranges::views::transform([=](auto&& p) {
+        | ranges::views::transform([=](auto p) {
             return ranges::accumulate(p, 1, std::multiplies<>());
         });
 
@@ -30,14 +30,14 @@ int Day00::part1(const std::vector<int> &input) const
 int Day00::part2(const std::vector<int> &input) const
 {
     auto results = ranges::views::cartesian_product(input, input)
-        | ranges::views::transform([=](auto&& i) { 
+        | ranges::views::transform([=](auto i) { 
             auto [a, b] = i;
             return std::array{a, b, 2020 - a - b};
         })
         | ranges::views::filter([&input](const auto& p) {
             return ranges::contains(input, p.back()); 
         })
-        | ranges::views::transform([=](auto&& p) {
+        | ranges::views::transform([=](auto p) {
             return ranges::accumulate(p, 1, std::multiplies<>());
         });
 
