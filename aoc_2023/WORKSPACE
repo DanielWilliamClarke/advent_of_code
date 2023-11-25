@@ -9,6 +9,6 @@ http_archive(
 
 git_repository(
     name = "range_v3",
-    commit = "97452bb3eb74a73fc86504421a6a27c92bce6b99",  # googletest v1.10.0
+    commit = "97452bb3eb74a73fc86504421a6a27c92bce6b99",
     remote = "https://github.com/ericniebler/range-v3",
 )
