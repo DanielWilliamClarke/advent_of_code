@@ -16,11 +16,16 @@
 
 // Constrain types to those that can be printed via std::cout
 template <typename T>
-concept Printable = requires (T t) {
+concept Streamable = requires (T t) {
     std::cout << t;
 };
 
-template <Printable Input, Printable Output1, Printable Output2 = Output1>
+template <typename T>
+concept Readable = requires(std::istream &os, T value) {
+    { os >> value } -> std::convertible_to<std::istream &>;
+};
+
+template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
 class Solution : public Printer, public Reader<Input>
 {
 public:
@@ -32,7 +37,7 @@ public:
     virtual void print() const override; 
 };
 
-template <Printable Input, Printable Output1, Printable Output2>
+template <Readable Input, Streamable Output1, Streamable Output2>
 std::vector<Input> Solution<Input, Output1, Output2>::readInput() const
 {
     std::ifstream fs(this->filename());
@@ -50,7 +55,7 @@ std::vector<Input> Solution<Input, Output1, Output2>::readInput() const
     return input;
 }
 
-template <Printable Input, Printable Output1, Printable Output2>
+template <Readable Input, Streamable Output1, Streamable Output2>
 void Solution<Input, Output1, Output2>::print() const
 {
     std::chrono::high_resolution_clock::time_point start;
