@@ -34,3 +34,12 @@ bazel test --test_output=all //test:aoc-2023
 # Build and Run AOC 2023 executable
 bazel run main/aoc-2023
 ```
+
+## Resources
+
+- <https://bazel.build/start/cpp>
+- <https://bazel.build/tutorials/cpp-use-cases>
+- <https://google.github.io/googletest/quickstart-bazel.html>
+- <https://apple.stackexchange.com/questions/175069/how-to-accept-xcode-license>
+- <https://marketplace.visualstudio.com/items?itemName=BazelBuild.vscode-bazel>
+- <https://github.com/bazelbuild/examples/blob/main/cpp-tutorial/stage3/main/BUILD>
