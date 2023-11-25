@@ -13,6 +13,7 @@
     sudo xcodebuild -license accept
 
     brew install bazel
+    brew install buildifier
 ```
 
 ## Build, test and run
@@ -20,12 +21,16 @@
 ### With Bazel
 
 ```bash
+# Build AOC 2023 executable with Debug
+bazel build -c dbg main/aoc-2023
+# You now should be able to debug the exe
+
 # Build AOC 2023 executable
-bazel build src/aoc-2023
+bazel build main/aoc-2023
 
 # Run AOC 2023 tests
 bazel test --test_output=all //test:aoc-2023
 
 # Build and Run AOC 2023 executable
-bazel run src/aoc-2023
+bazel run main/aoc-2023
 ```

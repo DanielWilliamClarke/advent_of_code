@@ -5,13 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(OSX) Launch AOC 2022",
+            "name": "(OSX) Launch AOC 2023",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/aoc_2022/target/debug/aoc_2022",
+            "program": "${workspaceFolder}/bazel-bin/main/aoc-2023",
             "args": [],  
-            "cwd": "${workspaceFolder}/aoc_2022",
-            "preLaunchTask": "Cargo Build 2022",
+            "cwd": "${workspaceFolder}",
         }
     ]
 }

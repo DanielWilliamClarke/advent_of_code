@@ -1,21 +1,13 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Cargo Build 2022",
-            "command": "cargo",
-            "args": ["build"],
-            "options": {
-                "cwd": "${workspaceRoot}/aoc_2022"
-            }
-        },
-        {
-            "label": "C++ Build 2023",
-            "command": "make",
-            "args": ["build_debug"],
-            "options": {
-                "cwd": "${workspaceRoot}/aoc_2023"
-            }
-        },
-    ]
-  }
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Cargo Build 2022",
+      "command": "cargo",
+      "args": ["build"],
+      "options": {
+        "cwd": "${workspaceRoot}/aoc_2022"
+      }
+    }
+  ]
+}
