@@ -16,5 +16,5 @@ TEST(Solution, CanReadAFileToVector)
 
     auto input = reader.readInput();
 
-    EXPECT_EQ(input.size(), 0);
+    EXPECT_EQ(input.size(), 10);
 }

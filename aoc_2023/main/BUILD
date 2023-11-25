@@ -10,5 +10,6 @@ cc_library(
     name = "aoc-2023-days",
     srcs = glob(["**/*.cpp"]),
     hdrs = glob(["**/*.h"]),
+    data = glob(["**/*.txt"]),
     visibility = ["//visibility:public"]
 )

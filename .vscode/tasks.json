@@ -13,6 +13,9 @@
       "label": "Bazel Build AOC 2023",
       "type": "shell",
       "command": "bazel build -c dbg main/aoc-2023",
+      "options": {
+        "cwd": "${workspaceRoot}/aoc_2023"
+      },
       "group": {
           "kind": "build",
           "isDefault": true

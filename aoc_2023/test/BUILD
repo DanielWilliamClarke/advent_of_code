@@ -4,6 +4,7 @@ cc_test(
   name = "aoc-2023",
   size = "small",
   srcs = glob(["**/*.cpp"]),
+  data = glob(["**/*.txt"]),
   deps = [
     "@com_google_googletest//:gtest_main",
      "//main:aoc-2023-days",
