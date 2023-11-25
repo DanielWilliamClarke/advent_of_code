@@ -11,7 +11,7 @@
 ### With Bazel
 
 ```bash
-bazel build --cxxopt=-std=c++20 src/aoc-2023
-bazel run --cxxopt=-std=c++20 src/aoc-2023
-bazel test --cxxopt=-std=c++20 --test_output=all //test:aoc-2023-test
+bazel build src/aoc-2023
+bazel run src/aoc-2023
+bazel test --test_output=all //test:aoc-2023
 ```

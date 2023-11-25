@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 
-#include "src/solution/solution.h"
+#include "main/solution/solution.h"
 
 class TestReader : public Solution<int> 
 {
 public:
-    const std::string filename() const override { return "test/solution/input.txt"; }
+    constexpr std::string filename() const override { return "test/solution/input.txt"; }
     int part1(const std::vector<std::string>&) const override { return 0; }
     int part2(const std::vector<std::string>&) const override { return 0; }
 };
