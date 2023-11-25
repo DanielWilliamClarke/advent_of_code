@@ -69,7 +69,12 @@
         "list": "cpp",
         "span": "cpp",
         "thread": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "iterator": "cpp",
+        "coroutine": "cpp",
+        "queue": "cpp",
+        "source_location": "cpp",
+        "stack": "cpp"
     },
-    "bazel.queriesShareServer": true
+    "bazel.queriesShareServer": true,
 }

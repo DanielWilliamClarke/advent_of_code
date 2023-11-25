@@ -11,5 +11,6 @@ cc_library(
     srcs = glob(["**/*.cpp"]),
     hdrs = glob(["**/*.h"]),
     data = glob(["**/*.txt"]),
+    deps = ["@range_v3//:range-v3"],
     visibility = ["//visibility:public"]
 )

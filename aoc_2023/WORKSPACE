@@ -1,7 +1,14 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
   name = "com_google_googletest",
   urls = ["https://github.com/google/googletest/archive/b10fad38c4026a29ea6561ab15fc4818170d1c10.zip"],
   strip_prefix = "googletest-b10fad38c4026a29ea6561ab15fc4818170d1c10",
+)
+
+git_repository(
+    name = "range_v3",
+    commit = "97452bb3eb74a73fc86504421a6a27c92bce6b99",  # googletest v1.10.0
+    remote = "https://github.com/ericniebler/range-v3",
 )

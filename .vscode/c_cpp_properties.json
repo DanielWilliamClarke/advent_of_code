@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/private/var/tmp/_bazel_*/**/external/**/include"
             ],
             "defines": [],
             "macFrameworkPath": [
