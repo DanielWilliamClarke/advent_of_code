@@ -4,12 +4,14 @@
 
 #include <vector>
 
-#include "solution/solution.h"
+#include "src/solution/solution.h"
 
 class Day00 : public Solution<int> 
 {
 public:
-    constexpr std::string filename() const override;
+    virtual ~Day00() = default;
+
+    const std::string filename() const override;
     int part1(const std::vector<std::string>&) const override;
     int part2(const std::vector<std::string>&) const override;
 };

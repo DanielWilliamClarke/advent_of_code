@@ -1,0 +1,36 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+##
+## Toolchain
+##
+git_repository(
+    name = "com_grailbio_bazel_toolchain",
+    commit = "9e71d562023dc7994e747110ee1ca345ad6b4413", # Latest as of 2022-05-01
+    remote = "https://github.com/grailbio/bazel-toolchain.git",
+)
+
+load("@com_grailbio_bazel_toolchain//toolchain:deps.bzl", "bazel_toolchain_dependencies")
+
+bazel_toolchain_dependencies()
+
+load("@com_grailbio_bazel_toolchain//toolchain:rules.bzl", "llvm_toolchain")
+
+llvm_toolchain(
+    name = "llvm_toolchain",
+    llvm_version = "14.0.0",
+    stdlib = {
+        "linux-x86_64": "builtin-libc++",
+        "linux-aarch64": "builtin-libc++",
+    },
+)
+
+load("@llvm_toolchain//:toolchains.bzl", "llvm_register_toolchains")
+
+llvm_register_toolchains()
+
+http_archive(
+  name = "com_google_googletest",
+  urls = ["https://github.com/google/googletest/archive/b10fad38c4026a29ea6561ab15fc4818170d1c10.zip"],
+  strip_prefix = "googletest-b10fad38c4026a29ea6561ab15fc4818170d1c10",
+)

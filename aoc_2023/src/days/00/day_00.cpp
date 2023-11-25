@@ -1,6 +1,6 @@
 #include "day_00.h"
 
-constexpr std::string Day00::filename () const 
+const std::string Day00::filename () const 
 {
     return "src/days/00/input.txt";
 }

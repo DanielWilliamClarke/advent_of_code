@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "solution/printer.h"
-#include "days/00/day_00.h"
+#include "src/solution/printer.h"
+#include "src/days/00/day_00.h"
 
 TEST(Day00, ValidateDay00) 
 {
