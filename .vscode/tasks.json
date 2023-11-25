@@ -8,6 +8,15 @@
       "options": {
         "cwd": "${workspaceRoot}/aoc_2022"
       }
+    },
+    {
+      "label": "Bazel Build AOC 2023",
+      "type": "shell",
+      "command": "bazel build -c dbg main/aoc-2023",
+      "group": {
+          "kind": "build",
+          "isDefault": true
+      }
     }
   ]
 }

@@ -43,3 +43,4 @@ bazel run main/aoc-2023
 - <https://apple.stackexchange.com/questions/175069/how-to-accept-xcode-license>
 - <https://marketplace.visualstudio.com/items?itemName=BazelBuild.vscode-bazel>
 - <https://github.com/bazelbuild/examples/blob/main/cpp-tutorial/stage3/main/BUILD>
+- <https://stackoverflow.com/questions/72488330/mediapipe-how-to-configure-debugger-using-vs-code-and-bazel>
