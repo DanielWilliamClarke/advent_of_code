@@ -73,13 +73,13 @@ void Solution<Input, Output1, Output2>::print() const
     const auto input = this->readInput();
     
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "Part 1:" << std::setw(2) << this->part1(input);
+    std::cout << "Part 1: " << this->part1(input);
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::cout << std::setfill(' ') << std::setw(20) << "🕰️  Timing: [" << duration.count() << "ms]" << std::endl;
 
     start = std::chrono::high_resolution_clock::now();
-    std::cout << "Part 2:" << std::setw(2) << this->part2(input);
+    std::cout << "Part 2: " << this->part2(input);
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::cout << std::setfill(' ') << std::setw(20) << "🕰️  Timing: [" << duration.count() << "ms]" << std::endl;
