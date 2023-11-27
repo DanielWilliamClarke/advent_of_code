@@ -63,7 +63,7 @@ void PrintableSolution<Input, Output1, Output2>::measure(int part, std::function
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
-    std::chrono::duration<float> duration;
+    std::chrono::duration<float> duration(0.0f);
 
     start = std::chrono::high_resolution_clock::now();
     auto output = method();
