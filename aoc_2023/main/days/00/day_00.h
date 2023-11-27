@@ -2,7 +2,6 @@
 #define DAY_00_H
 #pragma once
 
-#include "main/solution/reader.h"
 #include "main/solution/printer.h"
 
 class Day00 : public PrintableSolution<int, int>
