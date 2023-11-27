@@ -12,7 +12,6 @@
 
 #include "constraints.h"
 #include "reader.h"
-#include "solution.h"
 
 class Printer 
 {
