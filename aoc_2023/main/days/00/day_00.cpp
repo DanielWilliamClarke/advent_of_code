@@ -1,9 +1,5 @@
 #include "day_00.h"
 
-#include <numeric>
-#include <algorithm>
-#include <ranges>
-
 #include <range/v3/all.hpp>
 
 constexpr std::string Day00::filename() const
@@ -14,13 +10,13 @@ constexpr std::string Day00::filename() const
 int Day00::part1(const std::vector<int> &input) const
 {
     auto results = input
-        | ranges::views::transform([=](auto item) { 
+        | ranges::views::transform([=](auto item) -> std::array<int, 2> {
             return std::array{item, 2020 - item};
         })
-        | ranges::views::filter([&input](const auto item) {
-            return ranges::contains(input, item.back()); 
+        | ranges::views::filter([&input](const auto item) -> bool {
+            return ranges::contains(input, item.back());
         })
-        | ranges::views::transform([=](auto item) {
+        | ranges::views::transform([=](auto item) -> int {
             return ranges::accumulate(item, 1, std::multiplies<>());
         });
 
