@@ -18,7 +18,8 @@ int Day00::part1(const std::vector<int> &input) const
         })
         | ranges::views::transform([=](auto item) -> int {
             return ranges::accumulate(item, 1, std::multiplies<>());
-        });
+        })
+        | ranges::views::take(1);
 
    return ranges::front(results);
 }
@@ -35,7 +36,8 @@ int Day00::part2(const std::vector<int> &input) const
         })
         | ranges::views::transform([=](auto item) {
             return ranges::accumulate(item, 1, std::multiplies<>());
-        });
+        })
+        | ranges::views::take(1);
 
    return ranges::front(results);
 }
