@@ -15,6 +15,5 @@ TEST(Day00, ValidateDay00_Part2)
     Day00 day00;
 
     auto input = day00.readInput();
-
     EXPECT_EQ(day00.part2(input), 173538720);
 }

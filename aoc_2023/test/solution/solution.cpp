@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "main/solution/solution.h"
+#include "main/solution/reader.h"
 
-class TestReader : public Solution<std::string, int> 
+class TestReader : public ReadableSolution<std::string, int>
 {
 public:
     [[nodiscard]] constexpr std::string filename() const override { return "test/solution/input.txt"; }
