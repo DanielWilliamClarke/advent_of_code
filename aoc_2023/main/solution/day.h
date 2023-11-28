@@ -8,7 +8,7 @@
 template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
 class Day :
     public FileInputReader<Input>,
-    public PrintableSolution<Input, Output1, Output2> {
+    public SolutionPrinter<Input, Output1, Output2> {
 public:
     void run ();
 };

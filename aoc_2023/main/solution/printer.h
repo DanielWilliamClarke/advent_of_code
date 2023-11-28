@@ -20,7 +20,7 @@ public:
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
-class PrintableSolution :
+class SolutionPrinter :
         public Solution<Input, Output1, Output2>,
         public Printer<Input>,
         public Measurer
@@ -30,7 +30,7 @@ public:
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2>
-void PrintableSolution<Input, Output1, Output2>::print(std::vector<Input> input) const
+void SolutionPrinter<Input, Output1, Output2>::print(std::vector<Input> input) const
 {
     // Magic typename method..
     int status;
