@@ -7,7 +7,7 @@
 
 #include "constraints.h"
 
-class MeasureableSolution
+class Measurer
 {
 public:
     template<Streamable Output>
@@ -15,7 +15,7 @@ public:
 };
 
 template <Streamable Output>
-std::pair<Output, float> MeasureableSolution::measure(std::function<Output()> method) const {
+std::pair<Output, float> Measurer::measure(std::function<Output()> method) const {
     std::chrono::duration<float> duration(0.0f);
 
     auto start = std::chrono::high_resolution_clock::now();

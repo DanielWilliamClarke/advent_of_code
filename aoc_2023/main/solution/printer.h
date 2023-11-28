@@ -22,8 +22,8 @@ public:
 template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
 class PrintableSolution :
         public Solution<Input, Output1, Output2>,
-        public MeasureableSolution,
-        public Printer<Input>
+        public Printer<Input>,
+        public Measurer
 {
 public:
     void print(std::vector<Input> input) const override;
