@@ -11,7 +11,6 @@ template<Readable Data>
 class Reader
 {
 public:
-    [[nodiscard]] virtual constexpr std::string filename() const = 0;
     virtual std::vector<Data> readInput () const = 0;
 };
 
@@ -19,6 +18,7 @@ template <Readable Input>
 class FileInputReader : public Reader<Input>
 {
 public:
+    [[nodiscard]] virtual constexpr std::string filename() const = 0;
     std::vector<Input> readInput() const override;
 };
 
