@@ -2,11 +2,16 @@
 
 #include "main/solution/reader.h"
 
+class TestFileInputReader : public FileInputReader<std::string> {
+public:
+    [[nodiscard]] constexpr std::string filename() const override { return "test/solution/input.txt"; } ;
+};
+
 TEST(Solution, CanReadAFileToVector) 
 {
-    FileInputReader<std::string> reader;
+    TestFileInputReader reader;
 
-    auto input = reader.readInput("test/solution/input.txt");
+    auto input = reader.readInput();
 
     EXPECT_EQ(input.size(), 10);
 }

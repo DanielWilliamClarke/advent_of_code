@@ -11,20 +11,21 @@ template<Readable Data>
 class Reader
 {
 public:
-   virtual std::vector<Data> readInput (std::string filename) const = 0;
+    [[nodiscard]] virtual constexpr std::string filename() const = 0;
+    virtual std::vector<Data> readInput () const = 0;
 };
 
 template <Readable Input>
 class FileInputReader : public Reader<Input>
 {
 public:
-    std::vector<Input> readInput(std::string filename) const override;
+    std::vector<Input> readInput() const override;
 };
 
 template <Readable Input>
-std::vector<Input> FileInputReader<Input>::readInput(std::string filename) const
+std::vector<Input> FileInputReader<Input>::readInput() const
 {
-    std::ifstream fs(filename);
+    std::ifstream fs(this->filename());
     std::vector<Input> input;
 
     std::copy(

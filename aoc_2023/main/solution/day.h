@@ -16,11 +16,7 @@ public:
 
 template <Readable Input, Streamable Output1, Streamable Output2>
 void Day<Input, Output1, Output2>::run() {
-    this->print(
-        this->readInput(
-            this->filename()
-        )
-    );
+    this->print(this->readInput());
 }
 
 #endif //AOC_2023_DAY_H
