@@ -15,7 +15,8 @@ public:
 };
 
 template <Streamable Output>
-std::pair<Output, float> Measurer::measure(std::function<Output()> method) const {
+std::pair<Output, float> Measurer::measure(std::function<Output()> method) const
+{
     std::chrono::duration<float> duration(0.0f);
 
     auto start = std::chrono::high_resolution_clock::now();

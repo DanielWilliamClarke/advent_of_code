@@ -4,12 +4,14 @@
 #include <iostream>
 
 template <typename T>
-concept Streamable = requires (T t) {
+concept Streamable = requires (T t)
+{
     std::cout << t;
 };
 
 template <typename T>
-concept Readable = requires(std::istream &os, T value) {
+concept Readable = requires(std::istream &os, T value)
+{
     { os >> value } -> std::convertible_to<std::istream &>;
 };
 
