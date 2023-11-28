@@ -7,13 +7,12 @@
 - [ ] Install XCode from the Appstore
 
 ```bash
-    # for the first time you will need agree to the XCode license
-    xcode-select --install 
-    sudo xcode-select --switch /Applications/Xcode.app     
-    sudo xcodebuild -license accept
+# for the first time you will need agree to the XCode license
+xcode-select --install 
+sudo xcode-select --switch /Applications/Xcode.app     
+sudo xcodebuild -license accept
 
-    brew install bazel
-    brew install buildifier
+brew install bazel
 ```
 
 ## Build, test and run
@@ -33,6 +32,19 @@ bazel test --test_output=all //test:aoc-2023
 
 # Build and Run AOC 2023 executable
 bazel run main/aoc-2023
+```
+
+This project makes use of:
+
+- `range-v3`: <https://ericniebler.github.io/range-v3/> 
+- `gtest`: <https://github.com/google/googletest>
+
+## Visualise class diagram
+
+```bash
+brew install graphviz xdot 
+ 
+xdot <(bazel query --notool_deps --noimplicit_deps "deps(//test:aoc-2023)" --output graph)
 ```
 
 ## Resources
