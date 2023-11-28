@@ -34,10 +34,16 @@ bazel test --test_output=all //test:aoc-2023
 bazel run main/aoc-2023
 ```
 
+#### Project Dependencies
+
 This project makes use of:
 
 - `range-v3`: <https://ericniebler.github.io/range-v3/> 
 - `gtest`: <https://github.com/google/googletest>
+
+#### Implementation Note
+
+The project is favoring inheritance over composition to emulate Rust traits and to reduce the amount of boilerplate code required to construct each Day's solution 
 
 ## Visualise class diagram
 
