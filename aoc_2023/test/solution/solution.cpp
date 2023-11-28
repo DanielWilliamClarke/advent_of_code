@@ -2,19 +2,11 @@
 
 #include "main/solution/reader.h"
 
-class TestReader : public ReadableSolution<std::string, int>
-{
-public:
-    [[nodiscard]] constexpr std::string filename() const override { return "test/solution/input.txt"; }
-    [[nodiscard]] int part1(const std::vector<std::string>&) const override { return 0; }
-    [[nodiscard]] int part2(const std::vector<std::string>&) const override { return 0; }
-};
-
 TEST(Solution, CanReadAFileToVector) 
 {
-    TestReader reader;
+    FileInputReader<std::string> reader;
 
-    auto input = reader.readInput();
+    auto input = reader.readInput("test/solution/input.txt");
 
     EXPECT_EQ(input.size(), 10);
 }

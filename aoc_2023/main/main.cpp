@@ -14,5 +14,5 @@ int main ()
         std::make_shared<Day00>()
     };
 
-    ranges::for_each(days, [=] (auto day) { day->print(); });
+    ranges::for_each(days, [=] (auto day) { day->run(); });
 }

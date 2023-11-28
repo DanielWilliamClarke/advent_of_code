@@ -6,26 +6,25 @@
 #include <iterator>
 
 #include "constraints.h"
-#include "solution.h"
 
 template<Readable Data>
-class Reader 
-{
-public: 
-   virtual std::vector<Data> readInput () const = 0;
-};
-
-template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
-class ReadableSolution : public Solution<Input, Output1, Output2>, public Reader<Input>
+class Reader
 {
 public:
-    std::vector<Input> readInput() const override;
+   virtual std::vector<Data> readInput (std::string filename) const = 0;
 };
 
-template <Readable Input, Streamable Output1, Streamable Output2>
-std::vector<Input> ReadableSolution<Input, Output1, Output2>::readInput() const
+template <Readable Input>
+class FileInputReader : public Reader<Input>
 {
-    std::ifstream fs(this->filename());
+public:
+    std::vector<Input> readInput(std::string filename) const override;
+};
+
+template <Readable Input>
+std::vector<Input> FileInputReader<Input>::readInput(std::string filename) const
+{
+    std::ifstream fs(filename);
     std::vector<Input> input;
 
     std::copy(

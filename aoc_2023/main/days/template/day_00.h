@@ -2,9 +2,9 @@
 #define DAY_00_H
 #pragma once
 
-#include "main/solution/solution.h"
+#include "main/solution/day.h"
 
-class Day00 : public Solution<std::string, int> 
+class Day00 : public Day<std::string, int>
 {
 public:
     virtual ~Day00() = default;

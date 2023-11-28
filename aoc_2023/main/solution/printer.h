@@ -7,34 +7,34 @@
 #include <sstream>
 #include <iomanip>
 #include <cxxabi.h>
-#include <chrono>
-#include <functional>
 
 #include "constraints.h"
-#include "reader.h"
+#include "measurer.h"
+#include "solution.h"
 
+template <Readable Input>
 class Printer 
 {
 public: 
-    virtual void print () const = 0;
+    virtual void print (std::vector<Input> input) const = 0;
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
-class PrintableSolution : public ReadableSolution<Input, Output1, Output2>, public Printer
+class PrintableSolution :
+        public Solution<Input, Output1, Output2>,
+        public MeasureableSolution,
+        public Printer<Input>
 {
 public:
-    void print() const override;
-private:
-    template<Streamable Output>
-    void measure(int part, std::function<Output()> method) const;
+    void print(std::vector<Input> input) const override;
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2>
-void PrintableSolution<Input, Output1, Output2>::print() const
+void PrintableSolution<Input, Output1, Output2>::print(std::vector<Input> input) const
 {
     // Magic typename method..
     int status;
-    const auto solutionName = abi::__cxa_demangle(typeid(*this).name(), 0, 0, &status);
+    const auto solutionName = abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &status);
 
     std::array<std::string, 40> line;
     std::fill(line.begin(), line.end(), "🎄");
@@ -45,32 +45,12 @@ void PrintableSolution<Input, Output1, Output2>::print() const
     std::cout << oss.str() << std::endl;
     std::cout << "🎅 Running Advent Of Code 2023: { " << solutionName << " } 🎅" << std::endl;
 
-    const auto input = this->readInput();
-    this->measure<Output1>(1, [&]() {
-        return this->part1(input);
-    });
-    this->measure<Output2>(2, [&]() {
-        return this->part2(input);
-    });
+    auto [output1, timing1] = this->template measure<Output1>( [&]() { return this->part1(input); });
+    std::cout << "Part 1: " << output1 << " | Timing: [" << timing1 << "]s" << std::endl;
+    auto [output2, timing2] = this->template measure<Output2>( [&]() { return this->part2(input); });
+    std::cout << "Part 2: " << output2 << " | Timing: [" << timing2 << "]s" << std::endl;
 
     std::cout << oss.str() << std::endl;
-}
-
-template <Readable Input, Streamable Output1, Streamable Output2>
-template<Streamable Output>
-void PrintableSolution<Input, Output1, Output2>::measure(int part, std::function<Output()> method) const
-{
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    std::chrono::duration<float> duration(0.0f);
-
-    start = std::chrono::high_resolution_clock::now();
-    auto output = method();
-    end = std::chrono::high_resolution_clock::now();
-
-    std::cout << "Part " << part << ": " << output;
-    duration = end - start;
-    std::cout << std::setfill(' ') << std::setw(20) << "🕰️  Timing: [" << duration.count() << "s]" << std::endl;
 }
 
 #endif // PRINTER_H

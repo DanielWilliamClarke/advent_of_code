@@ -2,9 +2,9 @@
 #define DAY_00_H
 #pragma once
 
-#include "main/solution/printer.h"
+#include "main/solution/day.h"
 
-class Day00 : public PrintableSolution<int, int>
+class Day00 : public Day<int, int>
 {
 public:
     virtual ~Day00() = default;
