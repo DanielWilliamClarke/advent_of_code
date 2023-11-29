@@ -15,7 +15,7 @@ template <Readable Input>
 class Printer 
 {
 public: 
-    virtual void print (std::vector<Input> input) const = 0;
+    virtual void print (const std::vector<Input>&) const = 0;
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
@@ -25,11 +25,11 @@ class SolutionPrinter :
         public Measurer
 {
 public:
-    void print(std::vector<Input> input) const override;
+    void print(const std::vector<Input>&) const override;
 };
 
 template <Readable Input, Streamable Output1, Streamable Output2>
-void SolutionPrinter<Input, Output1, Output2>::print(std::vector<Input> input) const
+void SolutionPrinter<Input, Output1, Output2>::print(const std::vector<Input>& input) const
 {
     // Magic typename method..
     int status;

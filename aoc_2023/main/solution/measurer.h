@@ -11,11 +11,11 @@ class Measurer
 {
 public:
     template<Streamable Output>
-    std::pair<Output, float> measure(std::function<Output()> method) const;
+    std::pair<Output, float> measure(const std::function<Output()>&) const;
 };
 
 template <Streamable Output>
-std::pair<Output, float> Measurer::measure(std::function<Output()> method) const
+std::pair<Output, float> Measurer::measure(const std::function<Output()>& method) const
 {
     std::chrono::duration<float> duration(0.0f);
 
