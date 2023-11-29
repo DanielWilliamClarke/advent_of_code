@@ -1,5 +1,11 @@
 # AdventOfCode2023 🎄
 
+This year I will be dusting off my C++ skills and learning more about Modern C++.
+
+I will be targetting `C++20` and compiling using Bazel.
+
+I am also taking this time to trial out CLion from Intellij.
+
 ## Install dependencies
 
 ### MacOS
@@ -9,7 +15,7 @@
 ```bash
 # for the first time you will need agree to the XCode license
 xcode-select --install 
-sudo xcode-select --switch /Applications/Xcode.app     
+sudo xcode-select --switch /Applications/Xcode.app # this was a bit of a faff
 sudo xcodebuild -license accept
 
 brew install bazel
