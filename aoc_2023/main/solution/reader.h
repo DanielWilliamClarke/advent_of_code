@@ -10,7 +10,7 @@ template<Readable Data>
 class Reader
 {
 public:
-    virtual std::vector<Data> readInput () const = 0;
+    virtual const std::vector<Data> readInput () const = 0;
 };
 
 template <Readable Input>
@@ -18,11 +18,11 @@ class FileInputReader : public Reader<Input>
 {
 public:
     [[nodiscard]] virtual constexpr std::string filename() const = 0;
-    std::vector<Input> readInput() const override;
+    const std::vector<Input> readInput() const override;
 };
 
 template <Readable Input>
-std::vector<Input> FileInputReader<Input>::readInput() const
+const std::vector<Input> FileInputReader<Input>::readInput() const
 {
     std::ifstream fs(this->filename());
     std::vector<Input> input;
