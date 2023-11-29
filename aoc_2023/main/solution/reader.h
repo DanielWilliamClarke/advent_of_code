@@ -1,6 +1,5 @@
 #ifndef READER_H
 #define READER_H
-#pragma once
 
 #include <fstream>
 #include <iterator>

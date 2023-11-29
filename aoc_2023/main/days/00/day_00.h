@@ -1,6 +1,5 @@
 #ifndef DAY_00_H
 #define DAY_00_H
-#pragma once
 
 #include "main/solution/day.h"
 

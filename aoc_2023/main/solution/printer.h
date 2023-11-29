@@ -1,6 +1,5 @@
 #ifndef PRINTER_H
 #define PRINTER_H
-#pragma once
 
 #include <iterator>
 #include <iostream>
