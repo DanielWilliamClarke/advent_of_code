@@ -36,6 +36,8 @@ const std::vector<Input> FileInputReader<Input>::readInput() const
     //     std::cout << line << std::endl;
     // });
 
+    fs.close();
+
     return input;
 }
 
