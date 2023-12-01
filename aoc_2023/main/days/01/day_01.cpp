@@ -1,6 +1,7 @@
 #include "day_01.h"
 
-#include <range/v3/all.hpp>
+#include <ranges>
+#include <numeric>
 
 constexpr std::string Day01::filename () const
 {
@@ -9,18 +10,21 @@ constexpr std::string Day01::filename () const
 
 int Day01::part1(const std::vector<std::string>& input) const
 {
-    auto calibrations = ranges::views::transform(input,[=](const std::string& code) -> int {
-        auto numbers = ranges::views::filter(code, [=] (unsigned char c) {
-            return std::isdigit(c);
+    return std::transform_reduce(
+        input.cbegin(),
+        input.cend(),
+        0,
+        std::plus<>(),
+        [=](const std::string& code) -> int {
+            auto numbers = std::views::filter(code, [=] (unsigned char c) {
+                return std::isdigit(c);
+            });
+
+            const auto first = numbers.front() - 0x30;
+            const auto last = numbers.back() - 0x30;
+
+            return first * 10 + last;
         });
-
-        const auto first = ranges::front(numbers) - 0x30;
-        const auto last = ranges::back(numbers) - 0x30;
-
-        return first * 10 + last;
-    });
-
-    return ranges::accumulate(calibrations, 0, std::plus<>());
 }
 
 int Day01::part2(const std::vector<std::string>& input) const
