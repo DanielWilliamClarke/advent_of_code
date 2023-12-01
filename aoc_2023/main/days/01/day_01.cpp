@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <stdexcept>
 
-int parseMatch(const std::sregex_iterator& match);
-
 const std::regex regex("(one|two|three|four|five|six|seven|eight|nine|[0-9])");
 
 const std::unordered_map<std::string, int> mapping = {
@@ -22,6 +20,15 @@ const std::unordered_map<std::string, int> mapping = {
         { "eight", 8 },
         { "nine",  9 },
 };
+
+int parseMatch(const std::sregex_iterator& match) {
+    auto matchStr = (*match).str();
+    try {
+        return mapping.at(matchStr);
+    } catch (const std::out_of_range& e) {
+        return std::stoi(matchStr);
+    }
+}
 
 constexpr std::string Day01::filename () const
 {
@@ -69,13 +76,3 @@ int Day01::part2(const std::vector<std::string>& input) const
             return first * 10 + last;
         });
 }
-
-int parseMatch(const std::sregex_iterator& match) {
-    auto matchStr = (*match).str();
-    try {
-        return mapping.at(matchStr);
-    } catch (const std::out_of_range& e) {
-        return std::stoi(matchStr);
-    }
-}
-
