@@ -14,10 +14,10 @@ int Day01::part1(const std::vector<std::string>& input) const
             return std::isdigit(c);
         });
 
-        auto first = std::to_string(ranges::front(numbers) - '0');
-        auto last = std::to_string(ranges::back(numbers) - '0');
+        const auto first = ranges::front(numbers) - 0x30;
+        const auto last = ranges::back(numbers) - 0x30;
 
-        return std::stoi(first + last);
+        return first * 10 + last;
     });
 
     return ranges::accumulate(calibrations, 0, std::plus<>());
