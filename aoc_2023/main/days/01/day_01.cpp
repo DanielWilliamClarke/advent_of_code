@@ -7,27 +7,21 @@
 #include <unordered_map>
 #include <stdexcept>
 
-const std::regex regex("(one|two|three|four|five|six|seven|eight|nine|[0-9])");
-const std::unordered_map<std::string, int> mapping = {
-    { "one", 1 },
-    { "two", 2 },
-    { "three", 3 },
-    { "four", 4 },
-    { "five", 5 },
-    { "six", 6 },
-    { "seven", 7 },
-    { "eight", 8 },
-    { "nine", 9 },
-};
+int parseMatch(const std::sregex_iterator& match);
 
-int parseMatch(const std::sregex_iterator& match) {
-    auto firstStr = (*match).str();
-    try {
-        return mapping.at(firstStr);
-    } catch (const std::out_of_range& e) {
-        return std::stoi(firstStr);
-    }
-}
+const std::regex regex("(one|two|three|four|five|six|seven|eight|nine|[0-9])");
+
+const std::unordered_map<std::string, int> mapping = {
+        { "one",   1 },
+        { "two",   2 },
+        { "three", 3 },
+        { "four",  4 },
+        { "five",  5 },
+        { "six",   6 },
+        { "seven", 7 },
+        { "eight", 8 },
+        { "nine",  9 },
+};
 
 constexpr std::string Day01::filename () const
 {
@@ -75,3 +69,13 @@ int Day01::part2(const std::vector<std::string>& input) const
             return first * 10 + last;
         });
 }
+
+int parseMatch(const std::sregex_iterator& match) {
+    auto matchStr = (*match).str();
+    try {
+        return mapping.at(matchStr);
+    } catch (const std::out_of_range& e) {
+        return std::stoi(matchStr);
+    }
+}
+
