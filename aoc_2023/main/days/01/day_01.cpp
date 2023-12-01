@@ -20,6 +20,15 @@ const std::unordered_map<std::string, int> mapping = {
     { "nine", 9 },
 };
 
+int parseMatch(const std::sregex_iterator& match) {
+    auto firstStr = (*match).str();
+    try {
+        return mapping.at(firstStr);
+    } catch (const std::out_of_range& e) {
+        return std::stoi(firstStr);
+    }
+}
+
 constexpr std::string Day01::filename () const
 {
     return "main/days/01/input.txt";
@@ -52,28 +61,16 @@ int Day01::part2(const std::vector<std::string>& input) const
         0,
         std::plus<>(),
         [=](const std::string& code) -> int {
-            auto numbersStart = std::sregex_iterator(code.cbegin(), code.cend(), regex);
-            auto numberEnd = std::sregex_iterator();
+            auto start = std::sregex_iterator(code.cbegin(), code.cend(), regex);
+            auto end = std::sregex_iterator();
 
-            auto firstStr = (*numbersStart).str();
-            auto first = 0;
-            try {
-                first = mapping.at(firstStr);
-            } catch (const std::out_of_range& e) {
-                first = std::stoi(firstStr);
+            auto lastIter = start;
+            for (auto iter = start; iter != end; ++iter) {
+                lastIter = iter;
             }
 
-            auto lastStr = firstStr;
-            for (auto iter = numbersStart; iter != numberEnd; ++iter) {
-                lastStr = (*iter).str();
-            }
-
-            auto last = 0;
-            try {
-                last = mapping.at(lastStr);
-            } catch (const std::out_of_range& e) {
-                last = std::stoi(lastStr);
-            }
+            auto first = parseMatch(start);
+            auto last = parseMatch(lastIter);
 
             return first * 10 + last;
         });
