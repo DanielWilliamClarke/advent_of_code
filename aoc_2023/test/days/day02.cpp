@@ -58,5 +58,5 @@ TEST(Day02, ValidateDay02_Part2)
     Day02 day02;
 
     auto input = day02.readInput();
-    EXPECT_EQ(day02.part2(input), 0);
+    EXPECT_EQ(day02.part2(input), 71274);
 }
