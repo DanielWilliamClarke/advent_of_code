@@ -11,25 +11,24 @@
 #include "measurer.h"
 #include "solution.h"
 
-template <Readable Input>
 class Printer 
 {
 public: 
-    virtual void print (const std::vector<Input>&) const = 0;
+    virtual void print (const std::vector<std::string>&) const = 0;
 };
 
-template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
+template <Streamable Output1, Streamable Output2 = Output1>
 class SolutionPrinter :
-        public Solution<Input, Output1, Output2>,
-        public Printer<Input>,
+        public Solution<Output1, Output2>,
+        public Printer,
         public Measurer
 {
 public:
-    void print(const std::vector<Input>&) const override;
+    void print(const std::vector<std::string>&) const override;
 };
 
-template <Readable Input, Streamable Output1, Streamable Output2>
-void SolutionPrinter<Input, Output1, Output2>::print(const std::vector<Input>& input) const
+template <Streamable Output1, Streamable Output2>
+void SolutionPrinter<Output1, Output2>::print(const std::vector<std::string>& input) const
 {
     // Magic typename method..
     int status;

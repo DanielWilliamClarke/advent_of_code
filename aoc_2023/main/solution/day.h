@@ -11,18 +11,18 @@ public:
     virtual void run () const = 0;
 };
 
-template <Readable Input, Streamable Output1, Streamable Output2 = Output1>
+template <Streamable Output1, Streamable Output2 = Output1>
 class Day :
-    public FileInputReader<Input>,
-    public SolutionPrinter<Input, Output1, Output2>,
+    public SolutionPrinter<Output1, Output2>,
+    public FileInputReader,
     public RunnableDay
 {
 public:
     void run () const override;
 };
 
-template <Readable Input, Streamable Output1, Streamable Output2>
-void Day<Input, Output1, Output2>::run() const {
+template <Streamable Output1, Streamable Output2>
+void Day<Output1, Output2>::run() const {
     auto input = this->readInput();
     this->print(input);
 }

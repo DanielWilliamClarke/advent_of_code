@@ -2,9 +2,9 @@
 
 #include "main/solution/reader.h"
 
-class TestFileInputReader : public FileInputReader<std::string> {
+class TestFileInputReader : public FileInputReader {
 public:
-    [[nodiscard]] constexpr std::string filename() const override { return "test/solution/input.txt"; } ;
+    [[nodiscard]] constexpr std::string filename() const override { return "test/solution/input.txt"; };
 };
 
 TEST(Solution, CanReadAFileToVector) 

@@ -1,44 +1,14 @@
 #ifndef READER_H
 #define READER_H
 
-#include <fstream>
-#include <iterator>
+#include <vector>
+#include <string>
 
-#include "constraints.h"
-
-template<Readable Data>
-class Reader
-{
-public:
-    virtual const std::vector<Data> readInput () const = 0;
-};
-
-template <Readable Input>
-class FileInputReader : public Reader<Input>
+class FileInputReader
 {
 public:
     [[nodiscard]] virtual constexpr std::string filename() const = 0;
-    const std::vector<Input> readInput() const override;
+    [[nodiscard]] std::vector<std::string> readInput() const;
 };
-
-template <Readable Input>
-const std::vector<Input> FileInputReader<Input>::readInput() const
-{
-    std::ifstream fs(this->filename());
-    std::vector<Input> input;
-
-    std::copy(
-            std::istream_iterator<Input>(fs),
-            std::istream_iterator<Input>(),
-            std::back_inserter(input));
-
-    // std::for_each(input.begin(), input.end(), [](std::string line) {
-    //     std::cout << line << std::endl;
-    // });
-
-    fs.close();
-
-    return input;
-}
 
 #endif // READER_H

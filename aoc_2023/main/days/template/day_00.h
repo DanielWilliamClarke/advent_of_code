@@ -3,7 +3,7 @@
 
 #include "main/solution/day.h"
 
-class Day00 : public Day<std::string, int>
+class Day00 : public Day<int>
 {
 public:
     virtual ~Day00() = default;
