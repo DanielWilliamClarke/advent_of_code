@@ -45,13 +45,13 @@ std::vector<Handful> parseHandfuls(const std::string &str) {
                     auto colorName = colors.back();
                     
                     if (colorName == "red") {
-                    acc.red = amount;
+                        acc.red = amount;
                     }
                     if (colorName == "blue") {
-                    acc.blue = amount;
+                        acc.blue = amount;
                     }
                     if (colorName == "green") {
-                    acc.green = amount;
+                        acc.green = amount;
                     }
 
                     return acc;
