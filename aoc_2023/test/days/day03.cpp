@@ -215,7 +215,7 @@ TEST(Day03_Utils, Returns0ForUnpairedGear) {
 
     std::vector<std::string> data = {
             "....../.110.",
-            "..#882.....",
+            "..#882...32",
             "....209*.76"
     };
     auto actualRatio = calculateGearRatio(data, 7, 2);

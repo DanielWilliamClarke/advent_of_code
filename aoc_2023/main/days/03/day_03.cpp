@@ -87,23 +87,15 @@ bool isAdjacentTo(const std::shared_ptr<Candidate>& candidate, int gearX, int ge
     auto startY = candidate->start.y - 1;
     auto endY = candidate->end.y + 1;
 
-    for (auto y = startY; y <= endY; y++)
-    {
-        for (auto x = startX; x <= endX; x++)
-        {
-            if (x == gearX && y == gearY)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return (
+        gearX >= startX && gearX <= endX &&
+        gearY >= startY && gearY <= endY
+    );
 }
 
 int calculateGearRatio(const std::vector<std::string>& input, int x, int y)
 {
-    // bounds checking
+    // Construct search space
     auto startX = x - 3;
     if (startX < 0)
     {
@@ -138,11 +130,9 @@ int calculateGearRatio(const std::vector<std::string>& input, int x, int y)
                 candidates.emplace_back(std::make_shared<Candidate>());
             }
 
-            auto candidate = candidates.back();
-
             captureEnginePart(
                 input,
-                candidate,
+                candidates.back(),
                 Coordinate(xi, yi),
                 endX
             );
