@@ -17,12 +17,16 @@ struct Coordinate {
 };
 
 struct Candidate {
+    bool closed;
     std::string number;
     Coordinate start;
     Coordinate end;
 };
 
-bool validateEnginePart(const std::vector<std::string>& input, const Candidate& candidate);
+void captureEnginePart(const std::vector<std::string>& input, const std::shared_ptr<Candidate>& candidate, const Coordinate& coordinate, const int maxX);
+bool validateEnginePart(const std::vector<std::string>& input, const std::shared_ptr<Candidate>& candidate);
+bool isAdjacentTo(const std::shared_ptr<Candidate>& candidate, int gearX, int gearY);
+int calculateGearRatio(const std::vector<std::string>& input, int x, int y);
 
 class Day03 : public Day<int>
 {
