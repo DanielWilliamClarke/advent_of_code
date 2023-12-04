@@ -48,6 +48,7 @@ int Day04::part2(const std::vector<std::string>& input) const
         auto winners = findWinners(input[i]);
 
         for(auto j = i + 1; j < i + 1 + winners; ++j) {
+            // add the total copies for each card for each instance of the winning card
             cardCounts[j] += cardCounts[i];
         }
     }
