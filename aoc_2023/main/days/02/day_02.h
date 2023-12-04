@@ -26,7 +26,6 @@ struct Game {
     { }
 };
 
-std::vector<std::string> splitString(const std::string& str, char delim);
 int extractNumber(const std::string& game);
 std::vector<Handful> parseHandfuls(const std::string& str);
 Game parseGameString (const std::string& str);
