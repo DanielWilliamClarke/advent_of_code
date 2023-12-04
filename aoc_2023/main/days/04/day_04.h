@@ -3,6 +3,8 @@
 
 #include "main/solution/day.h"
 
+int findWinners(const std::string& card);
+
 class Day04 : public Day<int>
 {
 public:
