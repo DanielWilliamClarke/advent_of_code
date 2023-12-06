@@ -43,25 +43,18 @@ long long processRaces(const std::vector<Race>& races)
         races.end(),
         1,
         std::multiplies<>(),
-        [](const Race& race) {
-            auto total = 0;
+        [=](const Race& race) {
+            double limit = race.time;
+            double record = race.distance;
 
-            for(auto speed = 0; speed < race.time; speed++) {
-                auto travelTime = race.time - speed;
+            // Presenting the quadratic formula 🫱
+            auto min = (limit - std::sqrt(std::pow(limit, 2.) - 4. * record)) / 2.;
+            auto max = (limit + std::sqrt(std::pow(limit, 2.) - 4. * record)) / 2.;
 
-                auto distanceTravelled = speed * travelTime;
+            auto minHold = std::floor(min + 1);
+            auto maxHold = std::ceil(max - 1);
 
-                if (distanceTravelled > race.distance) {
-                    total += 1;
-                }
-            }
-
-            // not to wipe out the result
-            if (total == 0) {
-                return 1;
-            }
-
-            return total;
+            return maxHold - minHold + 1;
         });
 }
 
