@@ -13,8 +13,22 @@ struct Mapping {
     {}
 };
 
+struct SeedRange {
+    long long id;
+    long long length;
+
+    SeedRange()
+        : id(0), length(0)
+    {}
+
+    SeedRange(long long id, long long length)
+        : id(id), length(length)
+    {}
+};
+
 std::vector<long long> parseSeeds(const std::string& line);
 std::vector<std::vector<Mapping>> parseMaps(const std::vector<std::string>& input);
+std::vector<SeedRange> parseSeedRanges(const std::string& line);
 
 class Day05 : public Day<long long>
 {

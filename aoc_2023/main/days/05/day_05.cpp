@@ -1,6 +1,7 @@
 #include "day_05.h"
 
 #include <ranges>
+#include <thread>
 
 #include "main/solution/string_utils.h"
 
@@ -55,6 +56,47 @@ std::vector<std::vector<Mapping>> parseMaps(const std::vector<std::string>& inpu
     return maps;
 }
 
+std::vector<SeedRange> parseSeedRanges(const std::string& line)
+{
+    auto seeds = parseSeeds(line);
+
+    std::vector<SeedRange> seedRanges = { };
+
+    for(auto iter = seeds.begin(); iter != seeds.end(); iter+=2) {
+        seedRanges.push_back(SeedRange(
+            *iter,
+            *(iter + 1)
+        ));
+    }
+
+    return seedRanges;
+}
+
+bool hasOverlap(const SeedRange& sr, const Mapping& m)
+{
+    // [x1:x2] and [y1:y2]
+    // x1 <= y2 && y1 <= x2
+
+    auto x1 = sr.id;
+    auto x2 = sr.id + sr.length;
+
+    auto y1 = m.source;
+    auto y2 = m.source + m.length;
+
+    return (
+      x1 <= y2 &&
+      y1 <= x2
+    );
+}
+
+SeedRange findOverlap(const SeedRange& sr, const Mapping& m)
+{
+    return {
+        std::max(sr.id, m.source),
+        std::min(sr.id + sr.length, m.source + m.length)
+    };
+}
+
 constexpr std::string Day05::filename () const 
 {
     return "main/days/05/input.txt";
@@ -94,7 +136,15 @@ long long Day05::part1(const std::vector<std::string>& input) const
     return std::ranges::min(locations);
 }
 
+std::mutex coutMutex;
+
+// https://www.youtube.com/watch?v=_RpZrD3CaDc
 long long Day05::part2(const std::vector<std::string>& input) const
 {
+    auto seeds = parseSeedRanges(input.at(0));
+
+    // parse seeds
+    auto maps = parseMaps({input.begin() + 2, input.end() });
+
     return 0;
 }
