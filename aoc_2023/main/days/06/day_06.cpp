@@ -70,7 +70,7 @@ constexpr std::string Day06::filename () const
     return "main/days/06/input.txt";
 }
 
-int Day06::part1(const std::vector<std::string>& input) const
+long long Day06::part1(const std::vector<std::string>& input) const
 {
     return processRaces(
         parseRaces(

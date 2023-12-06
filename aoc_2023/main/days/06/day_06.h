@@ -16,13 +16,13 @@ std::vector<long long> parseNumbers(const std::string& line, bool ignoreWhitespa
 std::vector<Race> parseRaces(const std::string& times, const std::string& distances, bool ignoreWhitespace = false);
 long long processRaces(const std::vector<Race>& races);
 
-class Day06 : public Day<int, long long>
+class Day06 : public Day<long long>
 {
 public:
     virtual ~Day06() = default;
 
     [[nodiscard]] constexpr std::string filename() const override;
-    [[nodiscard]] int part1(const std::vector<std::string>&) const override;
+    [[nodiscard]] long long part1(const std::vector<std::string>&) const override;
     [[nodiscard]] long long part2(const std::vector<std::string>&) const override;
 };
 
