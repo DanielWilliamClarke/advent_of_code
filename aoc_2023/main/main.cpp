@@ -8,6 +8,7 @@
 #include "main/days/04/day_04.h"
 #include "main/days/05/day_05.h"
 #include "main/days/06/day_06.h"
+#include "main/days/07/day_07.h"
 
 int main () 
 {
@@ -19,6 +20,7 @@ int main ()
         std::make_shared<Day04>(),
         std::make_shared<Day05>(),
         std::make_shared<Day06>(),
+        std::make_shared<Day07>(),
     };
 
     std::ranges::for_each(days, [=] (auto day) { day->run(); });
