@@ -27,21 +27,34 @@ enum CardType {
     FOUR = 4,
     THREE = 3,
     TWO = 2,
+    JOKER = 1,
 };
 
-struct Hand {
-    std::vector<CardType> cards;
-    HandType type;
-    int bid;
+struct Card {
+    CardType card;
+    CardType actingAs;
 
-    Hand(const std::vector<CardType>& cards, HandType type, int bid)
-        : cards(cards), type(type), bid(bid)
+    Card(CardType card, CardType actingAs)
+        : card(card), actingAs(actingAs)
     {}
 };
 
-CardType mapCard(const char& card);
-HandType categorizeHand(const std::vector<char>& cards);
-std::vector<Hand> parseHands(const std::vector<std::string>& input);
+struct Hand {
+    std::string str;
+    std::vector<Card> cards;
+    HandType type;
+    int bid;
+
+    Hand(std::string str, std::vector<Card>& cards, HandType type, int bid)
+        : str(str), cards(cards), type(type), bid(bid)
+    {}
+};
+
+CardType mapCard(const char& card, const bool jokersWild = false);
+CardType findBestCard(const std::vector<char>& cards);
+std::pair<HandType, CardType> categorizeHand(const std::vector<char>& cards);
+std::vector<Hand> parseHands(const std::vector<std::string>& input, const bool jokersWild = false);
+int rankHands(std::vector<Hand> hands);
 
 class Day07 : public Day<int>
 {
