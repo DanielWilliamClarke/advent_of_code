@@ -2,6 +2,7 @@
 
 #include <ranges>
 #include <thread>
+#include <utility>
 
 #include "main/solution/string_utils.h"
 
@@ -56,45 +57,53 @@ std::vector<std::vector<Mapping>> parseMaps(const std::vector<std::string>& inpu
     return maps;
 }
 
-std::vector<SeedRange> parseSeedRanges(const std::string& line)
+std::vector<Range> parseRanges(const std::string& line)
 {
     auto seeds = parseSeeds(line);
 
-    std::vector<SeedRange> seedRanges = { };
+    std::vector<Range> seedRanges = { };
 
     for(auto iter = seeds.begin(); iter != seeds.end(); iter+=2) {
-        seedRanges.push_back(SeedRange(
-            *iter,
-            *(iter + 1)
-        ));
+        seedRanges.emplace_back(
+        *iter,
+        *iter + *(iter + 1)
+        );
     }
 
     return seedRanges;
 }
 
-bool hasOverlap(const SeedRange& sr, const Mapping& m)
+std::pair<std::optional<Range>, std::vector<Range>> overlapMapping(const Range& range, const Mapping& mapping)
 {
-    // [x1:x2] and [y1:y2]
-    // x1 <= y2 && y1 <= x2
+    auto mappingStart = mapping.source;
+    auto mappingStop = mapping.source + mapping.length - 1;
 
-    auto x1 = sr.id;
-    auto x2 = sr.id + sr.length;
+    auto overlapStart = std::max(range.start, mappingStart);
+    auto overlapStop = std::min(range.stop, mappingStop);
 
-    auto y1 = m.source;
-    auto y2 = m.source + m.length;
+    if (overlapStart > overlapStop) {
+        // no overlap
+        std::vector<Range> remaining = { range };
+        return std::make_pair(std::nullopt, remaining);
+    }
 
-    return (
-      x1 <= y2 &&
-      y1 <= x2
+    auto resultStart = overlapStart + mapping.destination - mappingStart;
+    auto resultStop = overlapStop + mapping.destination - mappingStart;
+
+    std::vector<Range> remaining;
+    if (overlapStart > range.start)
+    {
+        remaining.emplace_back(range.start, overlapStart - 1);
+    }
+
+    if (overlapStop < range.stop) {
+        remaining.emplace_back(overlapStop + 1, range.stop);
+    }
+
+    return std::make_pair(
+        std::optional<Range>({resultStart, resultStop}),
+        remaining
     );
-}
-
-SeedRange findOverlap(const SeedRange& sr, const Mapping& m)
-{
-    return {
-        std::max(sr.id, m.source),
-        std::min(sr.id + sr.length, m.source + m.length)
-    };
 }
 
 constexpr std::string Day05::filename () const 
@@ -136,15 +145,43 @@ long long Day05::part1(const std::vector<std::string>& input) const
     return std::ranges::min(locations);
 }
 
-std::mutex coutMutex;
-
-// https://www.youtube.com/watch?v=_RpZrD3CaDc
+// Confession: this part really stumped me
+// Ending up following this video for the solve: https://www.youtube.com/watch?v=OjWhoZ3Icrs
 long long Day05::part2(const std::vector<std::string>& input) const
 {
-    auto seeds = parseSeedRanges(input.at(0));
+    auto ranges = parseRanges(input.at(0));
 
     // parse seeds
     auto maps = parseMaps({input.begin() + 2, input.end() });
 
-    return 0;
+    std::vector<Range> currentRanges = ranges;
+    for(const auto& mappings : maps) {
+        std::vector<Range> newRanges;
+
+        for(auto mapping :  mappings) {
+            std::vector<Range> newCurrentRanges;
+
+            for(auto range : currentRanges) {
+                auto [translated, remaining] = overlapMapping(range, mapping);
+
+                if (translated) {
+                    newRanges.push_back(*translated);
+                }
+
+                newCurrentRanges.insert(newCurrentRanges.end(), remaining.begin(), remaining.end());
+            }
+
+            currentRanges = newCurrentRanges;
+        }
+
+        newRanges.insert(newRanges.end(), currentRanges.begin(), currentRanges.end());
+
+        currentRanges = newRanges;
+    }
+
+    auto smallest = std::ranges::min_element(currentRanges, [=] (auto a, auto b) {
+        return a.start < b .start;
+    });
+
+    return smallest->start;
 }

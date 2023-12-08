@@ -13,22 +13,24 @@ struct Mapping {
     {}
 };
 
-struct SeedRange {
-    long long id;
-    long long length;
+struct Range {
+    long long start;
+    long long stop;
 
-    SeedRange()
-        : id(0), length(0)
+    Range()
+        : start(0), stop(0)
     {}
 
-    SeedRange(long long id, long long length)
-        : id(id), length(length)
+    Range(long long start, long long stop)
+        : start(start), stop(stop)
     {}
 };
 
 std::vector<long long> parseSeeds(const std::string& line);
 std::vector<std::vector<Mapping>> parseMaps(const std::vector<std::string>& input);
-std::vector<SeedRange> parseSeedRanges(const std::string& line);
+std::vector<Range> parseRanges(const std::string& line);
+
+std::pair<std::optional<Range>, std::vector<Range>> overlapMapping(const Range& range, const Mapping& mapping);
 
 class Day05 : public Day<long long>
 {
