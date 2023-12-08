@@ -62,8 +62,8 @@ std::vector<Range> parseRanges(const std::string& line)
     auto seeds = parseSeeds(line);
 
     std::vector<Range> seedRanges = { };
-
-    for(auto iter = seeds.begin(); iter != seeds.end(); iter+=2) {
+    for(auto iter = seeds.begin(); iter != seeds.end(); iter+=2)
+    {
         seedRanges.emplace_back(
         *iter,
         *iter + *(iter + 1)
@@ -81,7 +81,8 @@ std::pair<std::optional<Range>, std::vector<Range>> overlapMapping(const Range& 
     auto overlapStart = std::max(range.start, mappingStart);
     auto overlapStop = std::min(range.stop, mappingStop);
 
-    if (overlapStart > overlapStop) {
+    if (overlapStart > overlapStop)
+    {
         // no overlap
         std::vector<Range> remaining = { range };
         return std::make_pair(std::nullopt, remaining);
@@ -96,7 +97,8 @@ std::pair<std::optional<Range>, std::vector<Range>> overlapMapping(const Range& 
         remaining.emplace_back(range.start, overlapStart - 1);
     }
 
-    if (overlapStop < range.stop) {
+    if (overlapStop < range.stop)
+    {
         remaining.emplace_back(overlapStop + 1, range.stop);
     }
 
@@ -146,22 +148,23 @@ long long Day05::part1(const std::vector<std::string>& input) const
 }
 
 // Confession: this part really stumped me
-// Ending up following this video for the solve: https://www.youtube.com/watch?v=OjWhoZ3Icrs
+// Ending up following this video to solve: https://www.youtube.com/watch?v=OjWhoZ3Icrs
 long long Day05::part2(const std::vector<std::string>& input) const
 {
-    auto ranges = parseRanges(input.at(0));
-
-    // parse seeds
     auto maps = parseMaps({input.begin() + 2, input.end() });
 
-    std::vector<Range> currentRanges = ranges;
-    for(const auto& mappings : maps) {
+    auto currentRanges = parseRanges(input.at(0));
+
+    for(const auto& mappings : maps)
+    {
         std::vector<Range> newRanges;
 
-        for(auto mapping :  mappings) {
+        for(auto mapping :  mappings)
+        {
             std::vector<Range> newCurrentRanges;
 
-            for(auto range : currentRanges) {
+            for(auto range : currentRanges)
+            {
                 auto [translated, remaining] = overlapMapping(range, mapping);
 
                 if (translated) {
@@ -174,14 +177,14 @@ long long Day05::part2(const std::vector<std::string>& input) const
             currentRanges = newCurrentRanges;
         }
 
-        newRanges.insert(newRanges.end(), currentRanges.begin(), currentRanges.end());
-
-        currentRanges = newRanges;
+        currentRanges.insert(currentRanges.end(), newRanges.begin(), newRanges.end());
     }
 
-    auto smallest = std::ranges::min_element(currentRanges, [=] (auto a, auto b) {
-        return a.start < b .start;
-    });
+    auto smallest = std::ranges::min_element(
+        currentRanges,
+        [=] (auto a, auto b) {
+            return a.start < b .start;
+        });
 
     return smallest->start;
 }
