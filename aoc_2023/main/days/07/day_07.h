@@ -27,7 +27,7 @@ enum CardType {
     FOUR = 4,
     THREE = 3,
     TWO = 2,
-    JOKER = 1,
+    JOKER = 0,
 };
 
 struct Card {
