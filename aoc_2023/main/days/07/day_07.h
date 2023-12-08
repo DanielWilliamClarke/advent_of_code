@@ -34,9 +34,13 @@ struct Card {
     CardType card;
     CardType actingAs;
 
-    Card(CardType card, CardType actingAs)
-        : card(card), actingAs(actingAs)
+    Card(CardType card)
+        : card(card), actingAs(card)
     {}
+
+    void setActingAs(CardType card) {
+        this->actingAs = card;
+    }
 };
 
 struct Hand {
@@ -50,10 +54,10 @@ struct Hand {
     {}
 };
 
-CardType mapCard(const char& card, const bool jokersWild = false);
+CardType mapCard(const char& card, bool jokersWild = false);
 CardType findBestCard(const std::vector<char>& cards);
 std::pair<HandType, CardType> categorizeHand(const std::vector<char>& cards);
-std::vector<Hand> parseHands(const std::vector<std::string>& input, const bool jokersWild = false);
+std::vector<Hand> parseHands(const std::vector<std::string>& input, bool jokersWild = false);
 int rankHands(std::vector<Hand> hands);
 
 class Day07 : public Day<int>

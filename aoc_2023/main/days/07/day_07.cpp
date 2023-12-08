@@ -6,7 +6,7 @@
 
 #include "main/solution/string_utils.h"
 
-CardType mapCard(const char& card, const bool jokersWild)
+CardType mapCard(const char& card, bool jokersWild)
 {
     switch (card)
     {
@@ -100,7 +100,7 @@ std::pair<HandType, CardType> categorizeHand(const std::vector<Card>& cards)
     };
 }
 
-std::vector<Hand> parseHands(const std::vector<std::string>& input, const bool jokersWild)
+std::vector<Hand> parseHands(const std::vector<std::string>& input, bool jokersWild)
 {
     auto hands = input
         | std::views::transform([&jokersWild](const std::string& line) -> Hand {
@@ -110,7 +110,7 @@ std::vector<Hand> parseHands(const std::vector<std::string>& input, const bool j
                 | std::views::transform([&jokersWild](const char& card) -> Card {
                     auto cardType = mapCard(card, jokersWild);
 
-                    return { cardType, cardType };
+                    return { cardType };
                 });
 
             std::vector<Card> cards = { mappedCards.begin(), mappedCards.end() };
@@ -122,7 +122,7 @@ std::vector<Hand> parseHands(const std::vector<std::string>& input, const bool j
                 auto jokeredCards = cards
                     | std::views::transform([&type](Card card) -> Card {
                         if (card.card == CardType::JOKER) {
-                            card.actingAs = type.second;
+                            card.setActingAs(type.second);
                         }
 
                         return card;
