@@ -55,7 +55,6 @@ struct Hand {
 };
 
 CardType mapCard(const char& card, bool jokersWild = false);
-CardType findBestCard(const std::vector<char>& cards);
 std::pair<HandType, CardType> categorizeHand(const std::vector<char>& cards);
 std::vector<Hand> parseHands(const std::vector<std::string>& input, bool jokersWild = false);
 int rankHands(std::vector<Hand> hands);
