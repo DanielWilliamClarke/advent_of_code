@@ -10,6 +10,7 @@
 #include "main/days/06/day_06.h"
 #include "main/days/07/day_07.h"
 #include "main/days/08/day_08.h"
+#include "main/days/09/day_09.h"
 
 int main () 
 {
@@ -23,7 +24,8 @@ int main ()
             std::make_shared<Day05>(),
             std::make_shared<Day06>(),
             std::make_shared<Day07>(),
-            std::make_shared<Day08>()
+            std::make_shared<Day08>(),
+            std::make_shared<Day09>()
         },
         [=] (auto day) { day->run(); }
     );
