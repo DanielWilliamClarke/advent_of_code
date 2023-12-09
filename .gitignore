@@ -3,3 +3,5 @@ bazel-*
 
 input.txt
 example.txt
+input
+puzzle.md

@@ -14,11 +14,14 @@ I am also taking this time to trial out CLion from Intellij.
 
 ```bash
 # for the first time you will need agree to the XCode license
-xcode-select --install 
+sudo xcode-select --install 
 sudo xcode-select --switch /Applications/Xcode.app # this was a bit of a faff
 sudo xcodebuild -license accept
 
 brew install bazel
+
+brew install scarvalhojr/tap/aoc-cli
+# session aco-cli following instructions from https://github.com/scarvalhojr/aoc-cli
 ```
 
 ## Build, test and run
@@ -38,6 +41,24 @@ bazel test --test_output=all //test:aoc-2023
 
 # Build and Run AOC 2023 executable
 bazel run main/aoc-2023
+```
+
+## Download AOC input 
+
+```bash
+chmod +x ./new_day
+
+./new_day <DAY>
+
+# ✨  Creating day 10 directory: main/days/10 
+# ✨  Creating day 10 header file: [main/days/10/day_10.h] 
+# ✨  Creating day 10 source file: [main/days/10/day_10.cpp] 
+# ✨  Creating day 10 test file: [test/days/10/day10.cpp] 
+# 🔨  Adding day 10 to main.cpp 
+# 📬  Downloading AOC day 10 data 
+# [INFO  aoc] 🎄 aoc-cli - Advent of Code command-line tool
+# [INFO  aoc_client] 🎅 Saved puzzle to 'main/days/10/puzzle.md'
+# [INFO  aoc_client] 🎅 Saved input to 'main/days/10/input.txt'
 ```
 
 #### Project Dependencies

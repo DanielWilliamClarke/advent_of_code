@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DAY=$1
+
+printf "✨  Creating day $DAY directory: main/days/$DAY \n";
+mkdir -p main/days/$DAY
+
+printf "✨  Creating day $DAY header file: [main/days/$DAY/day_$DAY.h] \n";
+cp main/days/template/day_00.h main/days/$DAY/day_$DAY.h
+sed -i '' -e "s|00|$DAY|g" "main/days/$DAY/day_$DAY.h"
+
+printf "✨  Creating day $DAY source file: [main/days/$DAY/day_$DAY.cpp] \n";
+cp main/days/template/day_00.cpp main/days/$DAY/day_$DAY.cpp
+sed -i '' -e "s|00|$DAY|g" "main/days/$DAY/day_$DAY.cpp"
+
+printf "✨  Creating day $DAY test file: [test/days/$DAY/day$DAY.cpp] \n";
+cp test/days/dayTest.cpp test/days/day$DAY.cpp
+sed -i '' -e "s|00|$DAY|g" "test/days/day$DAY.cpp"
+
+printf "🔨 Adding day $DAY to main.cpp \n"
+sed -i '' -e "s|//NEW_DAY_HEADER|#include \"main/days/$DAY/day_$DAY.h\"\n//NEW_DAY_HEADER|g" "main/main.cpp"
+sed -i '' -e "s|//NEW_DAY_PTR,|std::make_shared<Day$DAY>(),\n            //NEW_DAY_PTR,|g" "main/main.cpp"
+
+printf "📬 Downloading AOC day $DAY data \n"
+aoc download \
+--input-file main/days/$DAY/input.txt \
+--puzzle-file main/days/$DAY/puzzle.md \
+--overwrite
