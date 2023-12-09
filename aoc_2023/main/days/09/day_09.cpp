@@ -25,12 +25,7 @@ long long processHistory(const std::vector<long long>& history)
     // generate analyses
     std::vector<std::vector<long long>> analyses = { history };
 
-    while(
-        std::ranges::any_of(analyses.back(), [=](long long number) {
-            return number != 0;
-        })
-    )
-    {
+    do {
         auto currentLevel = analyses.back();
         auto length = currentLevel.size() - 1;
 
@@ -42,7 +37,11 @@ long long processHistory(const std::vector<long long>& history)
         }
 
         analyses.push_back(currentAnalysis);
-    }
+    } while(
+        std::ranges::any_of(analyses.back(), [=](long long number) {
+            return number != 0;
+        })
+    );
 
     return std::accumulate(
         analyses.rbegin(),
