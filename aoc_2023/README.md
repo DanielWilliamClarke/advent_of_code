@@ -91,3 +91,4 @@ xdot <(bazel query --notool_deps --noimplicit_deps "deps(//test:aoc-2023)" --out
 - <https://stackoverflow.com/questions/72488330/mediapipe-how-to-configure-debugger-using-vs-code-and-bazel>
 - <https://youtu.be/-TUogVOs1Qg?feature=shared>
 - <https://ericniebler.github.io/range-v3/>
+- <https://github.com/scarvalhojr/aoc-cli>
