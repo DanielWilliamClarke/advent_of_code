@@ -1,2 +1,5 @@
 dist
 bazel-*
+
+input.txt
+example.txt
