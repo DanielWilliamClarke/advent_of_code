@@ -21,7 +21,7 @@ sudo xcodebuild -license accept
 brew install bazel
 
 brew install scarvalhojr/tap/aoc-cli
-# session aco-cli following instructions from https://github.com/scarvalhojr/aoc-cli
+# Add session to aoc-cli following instructions from https://github.com/scarvalhojr/aoc-cli
 ```
 
 ## Build, test and run
@@ -43,7 +43,7 @@ bazel test --test_output=all //test:aoc-2023
 bazel run main/aoc-2023
 ```
 
-## Download AOC input 
+## Create AOC days and fetch input from aoc-cli
 
 ```bash
 chmod +x ./new_day
