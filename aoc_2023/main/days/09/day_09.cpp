@@ -84,6 +84,7 @@ long long Day09::part2(const std::vector<std::string>& input) const
         0,
         std::plus<>(),
         [=](const std::vector<long long>& history) -> long long {
+            // Big brain time
             return processHistory({history.rbegin(), history.rend()});
         }
     );
