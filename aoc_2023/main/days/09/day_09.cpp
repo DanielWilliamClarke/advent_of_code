@@ -20,7 +20,7 @@ std::vector<std::vector<long long>> parseHistories(const std::vector<std::string
     return { histories.begin(), histories.end() };
 }
 
-long long processHistory(const std::vector<long long>& history, AnalysisDirection direction)
+long long processHistory(const std::vector<long long>& history)
 {
     // generate analyses
     std::vector<std::vector<long long>> analyses = { history };
@@ -49,9 +49,7 @@ long long processHistory(const std::vector<long long>& history, AnalysisDirectio
         analyses.rend(),
         0,
         [=] (long long acc, const std::vector<long long>& analysis) -> long long {
-            return direction == AnalysisDirection::Forwards
-                ? acc + analysis.back()
-                : analysis.front() - acc;
+            return acc + analysis.back();
         }
     );
 }
@@ -71,7 +69,7 @@ long long Day09::part1(const std::vector<std::string>& input) const
         0,
         std::plus<>(),
         [=](const std::vector<long long>& history) -> long long {
-            return processHistory(history, AnalysisDirection::Forwards);
+            return processHistory(history);
         }
     );
 }
@@ -86,7 +84,7 @@ long long Day09::part2(const std::vector<std::string>& input) const
         0,
         std::plus<>(),
         [=](const std::vector<long long>& history) -> long long {
-            return processHistory(history, AnalysisDirection::Backwards);
+            return processHistory({history.rbegin(), history.rend()});
         }
     );
 }

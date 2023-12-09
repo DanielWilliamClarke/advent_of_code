@@ -3,13 +3,8 @@
 
 #include "main/solution/day.h"
 
-enum AnalysisDirection {
-    Forwards,
-    Backwards
-};
-
 std::vector<std::vector<long long>> parseHistories(const std::vector<std::string>& input);
-long long processHistory(const std::vector<long long>& history, AnalysisDirection direction);
+long long processHistory(const std::vector<long long>& history);
 
 class Day09 : public Day<long long>
 {
