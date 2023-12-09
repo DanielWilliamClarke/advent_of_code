@@ -21,8 +21,4 @@ printf "🔨 Adding day $DAY to main.cpp \n"
 sed -i '' -e "s|//NEW_DAY_HEADER|#include \"main/days/$DAY/day_$DAY.h\"\n//NEW_DAY_HEADER|g" "main/main.cpp"
 sed -i '' -e "s|//NEW_DAY_PTR,|std::make_shared<Day$DAY>(),\n            //NEW_DAY_PTR,|g" "main/main.cpp"
 
-printf "📬 Downloading AOC day $DAY data \n"
-aoc download \
---input-file main/days/$DAY/input.txt \
---puzzle-file main/days/$DAY/puzzle.md \
---overwrite
+./download $DAY

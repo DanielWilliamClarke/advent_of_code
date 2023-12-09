@@ -47,7 +47,6 @@ bazel run main/aoc-2023
 
 ```bash
 chmod +x ./new_day
-
 ./new_day <DAY>
 
 # ✨  Creating day 10 directory: main/days/10 
@@ -59,6 +58,10 @@ chmod +x ./new_day
 # [INFO  aoc] 🎄 aoc-cli - Advent of Code command-line tool
 # [INFO  aoc_client] 🎅 Saved puzzle to 'main/days/10/puzzle.md'
 # [INFO  aoc_client] 🎅 Saved input to 'main/days/10/input.txt'
+
+# useful if you only need to get the days input
+chmod +x ./download
+./download <DAY>
 ```
 
 #### Project Dependencies

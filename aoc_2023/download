@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DAY=$1
+
+printf "📬 Downloading AOC day $DAY data \n"
+aoc download \
+--input-file main/days/$DAY/input.txt \
+--puzzle-file main/days/$DAY/puzzle.md \
+--overwrite
