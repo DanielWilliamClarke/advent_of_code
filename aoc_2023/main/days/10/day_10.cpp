@@ -235,24 +235,19 @@ int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid
 
         for(const auto& cell : line)
         {
-
             if (cell->type == PipeType::UP_DOWN)
             {
-//                assert(!up);
                 within = !within;
             }
             else if (cell->type == PipeType::LEFT_RIGHT)
             {
-//                assert(up);
             }
             else if (cell->type == PipeType::DOWN_RIGHT || cell->type == PipeType::UP_RIGHT)
             {
-//                assert(!up);
                 up = cell->type == PipeType::DOWN_RIGHT;
             }
             else if (cell->type == PipeType::DOWN_LEFT || cell->type == PipeType::UP_LEFT)
             {
-//                assert(up);
                 if (cell->type != (up ? PipeType::DOWN_LEFT : PipeType::UP_LEFT))
                 {
                     within = !within;

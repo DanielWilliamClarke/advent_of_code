@@ -16,6 +16,7 @@ sed -i '' -e "s|00|$DAY|g" "main/days/$DAY/day_$DAY.cpp"
 printf "✨  Creating day $DAY test file: [test/days/$DAY/day$DAY.cpp] \n";
 cp test/days/dayTest.cpp test/days/day$DAY.cpp
 sed -i '' -e "s|00|$DAY|g" "test/days/day$DAY.cpp"
+sed -i '' -e "s|template|$DAY|g" "test/days/day$DAY.cpp"
 
 printf "🔨 Adding day $DAY to main.cpp \n"
 sed -i '' -e "s|//NEW_DAY_HEADER|#include \"main/days/$DAY/day_$DAY.h\"\n//NEW_DAY_HEADER|g" "main/main.cpp"

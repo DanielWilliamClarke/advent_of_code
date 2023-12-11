@@ -15,5 +15,6 @@ TEST(Day10, ValidateDay10_Part2)
     Day10 day10;
 
     auto input = day10.readInput();
-    EXPECT_EQ(day10.part2(input), 495);
+    auto output = day10.part2(input);
+    EXPECT_EQ(output, 495);
 }
