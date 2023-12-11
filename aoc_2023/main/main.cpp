@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "main/solution/day.h"
-#include "main/days/00/day_00.h"
+#include "main/days/N01/day_N01.h"
 #include "main/days/01/day_01.h"
 #include "main/days/02/day_02.h"
 #include "main/days/03/day_03.h"
@@ -18,7 +18,7 @@ int main ()
 {
     std::ranges::for_each(
         std::vector<std::shared_ptr<RunnableDay>> {
-            std::make_shared<Day00>(),
+            std::make_shared<DayN01>(),
             std::make_shared<Day01>(),
             std::make_shared<Day02>(),
             std::make_shared<Day03>(),

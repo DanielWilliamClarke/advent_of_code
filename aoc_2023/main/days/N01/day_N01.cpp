@@ -1,13 +1,13 @@
-#include "day_00.h"
+#include "day_N01.h"
 
 #include <range/v3/all.hpp>
 
-constexpr std::string Day00::filename() const
+constexpr std::string DayN01::filename() const
 {
-    return "main/days/00/input.txt";
+    return "main/days/N01/input.txt";
 }
 
-int Day00::part1(const std::vector<std::string> &input) const
+int DayN01::part1(const std::vector<std::string> &input) const
 {
     auto processedInput = input
         | ranges::views::transform([=](const std::string& item) -> int {
@@ -29,7 +29,7 @@ int Day00::part1(const std::vector<std::string> &input) const
    return ranges::front(results);
 }
 
-int Day00::part2(const std::vector<std::string> &input) const
+int DayN01::part2(const std::vector<std::string> &input) const
 {
     auto processedInput = input
         | ranges::views::transform([=](const std::string& item) -> int {

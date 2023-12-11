@@ -3,7 +3,7 @@
 DAY=$1
 
 printf "📬 Downloading AOC day $DAY data \n"
-aoc download \
+aoc download --year 2023 --day $DAY \
 --input-file main/days/$DAY/input.txt \
 --puzzle-file main/days/$DAY/puzzle.md \
 --overwrite

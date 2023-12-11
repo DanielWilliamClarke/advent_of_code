@@ -2,75 +2,93 @@
 
 #include <ranges>
 #include <cmath>
+#include <cassert>
 
-std::vector<std::vector<std::unique_ptr<Pipe>>> parsePipeGrid (const std::vector<std::string>& input)
+#define RED_TEXT   "\x1B[31m"
+#define YELLOW_TEXT "\x1B[33m"
+#define RESET_TEXT "\x1B[0m"  // Reset to default color
+
+
+std::vector<std::vector<std::shared_ptr<Pipe>>> parsePipeGrid (const std::vector<std::string>& input)
 {
     Movement up{ 0, -1 };
     Movement right{ 1, 0 };
     Movement down{ 0, 1 };
     Movement left{ -1, 0 };
 
+    int x = 0;
+    int y = 0;
+
     auto grid = input
-        | std::views::transform([=](const std::string& line) -> std::vector<std::unique_ptr<Pipe>> {
+        | std::views::transform([&](const std::string& line) -> std::vector<std::shared_ptr<Pipe>> {
             auto gridLine = line
-                | std::views::transform([=](const char pipe) -> std::unique_ptr<Pipe> {
+                | std::views::transform([&](const char pipe) -> std::shared_ptr<Pipe> {
                     // we should have code to know if the pipe is being entered from either side
                     switch (pipe)
                     {
                         // can be traversed each way cases
-                        case '|': return std::make_unique<Pipe>(
+                        case '|': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::UP_DOWN,
+                                { x, y },
                                 { up, down },
                                 { left, right }
                             )
                         );
-                        case '-': return std::make_unique<Pipe>(
+                        case '-': return std::make_shared<Pipe>(
                             Pipe(
                             PipeType::LEFT_RIGHT,
-                            { left, right },
-                            { up, down }
+                                { x, y },
+                                { left, right },
+                                { up, down }
                             )
                         );
                         // directive case
-                        case 'L': return std::make_unique<Pipe>(
+                        case 'L': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::DOWN_RIGHT,
+                                { x, y },
                                 { down, left },
                                 { down, left }
                             )
                         );
-                        case 'J': return std::make_unique<Pipe>(
+                        case 'J': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::DOWN_LEFT,
+                                { x, y },
                                 { down, right },
                                 { down, right }
                             )
                         );
-                        case '7': return std::make_unique<Pipe>(
+                        case '7': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::UP_LEFT,
+                                { x, y },
                                 { up, right },
                                 { up, right }
                             )
                         );
-                        case 'F': return std::make_unique<Pipe>(
+                        case 'F': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::UP_RIGHT,
+                                { x, y },
                                 { up, left },
                                 { up, left }
                             )
                         );
                         // special cases
-                        case '.': return std::make_unique<Pipe>(
+                        case '.': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::GROUND,
-                                { }, { }
+                                { x, y },
+                                { },
+                                { }
                             )
                         );
-                        case 'S': return std::make_unique<Pipe>(
+                        case 'S': return std::make_shared<Pipe>(
                             Pipe(
                                 PipeType::START,
+                                { x, y },
                                 { up, right, down, left },
                                 { }
                             )
@@ -86,7 +104,7 @@ std::vector<std::vector<std::unique_ptr<Pipe>>> parsePipeGrid (const std::vector
     return { grid.begin(), grid.end() };
 }
 
-std::pair<int, int> findStartPoint(const std::vector<std::vector<std::unique_ptr<Pipe>>>& grid)
+std::pair<int, int> findStartPoint(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid)
 {
     for(auto y = 0; y < grid.size(); y++)
     {
@@ -102,7 +120,7 @@ std::pair<int, int> findStartPoint(const std::vector<std::vector<std::unique_ptr
     return std::make_pair(0, 0);
 }
 
-int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<std::vector<std::unique_ptr<Pipe>>>& grid)
+std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid)
 {
     // so check around start point and find movement
     std::vector<Movement> movements = {
@@ -112,7 +130,6 @@ int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<
         { 0, 1 },  // down
     };
 
-    int steps = 0;
     bool loopClosed = false;
     auto currentPoint = startPoint;
 
@@ -123,12 +140,14 @@ int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<
 //        << " (" << startPoint.first + 1 << ", " << startPoint.second + 1 << ")"
 //        << std::endl;
 
+    std::vector<std::shared_ptr<Pipe>> loop;
+
     while (!loopClosed)
     {
         for(auto movement: movements)
         {
-            const auto& current = grid[currentPoint.second][currentPoint.first];
             // block illegal move for the current pipe
+            auto current = grid[currentPoint.second][currentPoint.first];
             auto cannotExit = std::ranges::any_of(
                 current->cannotExitBy,
                 [&movement] (const Movement& direction) {
@@ -139,6 +158,7 @@ int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<
                 continue;
             }
 
+            // Determine next coordinate
             auto nextX = currentPoint.first + movement.x;
             auto nextY = currentPoint.second + movement.y;
 
@@ -152,17 +172,17 @@ int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<
                 continue;
             }
 
-            const auto& next = grid[nextY][nextX];
-
+            auto next = grid[nextY][nextX];
             if (next->visited) {
-                continue;
+                continue; // can't backwards
             }
 
+            // can we enter the next pipe from this direction?
             auto canEnter = std::ranges::any_of(
-                    next->canEnterBy,
+                next->canEnterBy,
                 [&movement] (const Movement& direction) {
-                        return movement == direction;
-                    });
+                    return movement == direction;
+                });
 
             if (canEnter)
             {
@@ -174,19 +194,93 @@ int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<
 
                 next->visited = true;
                 currentPoint = std::make_pair(nextX, nextY);
+                loop.push_back(next);
 
                 break;
             }
         }
-
-        steps += 1;
 
         if (currentPoint == startPoint) {
             loopClosed = true;
         }
     }
 
-    return std::ceil(steps / 2);
+    // close the loop properly
+    auto start = grid[startPoint.second][startPoint.first];
+    start->visited = true;
+
+    return loop;
+}
+
+int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid)
+{
+    // ray casting method
+    int total = 0;
+
+    // ground out grid accept for loop
+    for(const auto& line : grid)
+    {
+        for(const auto& cell : line)
+        {
+            if(!cell->visited) {
+                cell->type = PipeType::GROUND;
+            }
+        }
+    }
+
+    for(const auto& line : grid)
+    {
+        auto within = false;
+        auto up = false;
+
+        for(const auto& cell : line)
+        {
+
+            if (cell->type == PipeType::UP_DOWN)
+            {
+//                assert(!up);
+                within = !within;
+            }
+            else if (cell->type == PipeType::LEFT_RIGHT)
+            {
+//                assert(up);
+            }
+            else if (cell->type == PipeType::DOWN_RIGHT || cell->type == PipeType::UP_RIGHT)
+            {
+//                assert(!up);
+                up = cell->type == PipeType::DOWN_RIGHT;
+            }
+            else if (cell->type == PipeType::DOWN_LEFT || cell->type == PipeType::UP_LEFT)
+            {
+//                assert(up);
+                if (cell->type != (up ? PipeType::DOWN_LEFT : PipeType::UP_LEFT))
+                {
+                    within = !within;
+                }
+
+                up = false;
+            }
+            else if (cell->type == PipeType::GROUND) {
+                // nothing
+            }
+
+            if (cell->visited) {
+                std::cout << YELLOW_TEXT;
+            }
+
+            if (within && !cell->visited) {
+                total += 1;
+
+                std::cout << RED_TEXT;
+            }
+
+            std::cout << std::string(1, cell->type) << RESET_TEXT;
+        }
+
+        std::cout << std::endl;
+    }
+
+    return total;
 }
 
 constexpr std::string Day10::filename () const 
@@ -197,13 +291,22 @@ constexpr std::string Day10::filename () const
 int Day10::part1(const std::vector<std::string>& input) const
 {
     auto grid = parsePipeGrid(input);
-
     auto startPoint = findStartPoint(grid);
+    auto loop = findPipeLoopFurthestPoint(startPoint, grid);
 
-    return findPipeLoopFurthestPoint(startPoint, grid);
+    return std::ceil(loop.size() / 2);
 }
 
 int Day10::part2(const std::vector<std::string>& input) const 
 {
-    return 0;
+    auto grid = parsePipeGrid(input);
+    auto startPoint = findStartPoint(grid);
+    auto loop = findPipeLoopFurthestPoint(startPoint, grid);
+
+    // modify S to fill the loop
+    // TODO: return to work this out properly
+    grid[startPoint.second][startPoint.first]->type = PipeType::UP_DOWN;
+
+    // flood fill time!
+    return findEnclosedArea(grid);
 }

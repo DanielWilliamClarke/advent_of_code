@@ -22,6 +22,15 @@ enum PipeType {
     START = 'S'
 };
 
+struct PipeCoordinate {
+    int x;
+    int y;
+
+    PipeCoordinate(int x, int y)
+        : x(x), y(y)
+    {}
+};
+
 struct Movement {
     int x;
     int y;
@@ -30,7 +39,7 @@ struct Movement {
         : x(x), y(y)
     {}
 
-    bool operator == (const Movement& other) noexcept
+    bool operator == (const Movement& other) const noexcept
     {
         return this->x == other.x && this->y == other.y;
     }
@@ -38,18 +47,21 @@ struct Movement {
 
 struct Pipe {
     PipeType type;
+    PipeCoordinate coordinate;
     std::vector<Movement> canEnterBy;
     std::vector<Movement> cannotExitBy;
     bool visited;
 
-    Pipe(PipeType type, std::vector<Movement> canEnterBy, std::vector<Movement> cannotExitBy)
-        : type(type), canEnterBy(canEnterBy), cannotExitBy(cannotExitBy)
+    Pipe(PipeType type, PipeCoordinate coordinate, std::vector<Movement> canEnterBy, std::vector<Movement> cannotExitBy)
+        : type(type), coordinate(coordinate), canEnterBy(canEnterBy), cannotExitBy(cannotExitBy)
     {}
 };
 
-std::vector<std::vector<std::unique_ptr<Pipe>>> parsePipeGrid (const std::vector<std::string>& input);
-std::pair<int, int> findStartPoint(const std::vector<std::vector<std::unique_ptr<Pipe>>>& grid);
-int findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<std::vector<std::unique_ptr<Pipe>>>& grid);
+std::vector<std::vector<std::shared_ptr<Pipe>>> parsePipeGrid (const std::vector<std::string>& input);
+std::pair<int, int> findStartPoint(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid);
+std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int> startPoint, const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid);
+
+int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid);
 
 class Day10 : public Day<int>
 {

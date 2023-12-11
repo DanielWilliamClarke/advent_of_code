@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "main/days/00/day_00.h"
+#include "main/days/template/day_00.h"
 
-TEST(Day00, ValidateDay00_Part1) 
+TEST(Day00, ValidateDay00_Part1)
 {
     Day00 day00;
 
@@ -10,7 +10,7 @@ TEST(Day00, ValidateDay00_Part1)
     EXPECT_EQ(day00.part1(input), 0);
 }
 
-TEST(Day00, ValidateDay00_Part2) 
+TEST(Day00, ValidateDay00_Part2)
 {
     Day00 day00;
 
