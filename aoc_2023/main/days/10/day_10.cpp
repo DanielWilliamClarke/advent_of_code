@@ -143,13 +143,14 @@ std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int>
         {
             // block illegal move for the current pipe
             auto current = grid[currentPoint.second][currentPoint.first];
-            auto cannotExit = std::ranges::any_of(
-                current->cannotExitBy,
-                [&movement] (const Movement& direction) {
-                    return movement == direction;
-                });
-
-            if (cannotExit) {
+            if (
+                std::ranges::any_of(
+                    current->cannotExitBy,
+                    [&movement] (const Movement& direction) {
+                        return movement == direction;
+                    })
+            )
+            {
                 continue;
             }
 
@@ -163,23 +164,25 @@ std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int>
                 nextX >= grid[0].size() ||
                 nextY < 0 ||
                 nextY >= grid.size()
-            ) {
+            )
+            {
                 continue;
             }
 
             auto next = grid[nextY][nextX];
-            if (next->visited) {
+            if (next->visited)
+            {
                 continue; // can't backwards
             }
 
             // can we enter the next pipe from this direction?
-            auto canEnter = std::ranges::any_of(
-                next->canEnterBy,
-                [&movement] (const Movement& direction) {
-                    return movement == direction;
-                });
-
-            if (canEnter)
+            if (
+                std::ranges::any_of(
+                    next->canEnterBy,
+                    [&movement] (const Movement& direction) {
+                        return movement == direction;
+                    })
+            )
             {
                 next->visited = true;
                 currentPoint = std::make_pair(nextX, nextY);
@@ -189,7 +192,8 @@ std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int>
             }
         }
 
-        if (currentPoint == startPoint) {
+        if (currentPoint == startPoint)
+        {
             loopClosed = true;
         }
     }
@@ -206,24 +210,19 @@ int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid
     // ray casting method
     int total = 0;
 
-    // ground out grid accept for loop
-    for(const auto& line : grid)
-    {
-        for(const auto& cell : line)
-        {
-            if(!cell->visited) {
-                cell->type = PipeType::GROUND;
-            }
-        }
-    }
-
     for(const auto& line : grid)
     {
         for(auto cIter = line.begin(); cIter != line.end(); cIter++)
         {
-            if ((*cIter)->visited) {
+            if ((*cIter)->visited)
+            {
                 std::cout << YELLOW_COLOR << std::string(1, (*cIter)->type) << RESET_COLOR;
                 continue;
+            }
+            else
+            {
+                // ground out grid except for loop
+                (*cIter)->type = PipeType::GROUND;
             }
 
             auto intersections = std::ranges::count_if(
@@ -240,7 +239,8 @@ int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid
                 }
             );
 
-            if(intersections > 0 && intersections % 2 == 1) {
+            if(intersections % 2 == 1)
+            {
                 total += 1;
 
                 std::cout << RED_COLOR;
