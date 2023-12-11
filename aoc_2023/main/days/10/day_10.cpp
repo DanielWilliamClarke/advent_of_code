@@ -4,10 +4,12 @@
 #include <cmath>
 #include <cassert>
 
-#define RED_TEXT   "\x1B[31m"
-#define YELLOW_TEXT "\x1B[33m"
-#define RESET_TEXT "\x1B[0m"  // Reset to default color
-
+#define RESET_COLOR "\033[0m"
+#define RED_COLOR "\033[31m"
+#define GREEN_COLOR "\033[32m"
+#define YELLOW_COLOR "\033[33m"
+#define BLUE_COLOR "\033[34m"
+#define PURPLE_COLOR "\033[35m"
 
 std::vector<std::vector<std::shared_ptr<Pipe>>> parsePipeGrid (const std::vector<std::string>& input)
 {
@@ -133,13 +135,6 @@ std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int>
     bool loopClosed = false;
     auto currentPoint = startPoint;
 
-//    auto start = grid[startPoint.second][startPoint.first];
-//    std::cout
-//        << steps << ": "
-//        << std::string(1, start->type)
-//        << " (" << startPoint.first + 1 << ", " << startPoint.second + 1 << ")"
-//        << std::endl;
-
     std::vector<std::shared_ptr<Pipe>> loop;
 
     while (!loopClosed)
@@ -186,12 +181,6 @@ std::vector<std::shared_ptr<Pipe>> findPipeLoopFurthestPoint(std::pair<int, int>
 
             if (canEnter)
             {
-//                std::cout
-//                    << steps + 1 << ": "
-//                    << std::string(1, nextPipe->type)
-//                    << " (" << nextX + 1 << ", " << nextY + 1 << ")"
-//                    << std::endl;
-
                 next->visited = true;
                 currentPoint = std::make_pair(nextX, nextY);
                 loop.push_back(next);
@@ -230,46 +219,34 @@ int findEnclosedArea(const std::vector<std::vector<std::shared_ptr<Pipe>>>& grid
 
     for(const auto& line : grid)
     {
-        auto within = false;
-        auto up = false;
-
-        for(const auto& cell : line)
+        for(auto cIter = line.begin(); cIter != line.end(); cIter++)
         {
-            if (cell->type == PipeType::UP_DOWN)
-            {
-                within = !within;
+            if ((*cIter)->visited) {
+                std::cout << YELLOW_COLOR << std::string(1, (*cIter)->type) << RESET_COLOR;
+                continue;
             }
-            else if (cell->type == PipeType::LEFT_RIGHT)
-            {
-            }
-            else if (cell->type == PipeType::DOWN_RIGHT || cell->type == PipeType::UP_RIGHT)
-            {
-                up = cell->type == PipeType::DOWN_RIGHT;
-            }
-            else if (cell->type == PipeType::DOWN_LEFT || cell->type == PipeType::UP_LEFT)
-            {
-                if (cell->type != (up ? PipeType::DOWN_LEFT : PipeType::UP_LEFT))
-                {
-                    within = !within;
+
+            auto intersections = std::ranges::count_if(
+                cIter,
+                line.end(),
+                [=] (const std::shared_ptr<Pipe>& cell) -> bool {
+                    return (
+                        cell->visited && (
+                            cell->type == PipeType::UP_DOWN ||
+                            cell->type == PipeType::DOWN_LEFT ||
+                            cell->type == PipeType::DOWN_RIGHT
+                        )
+                    );
                 }
+            );
 
-                up = false;
-            }
-            else if (cell->type == PipeType::GROUND) {
-                // nothing
-            }
-
-            if (cell->visited) {
-                std::cout << YELLOW_TEXT;
-            }
-
-            if (within && !cell->visited) {
+            if(intersections > 0 && intersections % 2 == 1) {
                 total += 1;
 
-                std::cout << RED_TEXT;
+                std::cout << RED_COLOR;
             }
 
-            std::cout << std::string(1, cell->type) << RESET_TEXT;
+            std::cout << std::string(1, (*cIter)->type) << RESET_COLOR;
         }
 
         std::cout << std::endl;
@@ -288,6 +265,29 @@ int Day10::part1(const std::vector<std::string>& input) const
     auto grid = parsePipeGrid(input);
     auto startPoint = findStartPoint(grid);
     auto loop = findPipeLoopFurthestPoint(startPoint, grid);
+
+    for(const auto& line : grid)
+    {
+        for (const auto &cell: line)
+        {
+            if (cell->type == PipeType::START)
+            {
+                std::cout << GREEN_COLOR;
+            }
+            else if(cell->visited)
+            {
+                std::cout << PURPLE_COLOR;
+            }
+            else
+            {
+                cell->type = PipeType::GROUND;
+            }
+
+            std::cout << std::string(1, cell->type) << RESET_COLOR;
+        }
+
+        std::cout << std::endl;
+    }
 
     return std::ceil(loop.size() / 2);
 }
