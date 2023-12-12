@@ -10,6 +10,7 @@ std::vector<std::vector<SpacialCoordinates>> parseUniverse(const std::vector<std
     for(auto y = 0; y < input.size(); y++)
     {
         std::vector<SpacialCoordinates> scan;
+        scan.reserve(input[y].size());
 
         for(auto x = 0; x < input[y].size(); x++)
         {
@@ -67,9 +68,9 @@ std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<s
     {
         for(auto y = rowIndex; y < expandedUniverse.size(); y++)
         {
-            for(auto x = 0; x < expandedUniverse[y].size(); x++)
+            for(auto point : expandedUniverse[y])
             {
-                expandedUniverse[y][x].y += factor;
+                point.y += factor;
             }
         }
     }
@@ -77,11 +78,11 @@ std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<s
     // Expand columns
     for(auto columnIndex : columns)
     {
-        for(auto y = 0; y < expandedUniverse.size(); y++)
+        for(auto scan : expandedUniverse)
         {
-            for(auto x = columnIndex; x < expandedUniverse[y].size(); x++)
+            for(auto x = columnIndex; x < scan.size(); x++)
             {
-                expandedUniverse[y][x].x += factor;
+                scan[x].x += factor;
             }
         }
     }
