@@ -68,9 +68,9 @@ std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<s
     {
         for(auto y = rowIndex; y < expandedUniverse.size(); y++)
         {
-            for(auto point : expandedUniverse[y])
+            for(auto x = 0; x < expandedUniverse[y].size(); x++)
             {
-                point.y += factor;
+                expandedUniverse[y][x].y += factor;
             }
         }
     }
@@ -78,11 +78,11 @@ std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<s
     // Expand columns
     for(auto columnIndex : columns)
     {
-        for(auto scan : expandedUniverse)
+        for(auto y = 0; y < expandedUniverse.size(); y++)
         {
-            for(auto x = columnIndex; x < scan.size(); x++)
+            for(auto x = columnIndex; x < expandedUniverse[y].size(); x++)
             {
-                scan[x].x += factor;
+                expandedUniverse[y][x].x += factor;
             }
         }
     }

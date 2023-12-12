@@ -19,7 +19,7 @@ struct SpacialCoordinates {
 };
 
 std::vector<std::vector<SpacialCoordinates>> parseUniverse(const std::vector<std::string>& input);
-std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<std::vector<SpacialCoordinates>>& universe);
+std::vector<std::vector<SpacialCoordinates>> applyDarkEnergy(const std::vector<std::vector<SpacialCoordinates>>& universe, long long factor);
 std::vector<SpacialCoordinates> observeUniverse(const std::vector<std::vector<SpacialCoordinates>>& universe);
 std::vector<long long> analyzeDistances(const std::vector<SpacialCoordinates>& observations);
 long long traverseUniverse(const std::vector<std::string>& input, long long factor);
