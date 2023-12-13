@@ -21,10 +21,10 @@ std::vector<SpringManifest> parseRows(const std::vector<std::string>& input, boo
             if (unfold)
             {
                 std::string springFolds;
-
                 std::vector<int> manifestFolds;
                 manifestFolds.reserve(manifest.size() * 5);
 
+                // Generate 5 copies of manifest
                 for (auto i = 0; i < 5; i++)
                 {
                     if (i == 0) {
@@ -55,6 +55,7 @@ long long processWorkingSpring (
     const std::vector<int>& manifest
 )
 {
+    // simply move to the next spring
     return countPermutations(
         memo,
         { springs.begin() + 1, springs.end() },
@@ -70,8 +71,10 @@ long long processBrokenSpring (
 {
     auto nextGroup = manifest.front();
 
+    // capture the next n springs
     std::string candidateRange = { springs.begin(), springs.begin() + nextGroup };
 
+    // Attempt to generate contiguous group
     auto processedCandidate = candidateRange
         | std::views::transform([=] (const char& spring) {
             return spring == '?' ? '#' : spring;
@@ -79,12 +82,13 @@ long long processBrokenSpring (
 
     std::string candidate = { processedCandidate.begin(), processedCandidate.end()};
 
-
+    // if group is not contiguous do not count permutation
     if (candidate != std::string(nextGroup, '#'))
     {
         return 0;
     }
 
+    // if we are at the end of the manifest return
     if (springs.size() == nextGroup)
     {
         return manifest.size() == 1
@@ -92,8 +96,10 @@ long long processBrokenSpring (
             : 0;
     }
 
+    // if the spring after this contiguous group is not broken
     if (springs[nextGroup] != '#')
     {
+        // move to the next spring
         return countPermutations(
             memo,
             { springs.begin() + nextGroup + 1, springs.end() },
@@ -110,12 +116,14 @@ long long countPermutations(
     const std::vector<int>& manifest
 )
 {
+    // look in memo to reduce workload
     Memo m = std::make_pair(springs.size(), manifest.size());
     if (memo.contains(m))
     {
         return memo[m];
     }
 
+    // if manifest empty we have nothing else to do
     if (manifest.empty())
     {
         return springs.find_first_of('#') == std::string::npos
@@ -123,11 +131,13 @@ long long countPermutations(
             : 0;
     }
 
+    // if springs is empty then we cant go further
     if (springs.empty())
     {
         return 0;
     }
 
+    // determine how to process the next spring
     long long out = 0;
 
     switch (springs.front())

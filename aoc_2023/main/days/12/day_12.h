@@ -5,20 +5,18 @@
 
 #include <map>
 
-struct SpringMemoHash {
+struct MemoHash {
     template <class T1, class T2>
     std::size_t operator () (const std::pair<T1,T2> &p) const {
         auto h1 = std::hash<T1>{}(p.first);
         auto h2 = std::hash<T2>{}(p.second);
 
-        // Mainly for demonstration purposes, i.e. works but is overly simple
-        // In the real world, use sth. like boost.hash_combine
         return h1 ^ h2;
     }
 };
 
 using Memo = std::pair<int, int>;
-using MemoMap = std::unordered_map<Memo, long long, SpringMemoHash>;
+using MemoMap = std::unordered_map<Memo, long long, MemoHash>;
 
 struct SpringManifest
 {
