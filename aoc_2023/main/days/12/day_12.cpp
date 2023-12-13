@@ -111,7 +111,7 @@ long long countPermutations(
 )
 {
     Memo m = std::make_pair(springs.size(), manifest.size());
-    if (memo.find(m) != memo.end())
+    if (memo.contains(m))
     {
         return memo[m];
     }
