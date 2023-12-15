@@ -137,9 +137,10 @@ int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes)
     {
         const auto& box = boxes[boxId];
 
-        for (auto i  = 0; i < box->lenses.size(); i++)
+        for (auto slotId  = 0; slotId < box->lenses.size(); slotId++)
         {
-            focus += (boxId + 1) * (i + 1) * box->lenses[i].focalLength;
+            // calculate focusing power
+            focus += (boxId + 1) * (slotId + 1) * box->lenses[slotId].focalLength;
         }
     }
 
@@ -153,9 +154,7 @@ constexpr std::string Day15::filename () const
 
 int Day15::part1(const std::vector<std::string>& input) const
 {
-    auto sequences = parseInitializationSequence(input.front());
-
-    auto hashes = computeHashes(sequences);
+    auto hashes = computeHashes(parseInitializationSequence(input.front()));
 
     return std::accumulate(
         hashes.begin(),
@@ -167,11 +166,10 @@ int Day15::part1(const std::vector<std::string>& input) const
 
 int Day15::part2(const std::vector<std::string>& input) const 
 {
-    auto commands = parseSequenceCommands(input.front());
-
-    auto boxes = generateBoxes(256);
-
-    auto filledBoxes = processBoxes(boxes, commands);
-
-    return focusLenses(boxes);
+    return focusLenses(
+        processBoxes(
+            generateBoxes(256),
+            parseSequenceCommands(input.front())
+        )
+    );
 }
