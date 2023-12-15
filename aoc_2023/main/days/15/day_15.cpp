@@ -7,7 +7,7 @@
 
 #include "main/solution/string_utils.h"
 
-void Box::removeLenseByLabel(std::string label)
+void Box::removeLens(std::string label)
 {
     auto [start, end] = std::ranges::remove_if(
             this->lenses,
@@ -17,7 +17,7 @@ void Box::removeLenseByLabel(std::string label)
     this->lenses.erase(start, end);
 }
 
-void Box::addLense(Sequence sequence)
+void Box::addLens(Sequence sequence)
 {
     auto lenseIter = std::ranges::find_if(
             this->lenses,
@@ -106,21 +106,20 @@ std::vector<std::shared_ptr<Box>> processBoxes(const std::vector<std::shared_ptr
 {
     auto filledBoxes = boxes;
 
-    for (auto command : commands)
+    for (const auto& command : commands)
     {
-        auto hash = computeHash(command.label);
-        auto box = filledBoxes.at(hash);
+        auto box = filledBoxes.at(computeHash(command.label));
 
         switch (command.operation)
         {
             case Operation::DASH: {
-                // go to box at hash and remove lense with label
-                box->removeLenseByLabel(command.label);
+                // go to box at hash and remove lens with label
+                box->removeLens(command.label);
                 break;
             }
             case Operation::EQUALS: {
                 // go box and add focal length
-                box->addLense(command);
+                box->addLens(command);
                 break;
             }
         }

@@ -29,8 +29,8 @@ struct Box {
         : id(id)
     {}
 
-    void removeLenseByLabel(std::string label);
-    void addLense(Sequence sequence);
+    void removeLens(std::string label);
+    void addLens(Sequence sequence);
 };
 
 int computeHash(const std::string& label);
@@ -43,7 +43,6 @@ std::vector<int> computeHashes(const std::vector<std::string>& sequences);
 std::vector<Sequence> parseSequenceCommands(const std::string& input);
 std::vector<std::shared_ptr<Box>> generateBoxes(int total);
 std::vector<std::shared_ptr<Box>> processBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::vector<Sequence>& commands);
-
 int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes);
 
 class Day15 : public Day<int>
