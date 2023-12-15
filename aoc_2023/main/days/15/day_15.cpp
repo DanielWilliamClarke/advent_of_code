@@ -16,23 +16,23 @@ void Box::removeLens(const std::string& label)
 {
     auto [start, end] = std::ranges::remove_if(
         this->lenses,
-        [&label](auto s) { return s.label == label; }
+        [&label](auto s) { return s.first == label; }
     );
 
     this->lenses.erase(start, end);
 }
 
-void Box::addLens(const Sequence& sequence)
+void Box::addLens(const std::pair<std::string, std::string>& sequence)
 {
-    auto lenseIter = std::ranges::find_if(
+    auto lensIter = std::ranges::find_if(
         this->lenses,
-        [&sequence](auto s) { return s.label == sequence.label; }
+        [&sequence](auto s) { return s.first == sequence.first; }
     );
 
-    if (lenseIter != this->lenses.end())
+    if (lensIter != this->lenses.end())
     {
         // replace lens if label is present
-        lenseIter->focalLength = sequence.focalLength;
+        lensIter->second = sequence.second;
     }
     else
     {
@@ -55,18 +55,18 @@ int computeHash(const std::string& label)
     return hash;
 }
 
-std::vector<std::shared_ptr<Box>> generateBoxes(int total)
+HashMap generateBoxes()
 {
-    std::vector<std::shared_ptr<Box>> boxes(total);
+    HashMap boxes;
 
-    std::generate_n(boxes.begin(), total, []() {
+    std::generate(boxes.begin(), boxes.end(), [=]() {
         return std::make_shared<Box>();
     });
 
     return boxes;
 }
 
-void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::string& input)
+void parseAndProcessBoxes(HashMap boxes, const std::string& input)
 {
     for (const auto& sequence : splitString(input,  ','))
     {
@@ -81,24 +81,26 @@ void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const 
         {
             boxes[computeHash(parts.front())]->addLens({
                parts.front(),
-               std::stoi(parts.back())
+               parts.back()
             });
         }
     }
 }
 
-int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes)
+int focusLenses(HashMap boxes)
 {
     int focus = 0;
 
-    for (auto boxId = 0; boxId < boxes.size(); boxId++)
+    for (auto boxId = 0; boxId < 256; boxId++)
     {
         const auto& box = boxes[boxId];
 
         for (auto slotId  = 0; slotId < box->lenses.size(); slotId++)
         {
             // calculate focusing power
-            focus += (boxId + 1) * (slotId + 1) * box->lenses[slotId].focalLength;
+            focus += (boxId + 1) *
+                    (slotId + 1) *
+                    std::stoi(box->lenses[slotId].second);
         }
     }
 
@@ -122,9 +124,9 @@ int Day15::part1(const std::vector<std::string>& input) const
     return total;
 }
 
-int Day15::part2(const std::vector<std::string>& input) const 
+int Day15::part2(const std::vector<std::string>& input) const
 {
-    auto boxes = generateBoxes(256);
+    auto boxes = generateBoxes();
     parseAndProcessBoxes(boxes, input.front());
     return focusLenses(boxes);
 }

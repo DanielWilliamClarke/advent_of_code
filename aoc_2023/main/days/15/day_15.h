@@ -6,29 +6,24 @@
 
 #include "main/solution/day.h"
 
-struct Sequence {
-    std::string label;
-    int focalLength;
-
-    Sequence(std::string label, int focalLength)
-        : label(label), focalLength(focalLength)
-    {}
-};
+constexpr int BUCKETS = 256;
 
 struct Box {
-    std::vector<Sequence> lenses;
+    std::vector<std::pair<std::string, std::string>> lenses;
 
     Box();
     void removeLens(const std::string& label);
-    void addLens(const Sequence& sequence);
+    void addLens(const std::pair<std::string, std::string>& sequence);
 };
+
+using HashMap = std::array<std::shared_ptr<Box>, BUCKETS>;
 
 int computeHash(const std::string& label);
 
 // Part 2
-std::vector<std::shared_ptr<Box>> generateBoxes(int total);
-void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::string& input);
-int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes);
+HashMap generateBoxes();
+void parseAndProcessBoxes(HashMap boxes, const std::string& input);
+int focusLenses(HashMap boxes);
 
 class Day15 : public Day<int>
 {
