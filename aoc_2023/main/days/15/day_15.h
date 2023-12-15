@@ -6,42 +6,28 @@
 
 #include "main/solution/day.h"
 
-enum Operation {
-    DASH = '-',
-    EQUALS = '='
-};
-
 struct Sequence {
     std::string label;
-    Operation operation;
     int focalLength;
 
-    Sequence(std::string label, Operation operation, int focalLength)
-        : label(label), operation(operation), focalLength(focalLength)
+    Sequence(std::string label, int focalLength)
+        : label(label), focalLength(focalLength)
     {}
 };
 
 struct Box {
-    int id;
     std::vector<Sequence> lenses;
 
-    Box(int id)
-        : id(id)
-    {}
-
-    void removeLens(std::string label);
-    void addLens(Sequence sequence);
+    Box();
+    void removeLens(const std::string& label);
+    void addLens(const Sequence& sequence);
 };
 
 int computeHash(const std::string& label);
 
-// Part 1
-int computeHashSum(const std::vector<std::string>& sequences);
-
 // Part 2
-std::vector<Sequence> parseSequenceCommands(const std::string& input);
 std::vector<std::shared_ptr<Box>> generateBoxes(int total);
-std::vector<std::shared_ptr<Box>> processBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::vector<Sequence>& commands);
+void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::string& input);
 int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes);
 
 class Day15 : public Day<int>

@@ -7,57 +7,38 @@
 
 #include "main/solution/string_utils.h"
 
-void Box::removeLens(std::string label)
+Box::Box()
+{
+    this->lenses.reserve(10);
+}
+
+void Box::removeLens(const std::string& label)
 {
     auto [start, end] = std::ranges::remove_if(
-            this->lenses,
-            [&label](auto s) { return s.label == label; }
+        this->lenses,
+        [&label](auto s) { return s.label == label; }
     );
 
     this->lenses.erase(start, end);
 }
 
-void Box::addLens(Sequence sequence)
+void Box::addLens(const Sequence& sequence)
 {
     auto lenseIter = std::ranges::find_if(
-            this->lenses,
-            [&sequence](auto s) { return s.label == sequence.label; }
+        this->lenses,
+        [&sequence](auto s) { return s.label == sequence.label; }
     );
 
     if (lenseIter != this->lenses.end())
     {
-        // replace lense if label is present
+        // replace lens if label is present
         lenseIter->focalLength = sequence.focalLength;
     }
     else
     {
-        // add lense to the bacl
-        this->lenses.push_back(sequence);
+        // add lens to the back
+        this->lenses.emplace_back(sequence);
     }
-}
-
-std::vector<Sequence> parseSequenceCommands(const std::string& input)
-{
-    auto commands = splitString(input,  ',')
-        | std::views::transform([=](const std::string& sequence) -> Sequence {
-            auto parts = splitString(sequence,  '=');
-
-            if (parts.size() == 1) {
-                return {
-                    { parts.front().begin(), parts.front().end() - 1 },
-                    Operation::DASH,
-                    -1
-                };
-            } else {
-                return {
-                    parts.front(),
-                    Operation::EQUALS,
-                    std::stoi(parts.back())
-                };
-            }
-        });
-
-    return { commands.begin(), commands.end() };
 }
 
 int computeHash(const std::string& label)
@@ -76,41 +57,32 @@ int computeHash(const std::string& label)
 
 std::vector<std::shared_ptr<Box>> generateBoxes(int total)
 {
-    std::vector<std::shared_ptr<Box>> boxes;
-    boxes.reserve(total);
+    std::vector<std::shared_ptr<Box>> boxes(total);
 
-    for(auto i = 0; i < total; i++)
-    {
-        boxes.emplace_back(std::make_shared<Box>(i));
-    }
+    std::generate_n(boxes.begin(), total, []() {
+        return std::make_shared<Box>();
+    });
 
     return boxes;
 }
 
-std::vector<std::shared_ptr<Box>> processBoxes(const std::vector<std::shared_ptr<Box>>&  boxes, const std::vector<Sequence>& commands)
+void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::string& input)
 {
-    auto filledBoxes = boxes;
+    std::ranges::for_each(
+        splitString(input,  ','),
+        [&boxes](const std::string& sequence) {
+            auto parts = splitString(sequence,  '=');
 
-    for (const auto& command : commands)
-    {
-        auto box = filledBoxes.at(computeHash(command.label));
-
-        switch (command.operation)
-        {
-            case Operation::DASH: {
-                // go to box at hash and remove lens with label
-                box->removeLens(command.label);
-                break;
+            if (parts.size() == 1) {
+                std::string label{ parts.front().begin(), parts.front().end() - 1 };
+                boxes[computeHash(label)]->removeLens(label);
+            } else {
+                boxes[computeHash(parts.front())]->addLens({
+                    parts.front(),
+                    std::stoi(parts.back())
+                });
             }
-            case Operation::EQUALS: {
-                // go box and add focal length
-                box->addLens(command);
-                break;
-            }
-        }
-    }
-
-    return filledBoxes;
+        });
 }
 
 int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes)
@@ -150,10 +122,7 @@ int Day15::part1(const std::vector<std::string>& input) const
 
 int Day15::part2(const std::vector<std::string>& input) const 
 {
-    return focusLenses(
-        processBoxes(
-            generateBoxes(256),
-            parseSequenceCommands(input.front())
-        )
-    );
+    auto boxes = generateBoxes(256);
+    parseAndProcessBoxes(boxes, input.front());
+    return focusLenses(boxes);
 }
