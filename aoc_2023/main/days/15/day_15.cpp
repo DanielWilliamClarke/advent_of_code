@@ -72,14 +72,17 @@ void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const 
     {
         auto parts = splitString(sequence,  '=');
 
-        if (parts.size() == 1) {
+        if (parts.size() == 1)
+        {
             std::string label{ parts.front().begin(), parts.front().end() - 1 };
             boxes[computeHash(label)]->removeLens(label);
-        } else {
+        }
+        else
+        {
             boxes[computeHash(parts.front())]->addLens({
                parts.front(),
                std::stoi(parts.back())
-           });
+            });
         }
     }
 }
