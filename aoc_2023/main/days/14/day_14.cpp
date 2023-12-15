@@ -24,75 +24,133 @@ std::vector<std::vector<Rocks>> parseParabolicDish(const std::vector<std::string
     return { dish.begin(), dish.end() };
 }
 
-std::vector<std::vector<Rocks>> tiltDish(const std::vector<std::vector<Rocks>>& dish)
+void tiltDishNorth(std::vector<std::vector<Rocks>>& dish)
 {
-    // for each round rock move it in the tilt direction until it cannot move any further
-    auto tiltedDish = dish;
+    std::vector<int> movement(dish[0].size(), 0 );
 
-    for (auto y = 1; y < tiltedDish.size(); y++)
+    for (auto y = 0; y < dish.size(); ++y)
     {
-        for(auto x = 0; x < tiltedDish[y].size(); x++)
+        for(auto x = 0; x < dish[y].size(); ++x)
         {
-            if (tiltedDish[y][x] != Rocks::ROUND) {
+            if (dish[y][x] == Rocks::NONE)
+            {
+                ++movement[x];
+                continue;
+            }
+            if (dish[y][x] == Rocks::CUBE)
+            {
+                movement[x] = 0;
                 continue;
             }
 
-            auto limit = -1;
-            for (auto newY = y - 1; newY >= limit; newY--)
+            auto destination_row = y - movement[x];
+            if (destination_row != y)
             {
-                if(newY == limit || tiltedDish[newY][x] != Rocks::NONE)
-                {
-                    // Set old position as empty;
-                    tiltedDish[y][x] = Rocks::NONE;
-                    // Set new position of round rock
-                    // - this is done after setting the space as empty just in case the rock has not moved
-                    tiltedDish[newY + 1][x] = Rocks::ROUND;
-                    break;
-                }
+                dish[destination_row][x] = Rocks::ROUND;
+                dish[y][x] = Rocks::NONE;
             }
         }
     }
-
-    return tiltedDish;
 }
 
-std::vector<std::vector<Rocks>> rotateDish(const std::vector<std::vector<Rocks>>& dish)
+void tiltDishWest(std::vector<std::vector<Rocks>>& dish)
 {
-    std::vector<std::vector<Rocks>> transposedDish;
-
-    //  Transpose
-    for(auto x = 0; x < dish[0].size(); x++)
+    for (auto y = 0; y < dish.size(); ++y)
     {
-        std::vector<Rocks> row;
-        row.reserve(dish.size());
-
-        for(const auto & line : dish)
+        auto movement = 0;
+        for(auto x = 0; x < dish[y].size(); ++x)
         {
-            row.push_back(line[x]);
+            if (dish[y][x] == Rocks::NONE)
+            {
+                ++movement;
+                continue;
+            }
+            if (dish[y][x] == Rocks::CUBE)
+            {
+                movement = 0;
+                continue;
+            }
+
+            auto destination = x - movement;
+            if(destination != x)
+            {
+                dish[y][destination] = Rocks::ROUND;
+                dish[y][x] = Rocks::NONE;
+            }
         }
-
-        transposedDish.emplace_back(row);
     }
-
-    // reverse columns
-    std::ranges::reverse(transposedDish);
-
-    return transposedDish;
 }
 
-int scoreAlignment (std::vector<std::vector<Rocks>> dish)
+void tiltDishSouth(std::vector<std::vector<Rocks>>& dish)
+{
+    std::vector<int> movement( dish[0].size(), 0 );
+
+    for (int y = dish.size() - 1; y >= 0; --y)
+    {
+        for (auto x = 0; x < dish[y].size(); ++x)
+        {
+            if (dish[y][x] == Rocks::NONE)
+            {
+                ++movement[x];
+                continue;
+            }
+            if (dish[y][x] == Rocks::CUBE)
+            {
+                movement[x] = 0;
+                continue;
+            }
+
+            auto destination = y + movement[x];
+            if (destination != y)
+            {
+                dish[destination][x] = Rocks::ROUND;
+                dish[y][x] = Rocks::NONE;
+            }
+        }
+    }
+}
+
+void tiltDishEast(std::vector<std::vector<Rocks>>& dish)
+{
+    for (auto y = 0; y < dish.size(); ++y)
+    {
+        auto movement = 0;
+        for (int x = dish[y].size() - 1; x >= 0; --x)
+        {
+            if (dish[y][x] == Rocks::NONE)
+            {
+                ++movement;
+                continue;
+            }
+            if (dish[y][x] == Rocks::CUBE)
+            {
+                movement = 0;
+                continue;
+            }
+
+            auto destination = x + movement;
+            if(destination != x)
+            {
+                dish[y][destination] = Rocks::ROUND;
+                dish[y][x] = Rocks::NONE;
+            }
+        }
+    }
+}
+
+int calculateNorthLoad (const std::vector<std::vector<Rocks>>& dish)
 {
     int total = 0;
 
     for (auto y = 0; y < dish.size(); y++)
     {
-        size_t roundStones = std::ranges::count_if(
+        auto roundStones = std::ranges::count_if(
             dish[y],
             [=](const Rocks& rock) {
                 return rock == Rocks::ROUND;
             });
 
-        total += (int)roundStones * (dish.size() - y);
+        total += roundStones * (dish.size() - y);
     }
 
     return total;
@@ -105,11 +163,9 @@ constexpr std::string Day14::filename () const
 
 int Day14::part1(const std::vector<std::string>& input) const
 {
-    return scoreAlignment(
-        tiltDish(
-            parseParabolicDish(input)
-        )
-    );
+    auto dish = parseParabolicDish(input);
+    tiltDishNorth(dish);
+    return calculateNorthLoad(dish);
 }
 
 int Day14::part2(const std::vector<std::string>& input) const
@@ -117,34 +173,40 @@ int Day14::part2(const std::vector<std::string>& input) const
     auto dish = parseParabolicDish(input);
 
     DishMemoMap memo;
-    int iteration = 0;
-    for(;;)
-    {
-        // rotate the dish N -> W -> S -> E
-        // tilt dish
-        dish = tiltDish(rotateDish(dish));
+    int cycles = 1;
+    int lookupIndex = 0;
 
-        // check memo
-        if(memo.count(dish))
+    while(lookupIndex == 0)
+    {
+        // SPIN CYCLE
+        tiltDishNorth(dish);
+        tiltDishWest(dish);
+        tiltDishSouth(dish);
+        tiltDishEast(dish);
+
+        // Look in memo to see if a cycle has started
+        auto result = memo.find(dish);
+        if (result != memo.end())
         {
-            break;
+            // Cycle detected
+            auto [counter, load]  = result->second;
+            auto loopLength = cycles - counter;
+            // Calculate what the 1e9nth index would be in this cycle
+            lookupIndex = counter + (1'000'000'000 - counter) % loopLength;
+            continue;
         }
 
         // no cycle detected add dish to memo;
-        memo[dish] = { iteration, scoreAlignment(dish) };
-        iteration++;
+        memo[dish] = {cycles, calculateNorthLoad(dish) };
+        cycles++;
     }
 
-    auto index = memo[dish].first;
-    auto memoIndex = (((4'000'000'000 - index) % (iteration - index)) + index) - 1;
-
-    // now mod 1 billion iterations to find the billionth cycle
-    //auto memoIndex = (1'000'000'000 - memo[dish].first) % iteration;
-
-    auto result = std::ranges::find_if(memo, [&](auto& c){
-        return c.second.first == memoIndex;
-    });
+    // Extract result from the memo
+    auto result = std::ranges::find_if(
+        memo,
+       [&lookupIndex] (auto r) -> int {
+            return r.second.first == lookupIndex;
+        });
 
     return result->second.second;
-    //101041 x // 105871 x // 98863 // 96386 x
 }

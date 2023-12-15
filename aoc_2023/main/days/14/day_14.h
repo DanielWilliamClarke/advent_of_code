@@ -1,6 +1,8 @@
 #ifndef DAY_14_H
 #define DAY_14_H
 
+#include <map>
+
 #include "main/solution/day.h"
 
 enum Rocks {
@@ -9,33 +11,18 @@ enum Rocks {
     NONE = '.'
 };
 
-struct DishMemoHash {
-    std::size_t operator () (const std::vector<std::vector<Rocks>> &dish) const {
-        std::string rasterizedDish;
-
-        for(const auto& row : dish)
-        {
-            for (const auto& col : row)
-            {
-                rasterizedDish += std::string(1, col);
-            }
-        }
-
-        return std::hash<std::string>{}(rasterizedDish);
-    }
-};
-
 using DishMemo = std::vector<std::vector<Rocks>>;
 using DishMemoPayload = std::pair<int, int>;
-using DishMemoMap = std::unordered_map<DishMemo, DishMemoPayload, DishMemoHash>;
+using DishMemoMap = std::map<DishMemo, DishMemoPayload>;
 
 std::vector<std::vector<Rocks>> parseParabolicDish(const std::vector<std::string>& input);
 
-std::vector<std::vector<Rocks>> tiltDish(const std::vector<std::vector<Rocks>>& dish);
+void tiltDishNorth(std::vector<std::vector<Rocks>>& dish);
+void tiltDishWest(std::vector<std::vector<Rocks>>& dish);
+void tiltDishSouth(std::vector<std::vector<Rocks>>& dish);
+void tiltDishEast(std::vector<std::vector<Rocks>>& dish);
 
-std::vector<std::vector<Rocks>> rotateDish(const std::vector<std::vector<Rocks>>& dish);
-
-int scoreAlignment (std::vector<std::vector<Rocks>> dish);
+int calculateNorthLoad (const std::vector<std::vector<Rocks>>& dish);
 
 class Day14 : public Day<int>
 {
