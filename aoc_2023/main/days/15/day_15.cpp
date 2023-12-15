@@ -36,11 +36,6 @@ void Box::addLens(Sequence sequence)
     }
 }
 
-std::vector<std::string> parseInitializationSequence(const std::string& input)
-{
-    return splitString(input,  ',');
-}
-
 std::vector<Sequence> parseSequenceCommands(const std::string& input)
 {
     auto commands = splitString(input,  ',')
@@ -77,16 +72,6 @@ int computeHash(const std::string& label)
     }
 
     return hash;
-}
-
-std::vector<int> computeHashes(const std::vector<std::string>& sequences)
-{
-    auto hashes = sequences
-        | std::views::transform([=](const std::string& sequence) -> int {
-            return computeHash(sequence);
-        });
-
-    return { hashes.begin(), hashes.end() };
 }
 
 std::vector<std::shared_ptr<Box>> generateBoxes(int total)
@@ -153,14 +138,14 @@ constexpr std::string Day15::filename () const
 
 int Day15::part1(const std::vector<std::string>& input) const
 {
-    auto hashes = computeHashes(parseInitializationSequence(input.front()));
+    int total = 0;
 
-    return std::accumulate(
-        hashes.begin(),
-        hashes.end(),
-        0,
-        std::plus<>()
-    );
+    for (const auto& s : splitString(input.front(),  ','))
+    {
+        total += computeHash(s);
+    }
+
+    return total;
 }
 
 int Day15::part2(const std::vector<std::string>& input) const 

@@ -36,8 +36,7 @@ struct Box {
 int computeHash(const std::string& label);
 
 // Part 1
-std::vector<std::string> parseInitializationSequence(const std::string& input);
-std::vector<int> computeHashes(const std::vector<std::string>& sequences);
+int computeHashSum(const std::vector<std::string>& sequences);
 
 // Part 2
 std::vector<Sequence> parseSequenceCommands(const std::string& input);
