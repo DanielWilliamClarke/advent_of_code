@@ -68,21 +68,20 @@ std::vector<std::shared_ptr<Box>> generateBoxes(int total)
 
 void parseAndProcessBoxes(const std::vector<std::shared_ptr<Box>>& boxes, const std::string& input)
 {
-    std::ranges::for_each(
-        splitString(input,  ','),
-        [&boxes](const std::string& sequence) {
-            auto parts = splitString(sequence,  '=');
+    for (const auto& sequence : splitString(input,  ','))
+    {
+        auto parts = splitString(sequence,  '=');
 
-            if (parts.size() == 1) {
-                std::string label{ parts.front().begin(), parts.front().end() - 1 };
-                boxes[computeHash(label)]->removeLens(label);
-            } else {
-                boxes[computeHash(parts.front())]->addLens({
-                    parts.front(),
-                    std::stoi(parts.back())
-                });
-            }
-        });
+        if (parts.size() == 1) {
+            std::string label{ parts.front().begin(), parts.front().end() - 1 };
+            boxes[computeHash(label)]->removeLens(label);
+        } else {
+            boxes[computeHash(parts.front())]->addLens({
+               parts.front(),
+               std::stoi(parts.back())
+           });
+        }
+    }
 }
 
 int focusLenses(const std::vector<std::shared_ptr<Box>>& boxes)
