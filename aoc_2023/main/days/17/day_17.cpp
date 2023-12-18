@@ -90,7 +90,7 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
                     currentPosition.second + currentDirection.second
             };
 
-            if (day::withinBounds(blocks, newPosition))
+            if (day17::withinBounds(blocks, newPosition))
             {
                 pq.push({
                     currentHeatLoss + blocks[newPosition.second][newPosition.first],
