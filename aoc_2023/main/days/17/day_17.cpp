@@ -179,10 +179,12 @@ int Day17::part1(const std::vector<std::string>& input) const
 {
     auto blocks = day17::parseCityBlocks(input);
 
-    day17::Position start {0, 0};
-    day17::Position end {blocks.back().size() - 1, blocks.size() - 1};
+    auto state = day17::dijkstraBlocks(
+        blocks,
+        {0, 0 },
+        { blocks.back().size() - 1, blocks.size() - 1 }
+    );
 
-    auto state = day17::dijkstraBlocks(blocks, start, end);
     day17::drawPath(blocks, state);
 
     return state->heatLoss;
