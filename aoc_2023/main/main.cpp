@@ -18,6 +18,7 @@
 #include "main/days/14/day_14.h"
 #include "main/days/15/day_15.h"
 #include "main/days/16/day_16.h"
+#include "main/days/17/day_17.h"
 //NEW_DAY_HEADER
 
 int main ()
@@ -41,6 +42,7 @@ int main ()
             std::make_shared<Day14>(),
             std::make_shared<Day15>(),
             std::make_shared<Day16>(),
+            std::make_shared<Day17>(),
             //NEW_DAY_PTR,
         },
         [=] (auto day) { day->run(); }
