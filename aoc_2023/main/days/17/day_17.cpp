@@ -35,7 +35,9 @@ bool day17::withinBounds(const day17::CityBlocks& blocks, const day17::Position&
 std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
     const day17::CityBlocks& blocks,
     const day17::Position& start,
-    const day17::Position& end
+    const day17::Position& end,
+    int minStraight,
+    int maxStraight
 )
 {
     std::vector<Direction> directions = {
@@ -79,11 +81,14 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
         seen.insert(snapShot);
 
         // check in current direction if max steps have not been taken
-        if(currentSteps < 3)
+        if(
+            currentSteps < maxStraight &&
+            (currentDirection.first != 0 || currentDirection.second != 0)
+        )
         {
-            Position newPosition = {
-                currentPosition.first + currentDirection.first,
-                currentPosition.second + currentDirection.second
+            Position newPositio0n = {
+                    currentPosition.first + currentDirection.first,
+                    currentPosition.second + currentDirection.second
             };
 
             if (day17::withinBounds(blocks, newPosition))
@@ -98,28 +103,34 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
             }
         }
 
-        // explore perpendicular neighbours
-        for (const auto& dir : directions)
+        if (
+            currentSteps >= minStraight ||
+            (currentDirection.first == 0 && currentDirection.second == 0)
+        )
         {
-            if (
-                std::abs(dir.first) != std::abs(currentDirection.first) ||
-                std::abs(dir.second) != std::abs(currentDirection.second)
-            )
+            // explore perpendicular neighbours
+            for (const auto& dir : directions)
             {
-                Position newPosition = {
-                    currentPosition.first + dir.first,
-                    currentPosition.second + dir.second
-                };
-
-                if (day17::withinBounds(blocks, newPosition))
+                if (
+                    std::abs(dir.first) != std::abs(currentDirection.first) ||
+                    std::abs(dir.second) != std::abs(currentDirection.second)
+                )
                 {
-                    pq.push({
-                        currentHeatLoss + blocks[newPosition.second][newPosition.first],
-                        newPosition,
-                        dir,
-                        1,
-                        std::make_shared<QueueState>(currentState)
-                    });
+                    Position newPosition = {
+                        currentPosition.first + dir.first,
+                        currentPosition.second + dir.second
+                    };
+
+                    if (day17::withinBounds(blocks, newPosition))
+                    {
+                        pq.push({
+                            currentHeatLoss + blocks[newPosition.second][newPosition.first],
+                            newPosition,
+                            dir,
+                            1,
+                            std::make_shared<QueueState>(currentState)
+                        });
+                    }
                 }
             }
         }
@@ -170,19 +181,16 @@ void day17::drawPath(
     }
 }
 
-constexpr std::string Day17::filename () const 
-{
-    return "main/days/17/input.txt";
-}
-
-int Day17::part1(const std::vector<std::string>& input) const
+int calculateHeatLoss(const std::vector<std::string>& input, int minStraight, int maxStraight)
 {
     auto blocks = day17::parseCityBlocks(input);
 
     auto state = day17::dijkstraBlocks(
         blocks,
         {0, 0 },
-        { blocks.back().size() - 1, blocks.size() - 1 }
+        { blocks.back().size() - 1, blocks.size() - 1 },
+         minStraight,
+        maxStraight
     );
 
     day17::drawPath(blocks, state);
@@ -190,7 +198,17 @@ int Day17::part1(const std::vector<std::string>& input) const
     return state->heatLoss;
 }
 
+constexpr std::string Day17::filename () const 
+{
+    return "main/days/17/input.txt";
+}
+
+int Day17::part1(const std::vector<std::string>& input) const
+{
+    return calculateHeatLoss(input, 0, 3);
+}
+
 int Day17::part2(const std::vector<std::string>& input) const 
 {
-    return 0;
+    return calculateHeatLoss(input, 4, 10);
 }

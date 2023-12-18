@@ -36,8 +36,9 @@ namespace day17
 
     CityBlocks parseCityBlocks(const std::vector<std::string>& input);
     bool withinBounds(const CityBlocks& blocks, const Position& position);
-    std::shared_ptr<QueueState> dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end);
+    std::shared_ptr<QueueState> dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end, int minStraight, int maxStraight);
     void drawPath(const CityBlocks& blocks, const std::shared_ptr<QueueState>& state);
+    int calculateHeatLoss(const std::vector<std::string>& input, int minStraight, int maxStraight);
 }
 
 class Day17 : public Day<int>
