@@ -5,14 +5,14 @@
 #define GRAY_COLOR "\033[38;5;8m"
 #define RESET_COLOR "\033[0m"
 
-Contraption parseContraption(const std::vector<std::string>& input)
+day16::Contraption day16::parseContraption(const std::vector<std::string>& input)
 {
     auto contraption = input
-        | std::views::transform([=](const std::string& line) -> std::vector<std::shared_ptr<ContraptionPart>> {
+        | std::views::transform([=](const std::string& line) -> std::vector<std::shared_ptr<day16::ContraptionPart>> {
             auto parts = line
-                | std::views::transform([=](const char& part) -> std::shared_ptr<ContraptionPart> {
-                    return std::make_shared<ContraptionPart>(ContraptionPart(
-                        static_cast<ContraptionPartType>(part)
+                | std::views::transform([=](const char& part) -> std::shared_ptr<day16::ContraptionPart> {
+                    return std::make_shared<day16::ContraptionPart>(ContraptionPart(
+                        static_cast<day16::ContraptionPartType>(part)
                     ));
                 });
 
@@ -22,7 +22,7 @@ Contraption parseContraption(const std::vector<std::string>& input)
     return { contraption.begin(), contraption.end() };
 }
 
-bool withinBounds(const Contraption& contraption, const StartPosition& position)
+bool day16::withinBounds(const day16::Contraption& contraption, const day16::StartPosition& position)
 {
     return position.second >= 0 &&
         position.second < contraption.size() &&
@@ -30,16 +30,16 @@ bool withinBounds(const Contraption& contraption, const StartPosition& position)
         position.first < contraption[0].size();
 }
 
-RayDirection mirrorDirection(const RayDirection& direction, ContraptionPartType mirror)
+day16::RayDirection day16::mirrorDirection(const day16::RayDirection& direction, day16::ContraptionPartType mirror)
 {
     if(direction.first != 0)
     {
         switch(mirror)
         {
-            case ContraptionPartType::MIRROR_RIGHT: {
+            case day16::ContraptionPartType::MIRROR_RIGHT: {
                 return { 0, -direction.first };
             }
-            case ContraptionPartType::MIRROR_LEFT: {
+            case day16::ContraptionPartType::MIRROR_LEFT: {
                 return { 0, direction.first };
             }
             default: return direction;
@@ -50,10 +50,10 @@ RayDirection mirrorDirection(const RayDirection& direction, ContraptionPartType 
     {
         switch(mirror)
         {
-            case ContraptionPartType::MIRROR_RIGHT: {
+            case day16::ContraptionPartType::MIRROR_RIGHT: {
                 return { -direction.second, 0  };
             }
-            case ContraptionPartType::MIRROR_LEFT: {
+            case day16::ContraptionPartType::MIRROR_LEFT: {
                 return { direction.second, 0 };
             }
             default: return direction;
@@ -63,13 +63,13 @@ RayDirection mirrorDirection(const RayDirection& direction, ContraptionPartType 
     return direction;
 }
 
-std::vector<RayDirection> splitDirection(const RayDirection& direction, ContraptionPartType splitter)
+std::vector<day16::RayDirection> day16::splitDirection(const day16::RayDirection& direction, day16::ContraptionPartType splitter)
 {
     if(direction.first != 0)
     {
         switch(splitter)
         {
-            case ContraptionPartType::SPLITTER_UP_DOWN: {
+            case day16::ContraptionPartType::SPLITTER_UP_DOWN: {
                 return {
                     { 0, -1 },
                     { 0, 1 }
@@ -83,7 +83,7 @@ std::vector<RayDirection> splitDirection(const RayDirection& direction, Contrapt
     {
         switch(splitter)
         {
-            case ContraptionPartType::SPLITTER_LEFT_RIGHT: {
+            case day16::ContraptionPartType::SPLITTER_LEFT_RIGHT: {
                 return {
                     { -1, 0 },
                     { 1, 0 }
@@ -96,7 +96,7 @@ std::vector<RayDirection> splitDirection(const RayDirection& direction, Contrapt
     return { direction };
 }
 
-StartPosition calculateNextPoint(const StartPosition& position, const RayDirection& direction)
+day16::StartPosition day16::calculateNextPoint(const day16::StartPosition& position, const day16::RayDirection& direction)
 {
     return {
         position.first + direction.first,
@@ -104,14 +104,14 @@ StartPosition calculateNextPoint(const StartPosition& position, const RayDirecti
     };
 }
 
-void traceContraption(
-    Contraption& contraption,
-    const StartPosition& position,
-    const RayDirection& direction
+void day16::traceContraption(
+    day16::Contraption& contraption,
+    const day16::StartPosition& position,
+    const day16::RayDirection& direction
 )
 {
     // bounds check
-    if (!withinBounds(contraption, position))
+    if (!day16::withinBounds(contraption, position))
     {
         return;
     }
@@ -121,22 +121,22 @@ void traceContraption(
 
     switch(currentPart->type)
     {
-        case ContraptionPartType::SPACE:
+        case day16::ContraptionPartType::SPACE:
         {
             auto nextPosition = calculateNextPoint(position, direction);
             traceContraption(contraption, nextPosition, direction);
             break;
         }
-        case ContraptionPartType::MIRROR_RIGHT:
-        case ContraptionPartType::MIRROR_LEFT:
+        case day16::ContraptionPartType::MIRROR_RIGHT:
+        case day16::ContraptionPartType::MIRROR_LEFT:
         {
             auto nextDirection = mirrorDirection(direction, currentPart->type);
             auto nextPosition = calculateNextPoint(position, nextDirection);
             traceContraption(contraption, nextPosition, nextDirection);
             break;
         }
-        case ContraptionPartType::SPLITTER_UP_DOWN:
-        case ContraptionPartType::SPLITTER_LEFT_RIGHT:
+        case day16::ContraptionPartType::SPLITTER_UP_DOWN:
+        case day16::ContraptionPartType::SPLITTER_LEFT_RIGHT:
         {
             if (currentPart->passes > 1)
             {
@@ -153,7 +153,7 @@ void traceContraption(
     }
 }
 
-int calculateEnergisement(Contraption& contraption)
+int day16::calculateEnergisement(const day16::Contraption& contraption)
 {
     auto total = 0;
 
@@ -171,7 +171,7 @@ int calculateEnergisement(Contraption& contraption)
     return total;
 }
 
-Contraption& refreshContraption(Contraption& contraption)
+day16::Contraption& day16::refreshContraption(day16::Contraption& contraption)
 {
     for(const auto& row : contraption)
     {
@@ -191,7 +191,7 @@ constexpr std::string Day16::filename () const
 
 int Day16::part1(const std::vector<std::string>& input) const
 {
-    auto contraption = parseContraption(input);
+    auto contraption = day16::parseContraption(input);
 
     traceContraption(
         contraption,
@@ -222,7 +222,7 @@ int Day16::part1(const std::vector<std::string>& input) const
 
 int Day16::part2(const std::vector<std::string>& input) const 
 {
-    auto contraption = parseContraption(input);
+    auto contraption = day16::parseContraption(input);
 
     std::vector<int> energies;
 

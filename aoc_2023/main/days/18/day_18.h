@@ -3,6 +3,11 @@
 
 #include "main/solution/day.h"
 
+namespace day18
+{
+
+}
+
 class Day18 : public Day<int>
 {
 public:
