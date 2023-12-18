@@ -47,9 +47,11 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
         { -1, 0 },  // left
     };
 
+    Direction startDirection = { 0, 0 };
+
     SnapShotSet seen;
     day17::PriorityQueue pq;
-    pq.push({ 0, start, { 0, 0 }, 0, nullptr });
+    pq.push({ 0, start, startDirection, 0, nullptr });
 
     while(!pq.empty())
     {
@@ -81,17 +83,14 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
         seen.insert(snapShot);
 
         // check in current direction if max steps have not been taken
-        if(
-            currentSteps < maxStraight &&
-            (currentDirection.first != 0 || currentDirection.second != 0)
-        )
+        if(currentSteps < maxStraight && currentDirection != startDirection)
         {
-            Position newPositio0n = {
+            Position newPosition = {
                     currentPosition.first + currentDirection.first,
                     currentPosition.second + currentDirection.second
             };
 
-            if (day17::withinBounds(blocks, newPosition))
+            if (day::withinBounds(blocks, newPosition))
             {
                 pq.push({
                     currentHeatLoss + blocks[newPosition.second][newPosition.first],
@@ -103,10 +102,7 @@ std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
             }
         }
 
-        if (
-            currentSteps >= minStraight ||
-            (currentDirection.first == 0 && currentDirection.second == 0)
-        )
+        if (currentSteps >= minStraight || currentDirection == startDirection)
         {
             // explore perpendicular neighbours
             for (const auto& dir : directions)
