@@ -22,32 +22,6 @@ day17::CityBlocks day17::parseCityBlocks(const std::vector<std::string>& input)
     return { blocks.begin(), blocks.end() };
 }
 
-day17::Distances day17::generateDistances(const day17::CityBlocks& blocks)
-{
-    day17::Distances distances;
-
-    for(const auto& row : blocks)
-    {
-        std::vector<std::shared_ptr<day17::Candidate>> blockRows;
-        blockRows.reserve(row.size());
-
-        for (auto _ : row)
-        {
-            blockRows.push_back(
-                std::make_shared<day17::Candidate>(
-                    INFINITY,
-                    std::make_pair(0, 0),
-                    nullptr
-                )
-            );
-        }
-
-        distances.push_back(blockRows);
-    }
-
-    return distances;
-}
-
 bool day17::withinBounds(const day17::CityBlocks& blocks, const day17::Position& position)
 {
     return (
@@ -61,8 +35,7 @@ bool day17::withinBounds(const day17::CityBlocks& blocks, const day17::Position&
 day17::QueueState day17::dijkstraBlocks(
     const day17::CityBlocks& blocks,
     const day17::Position& start,
-    const day17::Position& end,
-    day17::Distances& distances
+    const day17::Position& end
 )
 {
     std::vector<Direction> directions = {
@@ -89,10 +62,8 @@ day17::QueueState day17::dijkstraBlocks(
         auto currentSteps = state.steps;
         auto currentPath = state.path;
 
-        auto currentCandidate = distances[currentPosition.second][currentPosition.first];
-
         // if destination reached jump out of this loop
-        if (currentPosition.first == end.first && currentPosition.second == end.second)
+        if (currentPosition == end)
         {
             return state;
         }
@@ -216,13 +187,12 @@ constexpr std::string Day17::filename () const
 int Day17::part1(const std::vector<std::string>& input) const
 {
     auto blocks = day17::parseCityBlocks(input);
-    auto distances = day17::generateDistances(blocks);
 
     day17::Position start {0, 0};
     day17::Position end {blocks.back().size() - 1, blocks.size() - 1};
 
-    auto state = day17::dijkstraBlocks(blocks, start, end, distances);
-//    day17::drawPath(blocks, state.path);
+    auto state = day17::dijkstraBlocks(blocks, start, end);
+    day17::drawPath(blocks, state.path);
 
     return state.heatLoss;
 }

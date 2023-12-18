@@ -9,7 +9,6 @@ namespace day17
 {
     using Position = std::pair<int, int>;
     using Direction = std::pair<int, int>;
-    using LastDirectionCount = std::pair<Direction, int>;
     using CityBlocks = std::vector<std::vector<int>>;
 
     struct QueueState
@@ -42,12 +41,9 @@ namespace day17
         {}
     };
 
-    using Distances = std::vector<std::vector<std::shared_ptr<Candidate>>>; // pair = ( distance, number of straight moves )
-
     CityBlocks parseCityBlocks(const std::vector<std::string>& input);
-    Distances generateDistances(const CityBlocks& blocks);
     bool withinBounds(const CityBlocks& blocks, const Position& position);
-    QueueState dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end, Distances& distances);
+    QueueState dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end);
     void drawPath(const CityBlocks& blocks, const std::vector<Position>& path);
 }
 
