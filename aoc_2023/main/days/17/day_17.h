@@ -2,11 +2,15 @@
 #define DAY_17_H
 
 #include <queue>
+#include <set>
 
 #include "main/solution/day.h"
 
 namespace day17
 {
+    using SnapShot = std::tuple<int, int, int, int, int>;
+    using SnapShotSet = std::set<SnapShot>;
+
     using Position = std::pair<int, int>;
     using Direction = std::pair<int, int>;
     using CityBlocks = std::vector<std::vector<int>>;
@@ -17,7 +21,7 @@ namespace day17
         Position position;
         Direction direction;
         int steps;
-        std::vector<Position> path;
+        std::shared_ptr<QueueState> parent;
 
         bool operator>(const QueueState& other) const {
             return heatLoss > other.heatLoss;
@@ -27,24 +31,13 @@ namespace day17
     using PriorityQueue = std::priority_queue<
         QueueState,
         std::vector<QueueState>,
-        std::greater<QueueState>
+        std::greater<>
     >;
-
-    struct Candidate
-    {
-        int heatLoss;
-        Position position;
-        std::shared_ptr<Candidate> parent;
-
-        Candidate(int heatLoss, Position position, std::shared_ptr<Candidate> parent)
-            : heatLoss(heatLoss), position(position), parent(parent)
-        {}
-    };
 
     CityBlocks parseCityBlocks(const std::vector<std::string>& input);
     bool withinBounds(const CityBlocks& blocks, const Position& position);
-    QueueState dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end);
-    void drawPath(const CityBlocks& blocks, const std::vector<Position>& path);
+    std::shared_ptr<QueueState> dijkstraBlocks(const CityBlocks& blocks, const Position& start, const Position& end);
+    void drawPath(const CityBlocks& blocks, const std::shared_ptr<QueueState>& state);
 }
 
 class Day17 : public Day<int>

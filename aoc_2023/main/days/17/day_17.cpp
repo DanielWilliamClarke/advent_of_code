@@ -32,7 +32,7 @@ bool day17::withinBounds(const day17::CityBlocks& blocks, const day17::Position&
     );
 }
 
-day17::QueueState day17::dijkstraBlocks(
+std::shared_ptr<day17::QueueState> day17::dijkstraBlocks(
     const day17::CityBlocks& blocks,
     const day17::Position& start,
     const day17::Position& end
@@ -45,55 +45,41 @@ day17::QueueState day17::dijkstraBlocks(
         { -1, 0 },  // left
     };
 
-    std::set<std::tuple<int, int, int, int, int>> seen;
+    SnapShotSet seen;
     day17::PriorityQueue pq;
-
-    pq.push({0, start, { 0, 0 }, 0, {}});
+    pq.push({ 0, start, { 0, 0 }, 0, nullptr });
 
     while(!pq.empty())
     {
         // extract top queue data
-        auto state =  pq.top();
+        auto currentState = pq.top();
         pq.pop();
 
-        auto currentHeatLoss = state.heatLoss;
-        auto currentPosition = state.position;
-        auto currentDirection =state.direction;
-        auto currentSteps = state.steps;
-        auto currentPath = state.path;
+        auto currentHeatLoss = currentState.heatLoss;
+        auto currentPosition = currentState.position;
+        auto currentDirection = currentState.direction;
+        auto currentSteps = currentState.steps;
 
         // if destination reached jump out of this loop
         if (currentPosition == end)
         {
-            return state;
+            return std::make_shared<QueueState>(currentState);
         }
 
-        // if this distance is greater than the previous then go to the next queued element
-        if (
-            seen.count({
-                currentPosition.first,
-                currentPosition.second,
-                currentDirection.first,
-                currentDirection.second,
-                currentSteps
-            })
-        )
-        {
-            continue;
-        }
-
-        seen.insert({
+        SnapShot snapShot{
             currentPosition.first,
             currentPosition.second,
             currentDirection.first,
             currentDirection.second,
             currentSteps
-        });
+        };
 
-        if(
-            currentSteps < 3 &&
-            (currentDirection.first != 0 || currentDirection.second != 0)
-        )
+        // if this distance is greater than the previous then go to the next queued element
+        if (seen.count(snapShot)) { continue; }
+        seen.insert(snapShot);
+
+        // check in current direction if max steps have not been taken
+        if(currentSteps < 3)
         {
             Position newPosition = {
                 currentPosition.first + currentDirection.first,
@@ -102,25 +88,22 @@ day17::QueueState day17::dijkstraBlocks(
 
             if (day17::withinBounds(blocks, newPosition))
             {
-                auto newPath = currentPath;
-                newPath.push_back(newPosition);
-
                 pq.push({
                     currentHeatLoss + blocks[newPosition.second][newPosition.first],
                     newPosition,
                     currentDirection,
                     currentSteps + 1,
-                    newPath
+                    std::make_shared<QueueState>(currentState)
                 });
             }
         }
 
-        // explore neighbours
+        // explore perpendicular neighbours
         for (const auto& dir : directions)
         {
             if (
-                (dir.first != currentDirection.first || dir.second != currentDirection.second) &&
-                (dir.first != -currentDirection.first || dir.second != -currentDirection.second)
+                std::abs(dir.first) != std::abs(currentDirection.first) ||
+                std::abs(dir.second) != std::abs(currentDirection.second)
             )
             {
                 Position newPosition = {
@@ -130,29 +113,43 @@ day17::QueueState day17::dijkstraBlocks(
 
                 if (day17::withinBounds(blocks, newPosition))
                 {
-                    auto newPath = currentPath;
-                    newPath.push_back(newPosition);
-
                     pq.push({
                         currentHeatLoss + blocks[newPosition.second][newPosition.first],
                         newPosition,
                         dir,
                         1,
-                        newPath
+                        std::make_shared<QueueState>(currentState)
                     });
                 }
             }
         }
     }
 
-    return {};
+    return nullptr;
 };
 
 void day17::drawPath(
     const day17::CityBlocks& blocks,
-    const std::vector<Position>& path
+    const std::shared_ptr<QueueState>& state
 )
 {
+    // null check
+    if(state == nullptr)
+    {
+        std::cout << "Heat map not traversed!" << std::endl;
+        return;
+    }
+
+    // Extract path
+    std::vector<Position> path;
+    auto s = state;
+    while(s != nullptr)
+    {
+        path.push_back(s->position);
+        s = s->parent;
+    }
+
+    // Render grid
     for(auto y = 0; y < blocks.size(); y++)
     {
         for (auto x = 0; x < blocks[0].size(); x++)
@@ -163,16 +160,10 @@ void day17::drawPath(
                     return p.first == x && p.second == y;
                 });
 
-            if (pathIter != path.end())
-            {
-                std::cout << RED_COLOR;
-            }
-            else
-            {
-                std::cout << GRAY_COLOR;
-            }
-
-            std::cout << blocks[y][x] << RESET_COLOR;
+            std::cout
+                << (pathIter != path.end() ? RED_COLOR : GRAY_COLOR)
+                << blocks[y][x]
+                << RESET_COLOR;
         }
 
         std::cout << std::endl;
@@ -192,9 +183,9 @@ int Day17::part1(const std::vector<std::string>& input) const
     day17::Position end {blocks.back().size() - 1, blocks.size() - 1};
 
     auto state = day17::dijkstraBlocks(blocks, start, end);
-    day17::drawPath(blocks, state.path);
+    day17::drawPath(blocks, state);
 
-    return state.heatLoss;
+    return state->heatLoss;
 }
 
 int Day17::part2(const std::vector<std::string>& input) const 
