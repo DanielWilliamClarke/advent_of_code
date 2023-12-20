@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <stdexcept>
 
-const std::regex regex("(one|two|three|four|five|six|seven|eight|nine|[0-9])");
+const std::regex regex(R"(one|two|three|four|five|six|seven|eight|nine|[0-9])");
 
 const std::unordered_map<std::string, int> mapping = {
         { "one",   1 },

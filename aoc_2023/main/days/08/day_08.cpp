@@ -5,7 +5,7 @@
 #include <memory>
 #include <numeric>
 
-const std::regex regex("(\\w{3}) = \\((\\w{3}), (\\w{3})\\)");
+const std::regex regex(R"(\w{3}) = \((\w{3}), (\w{3})\)");
 
 std::vector<std::shared_ptr<Node>> parseNodes(const std::vector<std::string>& input)
 {
