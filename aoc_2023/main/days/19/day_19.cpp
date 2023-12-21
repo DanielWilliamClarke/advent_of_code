@@ -22,12 +22,12 @@ size_t day19::getSplitIndex(const std::vector<std::string>& input)
 const std::regex ruleRegex(R"((\w+)\{(.+),(\w+)\})");
 const std::regex ruleClauseRegex(R"(([xmas])([><])([0-9]+):(\w+))");
 
-day19::Rule day19::parseRule(const std::string& rule)
+day19::Rule day19::generateRule(const std::string& rule)
 {
     std::smatch match;
     std::regex_search(rule, match, ruleClauseRegex);
 
-    auto partName = match[1].str().front();
+    auto partName = static_cast<PartType>(match[1].str().front());
     auto ruleOperator = match[2].str().front();
     auto threshold = std::stoi(match[3].str());
     auto bucket = match[4].str();
@@ -43,10 +43,16 @@ day19::Rule day19::parseRule(const std::string& rule)
         }
     };
 
-    return std::make_pair(ruleEvaluator, bucket);
+    return {
+        partName,
+        ruleOperator,
+        threshold,
+        ruleEvaluator,
+        bucket
+    };
 }
 
-std::unordered_map<std::string, day19::Ruleset> day19::parseRules(const std::vector<std::string>& input)
+day19::RuleMap day19::parseRules(const std::vector<std::string>& input)
 {
     std::unordered_map<std::string, day19::Ruleset> rulesMap;
 
@@ -60,7 +66,7 @@ std::unordered_map<std::string, day19::Ruleset> day19::parseRules(const std::vec
 
         auto rules = splitString(clauses, ',')
              | std::views::transform([=](const std::string& rule) {
-            return parseRule(rule);
+            return generateRule(rule);
         });
 
         rulesMap.insert({
@@ -86,10 +92,10 @@ std::vector<day19::Part> day19::parseParts(const std::vector<std::string>& input
             std::regex_search(line, match, partsRegex);
 
             return {
-                { 'x', std::stoi(match[1].str()) },
-                { 'm', std::stoi(match[2].str()) },
-                { 'a', std::stoi(match[3].str()) },
-                { 's', std::stoi(match[4].str()) },
+                { X, std::stoll(match[1].str()) },
+                { M, std::stoll(match[2].str()) },
+                { A, std::stoll(match[3].str()) },
+                { S, std::stoll(match[4].str()) },
             };
         });
 
@@ -97,7 +103,7 @@ std::vector<day19::Part> day19::parseParts(const std::vector<std::string>& input
 }
 
 std::vector<day19::Part> day19::processParts(
-    const std::unordered_map<std::string, day19::Ruleset>& rules,
+    const RuleMap& rules,
     const std::vector<Part>& parts
 )
 {
@@ -109,27 +115,27 @@ std::vector<day19::Part> day19::processParts(
 
         while(true)
         {
-            for(auto [evaluator, bucket] : rule.rules)
+            for(const auto& clause: rule.rules)
             {
-                if (evaluator(part))
+                if (clause.evaluator(part))
                 {
-                    if (bucket == "A")
+                    if (clause.bucket == "A")
                     {
                         acceptedParts.push_back(part);
                         goto nextPart;
                     } 
-                    else if (bucket == "R")
+                    else if (clause.bucket == "R")
                     {
                         // do nothing ignore this part
                         goto nextPart;
                     }
 
-                    rule = rules.at(bucket);
+                    rule = rules.at(clause.bucket);
                     goto nextRule;
                 }
             }
 
-            // we will get here if no rules are
+            // we will get here all rules are not applicable
             // we should then check the default bucket
             if (rule.defaultBucket == "A")
             {
@@ -141,10 +147,8 @@ std::vector<day19::Part> day19::processParts(
                 // do nothing ignore this part
                 goto nextPart;
             }
-            else
-            {
-                rule = rules.at(rule.defaultBucket);
-            }
+
+            rule = rules.at(rule.defaultBucket);
 
             nextRule:
                 continue;
@@ -166,12 +170,72 @@ int day19::accumulatePartValues(const std::vector<Part>& parts)
         0,
         std::plus<>(),
         [=] (const Part& part) {
-            return part.at('x') +
-                part.at('m') +
-                part.at('a') +
-                part.at('s');
+            return part.at(X) +
+                part.at(M) +
+                part.at(A) +
+                part.at(S);
         }
     );
+}
+
+size_t day19::calculateTotalAcceptedPermutations(
+    PartMultiMap& ranges,
+    const RuleMap& rules
+)
+{
+    size_t total = 0;
+    auto storeRange = [&total, &ranges](const std::string& bucket, const PartRange& range) {
+        if (bucket == "A")
+        {
+            // Calculate permutations that can be accepted
+            total += (range.upper.at(X) - range.lower.at(X) + 1) *
+                     (range.upper.at(M) - range.lower.at(M) + 1) *
+                     (range.upper.at(A) - range.lower.at(A) + 1) *
+                     (range.upper.at(S) - range.lower.at(S) + 1);
+        }
+        else if (bucket != "R")
+        {
+            ranges.insert({ bucket, range });
+        }
+    };
+
+    auto rangeIter = ranges.begin();
+    auto oldRange = rangeIter->second;
+    const auto& rule = rules.at(rangeIter->first);
+
+    // pop first range from the multimap
+    ranges.erase(rangeIter);
+
+    for (const auto& clause : rule.rules)
+    {
+        auto lowerWorks = clause.evaluator(oldRange.lower);
+        auto upperWorks = clause.evaluator(oldRange.upper);
+        if (!(lowerWorks ^ upperWorks))
+        {
+            continue;
+        }
+
+        // Adjust thresholds based on evaluator result
+        auto newRange = oldRange;
+        if (lowerWorks && !upperWorks)
+        {
+            oldRange.lower[clause.partName] = clause.threshold;
+            newRange.upper[clause.partName] = clause.threshold - 1;
+        }
+        else if (upperWorks && !lowerWorks)
+        {
+            newRange.lower[clause.partName] = clause.threshold + 1;
+            oldRange.upper[clause.partName] = clause.threshold;
+        }
+
+        // Store new ranges in multimap
+        storeRange(clause.bucket, newRange);
+    }
+
+    // Store remaining ranges in multimap
+    storeRange(rule.defaultBucket, oldRange);
+
+    return total;
 }
 
 constexpr std::string Day19::filename () const 
@@ -183,16 +247,25 @@ int Day19::part1(const std::vector<std::string>& input) const
 {
     auto splitIndex = day19::getSplitIndex(input);
 
-    auto rules = day19::parseRules({ input.begin(), input.begin() + splitIndex });
-
-    auto parts = day19::parseParts({ input.begin() + splitIndex + 1, input.end() });
-
-    auto acceptedParts = day19::processParts(rules, parts);
-
-    return day19::accumulatePartValues(acceptedParts);
+    return day19::accumulatePartValues(
+        day19::processParts(
+            day19::parseRules({ input.begin(), input.begin() + splitIndex }),
+            day19::parseParts({ input.begin() + splitIndex + 1, input.end() })
+        )
+    );
 }
 
-int Day19::part2(const std::vector<std::string>& input) const 
+size_t Day19::part2(const std::vector<std::string>& input) const
 {
-    return 0;
+    auto splitIndex = day19::getSplitIndex(input);
+    auto rules = day19::parseRules({ input.begin(), input.begin() + splitIndex });
+
+    size_t permutations = 0;
+    day19::PartMultiMap ranges = {{ "in", day19::PartRange{} }};
+    while(!ranges.empty())
+    {
+        permutations += day19::calculateTotalAcceptedPermutations(ranges, rules);
+    }
+
+    return permutations;
 }
