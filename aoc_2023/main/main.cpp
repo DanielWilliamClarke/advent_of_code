@@ -21,32 +21,34 @@
 #include "main/days/17/day_17.h"
 #include "main/days/18/day_18.h"
 #include "main/days/19/day_19.h"
+#include "main/days/20/day_20.h"
 //NEW_DAY_HEADER
 
 int main ()
 {
     std::ranges::for_each(
         std::vector<std::shared_ptr<RunnableDay>> {
-            std::make_shared<DayN01>(),
-            std::make_shared<Day01>(),
-            std::make_shared<Day02>(),
-            std::make_shared<Day03>(),
-            std::make_shared<Day04>(),
-            std::make_shared<Day05>(),
-            std::make_shared<Day06>(),
-            std::make_shared<Day07>(),
-            std::make_shared<Day08>(),
-            std::make_shared<Day09>(),
-            std::make_shared<Day10>(),
-            std::make_shared<Day11>(),
-            std::make_shared<Day12>(),
-            std::make_shared<Day13>(),
-            std::make_shared<Day14>(),
-            std::make_shared<Day15>(),
-            std::make_shared<Day16>(),
-            std::make_shared<Day17>(),
-            std::make_shared<Day18>(),
-            std::make_shared<Day19>(),
+//            std::make_shared<DayN01>(),
+//            std::make_shared<Day01>(),
+//            std::make_shared<Day02>(),
+//            std::make_shared<Day03>(),
+//            std::make_shared<Day04>(),
+//            std::make_shared<Day05>(),
+//            std::make_shared<Day06>(),
+//            std::make_shared<Day07>(),
+//            std::make_shared<Day08>(),
+//            std::make_shared<Day09>(),
+//            std::make_shared<Day10>(),
+//            std::make_shared<Day11>(),
+//            std::make_shared<Day12>(),
+//            std::make_shared<Day13>(),
+//            std::make_shared<Day14>(),
+//            std::make_shared<Day15>(),
+//            std::make_shared<Day16>(),
+//            std::make_shared<Day17>(),
+//            std::make_shared<Day18>(),
+//            std::make_shared<Day19>(),
+            std::make_shared<Day20>(),
             //NEW_DAY_PTR,
         },
         [=] (auto day) { day->run(); }
