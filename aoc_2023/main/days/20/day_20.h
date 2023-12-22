@@ -11,6 +11,7 @@ namespace day20
 
     using ModuleList = std::vector<std::shared_ptr<Module>>;
     using ModulePair = std::pair<bool, ModuleList>;
+    using ModuleMap = std::unordered_map<std::string, std::shared_ptr<Module>>;
 
     struct Module
     {
@@ -27,6 +28,8 @@ namespace day20
 
         virtual void receivePulse(const std::string& sender, bool pulse) = 0;
         virtual ModulePair sendPulse() = 0;
+
+        virtual void findDestination (const ModuleMap& moduleMap);
     };
 
     struct Unnamed : public Module
@@ -66,9 +69,11 @@ namespace day20
 
         void receivePulse(const std::string& sender, bool pulse) override;
         ModulePair sendPulse() override;
+
+        void findDestination (const ModuleMap& moduleMap) override;
     };
 
-    using ModuleMap = std::unordered_map<std::string, std::shared_ptr<Module>>;
+
 
     ModuleMap parseModules(const std::vector<std::string>& input);
     ModuleMap connectModules(const ModuleMap& moduleMap);

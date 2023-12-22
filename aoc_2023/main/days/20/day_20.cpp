@@ -21,6 +21,25 @@ destinations({}),
 pulse(false)
 {}
 
+void day20::Module::findDestination (const ModuleMap& moduleMap)
+{
+    for (auto& tag : this->destinationNames)
+    {
+        if (moduleMap.contains(tag))
+        {
+            this->destinations.push_back(moduleMap.at(tag));
+        }
+        else
+        {
+            this->destinations.push_back(
+                std::make_shared<Unnamed>(
+                        Unnamed(tag)
+                )
+            );
+        }
+    }
+}
+
 // Unnamed
 day20::Unnamed::Unnamed(std::string name)
     : Module(name, {})
@@ -146,6 +165,24 @@ day20::ModulePair day20::Conjunction::sendPulse()
     return { this->pulse, this->destinations };
 }
 
+void day20::Conjunction::findDestination (const ModuleMap& moduleMap)
+{
+    Module::findDestination(moduleMap);
+
+    // fill input map
+    for(const auto& module : moduleMap)
+    {
+        for (const auto& tag : module.second->destinationNames)
+        {
+            if (this->name == tag)
+            {
+                // add to the input map
+                this->inputs.insert({ module.second->name, false });
+            }
+        }
+    }
+}
+
 // Parse input
 const std::regex moduleRegex(R"(([&%b])(\w+) -> ([\w, ]+))");
 
@@ -198,21 +235,7 @@ day20::ModuleMap day20::connectModules(const day20::ModuleMap& moduleMap)
 {
     for (auto& module : moduleMap)
     {
-        for (const auto& tag : module.second->destinationNames)
-        {
-            if (moduleMap.contains(tag))
-            {
-                module.second->destinations.push_back(moduleMap.at(tag));
-            }
-            else
-            {
-                module.second->destinations.push_back(
-                    std::make_shared<Unnamed>(
-                        Unnamed(tag)
-                    )
-                );
-            }
-        }
+        module.second->findDestination(moduleMap);
     }
 
     return moduleMap;
@@ -261,7 +284,7 @@ std::pair<int, int> day20::smackButton(const ModuleMap& moduleMap, std::pair<int
 
 constexpr std::string Day20::filename () const
 {
-    return "main/days/20/input.txt";
+    return "main/days/20/example2.txt";
 }
 
 int Day20::part1(const std::vector<std::string>& input) const
@@ -269,7 +292,7 @@ int Day20::part1(const std::vector<std::string>& input) const
     auto modules = day20::connectModules(day20::parseModules(input));
 
     std::pair<int, int> count = { 0, 0 };
-    for (auto i = 0; i < 1000; i++)
+    for (auto i = 0; i < 1; i++)
     {
         count = smackButton(modules, count);
     }

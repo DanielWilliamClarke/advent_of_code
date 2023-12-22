@@ -2,6 +2,6 @@ dist
 bazel-*
 
 input.txt
-example.txt
+example*.txt
 input
 puzzle.md
