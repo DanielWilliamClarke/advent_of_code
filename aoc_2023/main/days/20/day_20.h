@@ -10,8 +10,17 @@ namespace day20
     struct Module;
 
     using ModuleList = std::vector<std::shared_ptr<Module>>;
-    using ModulePair = std::pair<bool, ModuleList>;
     using ModuleMap = std::unordered_map<std::string, std::shared_ptr<Module>>;
+    using PulseCount = std::pair<size_t, size_t>;
+
+    struct Signal
+    {
+        std::string name;
+        std::string destination;
+        bool pulse;
+    };
+
+    using SignalList = std::vector<Signal>;
 
     struct Module
     {
@@ -26,17 +35,15 @@ namespace day20
         );
         virtual ~Module() = default;
 
-        virtual void receivePulse(const std::string& sender, bool pulse) = 0;
-        virtual ModulePair sendPulse() = 0;
+        virtual SignalList receive(const Signal& count) = 0;
 
-        virtual void findDestination (const ModuleMap& moduleMap);
+        virtual void findDestination (ModuleMap& moduleMap);
     };
 
     struct Unnamed : public Module
     {
         Unnamed(std::string name);
-        void receivePulse(const std::string& sender, bool pulse) override;
-        ModulePair sendPulse() override;
+        SignalList receive(const Signal& signal) override;
     };
 
     struct Broadcaster : public Module
@@ -44,8 +51,7 @@ namespace day20
         Broadcaster(std::string name, std::vector<std::string> destinationNames);
         virtual ~Broadcaster() = default;
 
-        void receivePulse(const std::string& sender, bool pulse) override;
-        ModulePair sendPulse() override;
+        SignalList receive(const Signal& signal) override;
     };
 
     struct FlipFlop : public Module
@@ -56,8 +62,7 @@ namespace day20
         FlipFlop(std::string name, std::vector<std::string> destinationNames);
         virtual ~FlipFlop() = default;
 
-        void receivePulse(const std::string& sender, bool pulse) override;
-        ModulePair sendPulse() override;
+        SignalList receive(const Signal& signal) override;
     };
 
     struct Conjunction : public Module
@@ -67,31 +72,23 @@ namespace day20
         Conjunction(std::string name, std::vector<std::string> destinationNames);
         virtual ~Conjunction() = default;
 
-        void receivePulse(const std::string& sender, bool pulse) override;
-        ModulePair sendPulse() override;
-
-        void findDestination (const ModuleMap& moduleMap) override;
+        SignalList receive(const Signal& signal) override;
+        void findDestination (ModuleMap& moduleMap) override;
     };
 
-
-
     ModuleMap parseModules(const std::vector<std::string>& input);
-    ModuleMap connectModules(const ModuleMap& moduleMap);
-
-    std::pair<int, int> processModule(const std::shared_ptr<Module>& module, std::pair<int, int> count);
-    std::pair<int, int> smackButton(const ModuleMap& moduleMap, std::pair<int, int> count);
-
-
+    ModuleMap connectModules(ModuleMap& moduleMap);
+    PulseCount smackButton(const ModuleMap& moduleMap, PulseCount& count);
 }
 
-class Day20 : public Day<int>
+class Day20 : public Day<size_t>
 {
 public:
     virtual ~Day20() = default;
 
     [[nodiscard]] constexpr std::string filename() const override;
-    [[nodiscard]] int part1(const std::vector<std::string>&) const override;
-    [[nodiscard]] int part2(const std::vector<std::string>&) const override;
+    [[nodiscard]] size_t part1(const std::vector<std::string>&) const override;
+    [[nodiscard]] size_t part2(const std::vector<std::string>&) const override;
 };
 
 #endif // DAY_20_H

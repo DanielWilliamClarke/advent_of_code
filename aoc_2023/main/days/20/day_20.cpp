@@ -1,6 +1,7 @@
 #include "day_20.h"
 
 #include <regex>
+#include <queue>
 #include <ranges>
 
 #include "main/solution/string_utils.h"
@@ -11,17 +12,11 @@ void day20::printPulse(const std::string& sender, const std::string& destination
 }
 
 // Module
-day20::Module::Module(
-    std::string name,
-    std::vector<std::string> destinationNames
-)
-: name(name),
-destinationNames(destinationNames),
-destinations({}),
-pulse(false)
+day20::Module::Module(std::string name, std::vector<std::string> destinationNames)
+    : name(name), destinationNames(destinationNames), destinations({}), pulse(false)
 {}
 
-void day20::Module::findDestination (const ModuleMap& moduleMap)
+void day20::Module::findDestination (ModuleMap& moduleMap)
 {
     for (auto& tag : this->destinationNames)
     {
@@ -31,11 +26,10 @@ void day20::Module::findDestination (const ModuleMap& moduleMap)
         }
         else
         {
-            this->destinations.push_back(
-                std::make_shared<Unnamed>(
-                        Unnamed(tag)
-                )
-            );
+            // handle the fact that there can be modules not mentioned in the main list
+            auto unnamed = std::make_shared<Unnamed>(Unnamed(tag));
+            this->destinations.push_back(unnamed);
+            moduleMap.insert({tag, unnamed});
         }
     }
 }
@@ -45,14 +39,9 @@ day20::Unnamed::Unnamed(std::string name)
     : Module(name, {})
 {}
 
-void day20::Unnamed::receivePulse(const std::string &sender, bool pulse)
+day20::SignalList day20::Unnamed::receive(const day20::Signal& signal)
 {
-    this->pulse = pulse;
-}
-
-day20::ModulePair day20::Unnamed::sendPulse()
-{
-    return { this->pulse, {} };
+    return {};
 };
 
 // Broadcaster
@@ -60,25 +49,19 @@ day20::Broadcaster::Broadcaster(std::string name, std::vector<std::string> desti
     : Module(name, destinationNames)
 {}
 
-void day20::Broadcaster::receivePulse(const std::string& sender, bool pulse)
+day20::SignalList day20::Broadcaster::receive(const day20::Signal& signal)
 {
     // There is a single broadcast module (named broadcaster).
     // When it receives a pulse,
     // it sends the same pulse to all of its destination modules.
-    printPulse(sender, this->name, pulse);
+    this->pulse = signal.pulse;
 
-    this->pulse = pulse;
-}
+    auto signals = this->destinations
+        | std::views::transform([&] (const auto& d) -> Signal {
+            return { this->name, d->name, this->pulse };
+        });
 
-day20::ModulePair day20::Broadcaster::sendPulse()
-{
-    for(const auto& d : destinations)
-    {
-        printPulse(this->name, d->name, pulse);
-        d->receivePulse(this->name, this->pulse);
-    }
-
-    return { this->pulse, this->destinations };
+    return { signals.begin(), signals.end() };
 }
 
 // FlipFlop
@@ -86,7 +69,7 @@ day20::FlipFlop::FlipFlop(std::string name, std::vector<std::string> destination
     : Module(name, destinationNames), enabled(false), shouldIgnore(false)
 {}
 
-void day20::FlipFlop::receivePulse(const std::string& sender, bool pulse)
+day20::SignalList day20::FlipFlop::receive(const day20::Signal &signal)
 {
     //    Flip-flop modules (prefix %) are either on or off;
     //    they are initially off. If a flip-flop module receives a high pulse,
@@ -95,32 +78,20 @@ void day20::FlipFlop::receivePulse(const std::string& sender, bool pulse)
     //    it flips between on and off. If it was off,
     //    it turns on and sends a high pulse.
     //    If it was on, it turns off and sends a low pulse.
-
-    if (pulse)
+    if (signal.pulse)
     {
-        this->shouldIgnore = true;
-        return;
+        return {};
     }
 
-    this->shouldIgnore = false;
-    this->pulse = !this->enabled;
     this->enabled = !this->enabled;
-}
+    this->pulse = this->enabled;
 
-day20::ModulePair day20::FlipFlop::sendPulse()
-{
-    if (!this->shouldIgnore || this->enabled)
-    {
-        for(const auto& d : destinations)
-        {
-            printPulse(this->name, d->name, pulse);
-            d->receivePulse(this->name, this->pulse);
-        }
+    auto signals = this->destinations
+       | std::views::transform([&] (const auto& d) -> Signal {
+            return { this->name, d->name, this->pulse };
+        });
 
-        return { this->pulse, this->destinations };
-    }
-
-    return { this->pulse, {} };
+    return { signals.begin(), signals.end() };
 }
 
 // Conjunction
@@ -128,7 +99,7 @@ day20::Conjunction::Conjunction(std::string name, std::vector<std::string> desti
     : Module(name, destinationNames), inputs({})
 {}
 
-void day20::Conjunction::receivePulse(const std::string &sender, bool pulse)
+day20::SignalList day20::Conjunction::receive(const day20::Signal &signal)
 {
     // Conjunction modules (prefix &)
     // remember the type of the most recent pulse received
@@ -138,34 +109,22 @@ void day20::Conjunction::receivePulse(const std::string &sender, bool pulse)
     // updates its memory for that input. Then,
     // if it remembers high pulses for all inputs,
     // it sends a low pulse; otherwise, it sends a high pulse.
+    this->inputs[signal.name] = signal.pulse;
 
-    this->inputs[sender] = pulse;
+    this->pulse = !std::ranges::all_of(
+        this->inputs,
+        [=] (const auto& input) { return input.second; }
+    );
+
+    auto signals = this->destinations
+       | std::views::transform([&] (const auto& d) -> Signal {
+            return { this->name, d->name, this->pulse };
+        });
+
+    return { signals.begin(), signals.end() };
 }
 
-day20::ModulePair day20::Conjunction::sendPulse()
-{
-    auto inputPulse = false;
-
-    if (!this->inputs.empty())
-    {
-        inputPulse = std::ranges::all_of(
-            this->inputs,
-            [=] (const auto& input) { return input.second; }
-        );
-    }
-
-    this->pulse = !inputPulse;
-
-    for(const auto& d : destinations)
-    {
-        printPulse(this->name, d->name, pulse);
-        d->receivePulse(this->name, this->pulse);
-    }
-
-    return { this->pulse, this->destinations };
-}
-
-void day20::Conjunction::findDestination (const ModuleMap& moduleMap)
+void day20::Conjunction::findDestination(ModuleMap& moduleMap)
 {
     Module::findDestination(moduleMap);
 
@@ -206,21 +165,21 @@ day20::ModuleMap day20::parseModules(const std::vector<std::string>& input)
                 auto broadcaster = std::make_shared<Broadcaster>(
                     Broadcaster(moduleName,tags )
                 );
-                moduleMap.insert({moduleName, broadcaster});
+                moduleMap.insert({ moduleName, broadcaster });
                 break;
             }
             case '%': {
                 auto flipFlip = std::make_shared<FlipFlop>(
                    FlipFlop(name, tags)
                 );
-                moduleMap.insert({name, flipFlip});
+                moduleMap.insert({ name, flipFlip });
                 break;
             }
             case '&': {
                 auto conjunction = std::make_shared<Conjunction>(
                     Conjunction(name, tags)
                 );
-                moduleMap.insert({name, conjunction});
+                moduleMap.insert({ name, conjunction });
                 break;
             }
             // cant happen
@@ -231,7 +190,7 @@ day20::ModuleMap day20::parseModules(const std::vector<std::string>& input)
     return moduleMap;
 }
 
-day20::ModuleMap day20::connectModules(const day20::ModuleMap& moduleMap)
+day20::ModuleMap day20::connectModules(ModuleMap& moduleMap)
 {
     for (auto& module : moduleMap)
     {
@@ -241,66 +200,61 @@ day20::ModuleMap day20::connectModules(const day20::ModuleMap& moduleMap)
     return moduleMap;
 }
 
-// Module processing
-std::pair<int, int> day20::processModule(const std::shared_ptr<Module>& module, std::pair<int, int> count)
+day20::PulseCount day20::smackButton(const ModuleMap& moduleMap, PulseCount& count)
 {
-    auto [pulse, nextModules] = module->sendPulse();
+    std::queue<Signal> processQueue;
+    processQueue.push({
+        "button",
+        "broadcaster",
+        false
+    });
 
-    if (pulse)
+    while (!processQueue.empty())
     {
-        count.first += 1;
+        auto currentSignal = processQueue.front();
+        processQueue.pop();
+
+        printPulse(currentSignal.name, currentSignal.destination, currentSignal.pulse);
+
+        // increment count
+        currentSignal.pulse
+            ? count.first += 1
+            : count.second += 1;
+
+        auto signals = moduleMap
+            .at(currentSignal.destination)
+            ->receive(currentSignal);
+
+        for (const auto& s : signals)
+        {
+            processQueue.push(s);
+        }
     }
-    else
-    {
-        count.second += 1;
-    }
-
-    for (const auto& m : nextModules)
-    {
-        count = processModule(m, count);
-    }
-
-    return count;
-}
-
-std::pair<int, int> day20::smackButton(const ModuleMap& moduleMap, std::pair<int, int> count)
-{
-    // Trigger broadcaster first
-    auto broadcaster = moduleMap.at("broadcaster");
-    broadcaster->receivePulse("button", false);
-    auto [pulse, nextModules] = broadcaster->sendPulse();
-
-    // update low pulses
-    count.second += broadcaster->destinations.size();
-
-    // process all modules
-    count = processModule(
-        nextModules.front(),
-        count
-    );
 
     return count;
 }
 
 constexpr std::string Day20::filename () const
 {
-    return "main/days/20/example2.txt";
+    return "main/days/20/input.txt";
 }
 
-int Day20::part1(const std::vector<std::string>& input) const
+size_t Day20::part1(const std::vector<std::string>& input) const
 {
-    auto modules = day20::connectModules(day20::parseModules(input));
+    auto modules = day20::parseModules(input);
+    modules = day20::connectModules(modules);
 
-    std::pair<int, int> count = { 0, 0 };
-    for (auto i = 0; i < 1; i++)
+    day20::PulseCount count = { 0, 0 };
+    for (auto i = 0; i < 1000; i++)
     {
+        std::cout << "Button smack: " << (i + 1) << " ---------" << std::endl;
         count = smackButton(modules, count);
     }
 
     return count.first * count.second;
 }
 
-int Day20::part2(const std::vector<std::string>& input) const
+size_t Day20::part2(const std::vector<std::string>& input) const
 {
     return 0;
 }
