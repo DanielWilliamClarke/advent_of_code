@@ -7,13 +7,13 @@
 
 int findWinners(const std::string& card)
 {
-    auto scratchCard = splitString(card, ':').back();
-    auto sides = splitString(scratchCard, '|');
+    auto scratchCard = splitString(card, ":").back();
+    auto sides = splitString(scratchCard, "|");
 
-    auto winningNumbers =  splitString(sides.front(), ' ')
+    auto winningNumbers =  splitString(sides.front(), " ")
        | std::views::transform([=] (const std::string& number) { return std::stoi(number); });
 
-    auto foundNumbers =  splitString(sides.back(), ' ')
+    auto foundNumbers =  splitString(sides.back(), " ")
         | std::views::transform([=] (const std::string& number) { return std::stoi(number); })
         | std::views::filter([&winningNumbers](const int number) {
             return std::ranges::find(winningNumbers, number) != winningNumbers.end();

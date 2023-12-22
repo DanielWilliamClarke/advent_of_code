@@ -9,11 +9,11 @@ std::vector<SpringManifest> parseRows(const std::vector<std::string>& input, boo
 {
     auto manifests = input
         | std::views::transform([&unfold](const std::string& line) -> SpringManifest {
-            auto parts = splitString(line, ' ');
+            auto parts = splitString(line, " ");
 
             auto springs = parts.front();
 
-            auto manifestView = splitString(parts.back(), ',')
+            auto manifestView = splitString(parts.back(), ",")
                 | std::views::transform([=](const std::string& number) { return std::stoi(number); });
 
             std::vector<int> manifest = { manifestView.begin(), manifestView.end() };

@@ -8,9 +8,9 @@
 
 std::vector<long long> parseSeeds(const std::string& line)
 {
-    auto seeds = splitString(line, ':').back();
+    auto seeds = splitString(line, ":").back();
 
-    auto seedNumbers = splitString(seeds, ' ')
+    auto seedNumbers = splitString(seeds, " ")
        | std::views::transform([=] (const std::string& number) { return std::stoll(number); });
 
     return {seedNumbers.begin(), seedNumbers.end() };
@@ -39,7 +39,7 @@ std::vector<std::vector<Mapping>> parseMaps(const std::vector<std::string>& inpu
         std::vector<std::string> ranges = { m.begin() + 1, m.end() };
         for(const auto& r : ranges)
         {
-           auto numbers = splitString(r, ' ')
+           auto numbers = splitString(r, " ")
                 | std::views::transform([=] (const std::string& number) { return std::stoll(number); });    ;
 
             std::vector<long long> rangeNumbers = { numbers.begin(), numbers.end() };

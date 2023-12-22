@@ -9,7 +9,7 @@ std::vector<std::vector<long long>> parseHistories(const std::vector<std::string
 {
     auto histories = input
         | std::views::transform([=](const std::string& line) -> std::vector<long long> {
-            auto numbers = splitString(line, ' ')
+            auto numbers = splitString(line, " ")
                 | std::views::transform([=](const std::string& number) -> long long {
                     return std::stoll(number);
                 });

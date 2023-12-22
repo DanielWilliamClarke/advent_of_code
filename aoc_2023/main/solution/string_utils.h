@@ -4,6 +4,6 @@
 #include <vector>
 #include <string>
 
-std::vector<std::string> splitString(const std::string& str, char delim);
+std::vector<std::string> splitString(const std::string& str, const std::string& delim);
 
 #endif //AOC_2023_STRING_UTILS_H

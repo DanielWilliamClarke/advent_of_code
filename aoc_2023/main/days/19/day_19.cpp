@@ -64,7 +64,7 @@ day19::RuleMap day19::parseRules(const std::vector<std::string>& input)
         auto clauses = match[2].str();
         auto defaultBucket= match[3].str();
 
-        auto rules = splitString(clauses, ',')
+        auto rules = splitString(clauses, ",")
              | std::views::transform([=](const std::string& rule) {
             return generateRule(rule);
         });

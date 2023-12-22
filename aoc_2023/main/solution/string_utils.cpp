@@ -2,7 +2,7 @@
 
 #include <ranges>
 
-std::vector<std::string> splitString(const std::string &str, char delim)
+std::vector<std::string> splitString(const std::string &str, const std::string& delim)
 {
     // Use ranges to split the string
     auto split_view = str | std::views::split(delim);

@@ -7,14 +7,14 @@
 
 std::vector<long long> parseNumbers(const std::string& line, bool ignoreWhitespace)
 {
-    auto numbers = splitString(line, ':').back();
+    auto numbers = splitString(line, ":").back();
 
     if(ignoreWhitespace)
     {
         numbers.erase(std::remove(numbers.begin(),numbers.end(),' '),numbers.end());
     }
 
-    auto seedNumbers = splitString(numbers, ' ')
+    auto seedNumbers = splitString(numbers, " ")
        | std::views::transform([=] (const std::string& number) { return std::stoll(number); });
 
     return {seedNumbers.begin(), seedNumbers.end() };

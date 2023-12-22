@@ -68,9 +68,9 @@ HashMap generateBoxes()
 
 void parseAndProcessBoxes(HashMap boxes, const std::string& input)
 {
-    for (const auto& sequence : splitString(input,  ','))
+    for (const auto& sequence : splitString(input,  ","))
     {
-        auto parts = splitString(sequence,  '=');
+        auto parts = splitString(sequence,  "=");
 
         if (parts.size() == 1)
         {
@@ -116,7 +116,7 @@ int Day15::part1(const std::vector<std::string>& input) const
 {
     int total = 0;
 
-    for (const auto& s : splitString(input.front(),  ','))
+    for (const auto& s : splitString(input.front(), ","))
     {
         total += computeHash(s);
     }

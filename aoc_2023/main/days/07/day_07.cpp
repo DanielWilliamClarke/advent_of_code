@@ -104,7 +104,7 @@ std::vector<Hand> parseHands(const std::vector<std::string>& input, bool jokersW
 {
     auto hands = input
         | std::views::transform([&jokersWild](const std::string& line) -> Hand {
-            auto parts = splitString(line, ' ');
+            auto parts = splitString(line, " ");
 
             auto mappedCards = parts.front()
                 | std::views::transform([&jokersWild](const char& card) -> Card {
