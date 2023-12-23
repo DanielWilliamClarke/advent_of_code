@@ -9,8 +9,8 @@ namespace day20
 
     struct Module;
 
-    using ModuleList = std::vector<std::shared_ptr<Module>>;
     using ModuleMap = std::unordered_map<std::string, std::shared_ptr<Module>>;
+    using ModuleList = std::vector<std::shared_ptr<Module>>;
     using PulseCount = std::pair<size_t, size_t>;
 
     struct Signal
@@ -36,7 +36,7 @@ namespace day20
         virtual ~Module() = default;
 
         virtual SignalList receive(const Signal& count) = 0;
-
+        virtual void reset() = 0;
         virtual void findDestination (ModuleMap& moduleMap);
     };
 
@@ -44,6 +44,7 @@ namespace day20
     {
         Unnamed(std::string name);
         SignalList receive(const Signal& signal) override;
+        void reset() override;
     };
 
     struct Broadcaster : public Module
@@ -52,6 +53,7 @@ namespace day20
         virtual ~Broadcaster() = default;
 
         SignalList receive(const Signal& signal) override;
+        void reset() override;
     };
 
     struct FlipFlop : public Module
@@ -63,6 +65,7 @@ namespace day20
         virtual ~FlipFlop() = default;
 
         SignalList receive(const Signal& signal) override;
+        void reset() override;
     };
 
     struct Conjunction : public Module
@@ -73,12 +76,18 @@ namespace day20
         virtual ~Conjunction() = default;
 
         SignalList receive(const Signal& signal) override;
+        void reset() override;
         void findDestination (ModuleMap& moduleMap) override;
     };
 
     ModuleMap parseModules(const std::vector<std::string>& input);
     ModuleMap connectModules(ModuleMap& moduleMap);
     PulseCount smackButton(const ModuleMap& moduleMap, PulseCount& count);
+
+    // part 2
+    ModuleList findPenultimateModules (const ModuleMap& modules);
+    void reinitializeModules(ModuleMap& modules);
+    size_t findCycle(ModuleMap& modules, const std::shared_ptr<Module>& from);
 }
 
 class Day20 : public Day<size_t>

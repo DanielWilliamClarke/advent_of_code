@@ -3,6 +3,7 @@
 #include <regex>
 #include <queue>
 #include <ranges>
+#include <numeric>
 
 #include "main/solution/string_utils.h"
 
@@ -44,6 +45,8 @@ day20::SignalList day20::Unnamed::receive(const day20::Signal& signal)
     return {};
 };
 
+void day20::Unnamed::reset() { }
+
 // Broadcaster
 day20::Broadcaster::Broadcaster(std::string name, std::vector<std::string> destinationNames)
     : Module(name, destinationNames)
@@ -62,6 +65,11 @@ day20::SignalList day20::Broadcaster::receive(const day20::Signal& signal)
         });
 
     return { signals.begin(), signals.end() };
+}
+
+void day20::Broadcaster::reset()
+{
+    this->pulse = false;
 }
 
 // FlipFlop
@@ -94,6 +102,12 @@ day20::SignalList day20::FlipFlop::receive(const day20::Signal &signal)
     return { signals.begin(), signals.end() };
 }
 
+void day20::FlipFlop::reset()
+{
+    this->enabled = false;
+    this->pulse = false;
+}
+
 // Conjunction
 day20::Conjunction::Conjunction(std::string name, std::vector<std::string> destinationNames)
     : Module(name, destinationNames), inputs({})
@@ -122,6 +136,16 @@ day20::SignalList day20::Conjunction::receive(const day20::Signal &signal)
         });
 
     return { signals.begin(), signals.end() };
+}
+
+void day20::Conjunction::reset()
+{
+    for(auto& input : inputs)
+    {
+        input.second = false;
+    }
+
+    this->pulse = false;
 }
 
 void day20::Conjunction::findDestination(ModuleMap& moduleMap)
@@ -234,6 +258,106 @@ day20::PulseCount day20::smackButton(const ModuleMap& moduleMap, PulseCount& cou
     return count;
 }
 
+day20::ModuleList day20::findPenultimateModules(const ModuleMap& modules)
+{
+    // Check level 1
+    std::vector<std::string> level1Tags;
+    for(const auto& m : modules)
+    {
+        for (const auto& tag: m.second->destinationNames)
+        {
+            if (tag == "rx")
+            {
+                level1Tags.push_back(m.second->name);
+            }
+        }
+    }
+
+    // Check level 2
+    // Modules go ? => gq => rq
+    // So we need the second level modules
+    std::vector<std::shared_ptr<Module>> level2Tags;
+    for(const auto& m : modules)
+    {
+        for (const auto& tag: m.second->destinationNames)
+        {
+            for(const auto& level1 : level1Tags)
+            {
+                if (level1 == tag)
+                {
+                    level2Tags.push_back(m.second);
+                }
+            }
+        }
+    }
+
+    return level2Tags;
+}
+
+void day20::reinitializeModules(ModuleMap& modules)
+{
+    for(const auto& m : modules)
+    {
+        m.second->reset();
+    }
+}
+
+size_t day20::findCycle(ModuleMap& modules, const std::shared_ptr<Module>& from)
+{
+    reinitializeModules(modules);
+
+    size_t buttonCount = 0;
+    size_t firstCount = 0;
+    size_t secondCount = 0;
+
+    while (secondCount == 0)
+    {
+        buttonCount += 1;
+
+        std::queue<Signal> queue;
+        queue.push({
+            "button",
+            "broadcaster",
+            false
+        });
+
+        while(!queue.empty())
+        {
+            auto signal = queue.front();
+            queue.pop();
+
+            if (signal.name == from->name && signal.pulse)
+            {
+                if (firstCount == 0)
+                {
+                    firstCount = buttonCount;
+                }
+                else
+                {
+                    secondCount = buttonCount;
+                }
+
+                buttonCount = 0;
+            }
+
+            auto signals = modules
+                .at(signal.destination)
+                ->receive(signal);
+
+            for(const auto& s : signals)
+            {
+                queue.push(s);
+            }
+        }
+    }
+
+    if( firstCount != secondCount) {
+        std::cout << "bad times" << std::endl;
+    }
+
+    return firstCount;
+}
+
 constexpr std::string Day20::filename () const
 {
     return "main/days/20/input.txt";
@@ -256,5 +380,22 @@ size_t Day20::part1(const std::vector<std::string>& input) const
 
 size_t Day20::part2(const std::vector<std::string>& input) const
 {
-    return 0;
+    auto modules = day20::parseModules(input);
+    modules = day20::connectModules(modules);
+
+    auto penultimateModulesNames = day20::findPenultimateModules(modules);
+
+    std::vector<size_t> cycleLengths;
+    for (const auto& m : penultimateModulesNames)
+    {
+        cycleLengths.push_back(day20::findCycle(modules, m));
+    }
+
+    return std::accumulate(
+        cycleLengths.begin(),
+        cycleLengths.end(),
+        1ull,
+        [=](auto a, auto b){
+            return std::lcm(a, b);
+        });
 }
