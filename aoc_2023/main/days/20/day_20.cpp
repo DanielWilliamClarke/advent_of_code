@@ -383,10 +383,8 @@ size_t Day20::part2(const std::vector<std::string>& input) const
     auto modules = day20::parseModules(input);
     modules = day20::connectModules(modules);
 
-    auto penultimateModulesNames = day20::findPenultimateModules(modules);
-
     std::vector<size_t> cycleLengths;
-    for (const auto& m : penultimateModulesNames)
+    for (const auto& m : day20::findPenultimateModules(modules))
     {
         cycleLengths.push_back(day20::findCycle(modules, m));
     }
