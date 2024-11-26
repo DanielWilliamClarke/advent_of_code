@@ -20,7 +20,7 @@ This command will print the environment variables needed to find your installed 
 Set up environment variables: Copy the output of luarocks path and add it to your shell's configuration file (e.g., ~/.bashrc, ~/.zshrc). It usually looks something like this:
 
 ```bash
-export LUA_PATH="$HOME/.luarocks/share/lua/5.4/?.lua;$HOME/.luarocks/share/lua/5.4/?/init.lua;$LUA_PATH"
-export LUA_CPATH="$HOME/.luarocks/lib/lua/5.4/?.so;$LUA_CPATH"
+export LUA_PATH='/usr/local/share/lua/5.4/?.lua;/usr/local/share/lua/5.4/?/init.lua;/usr/local/lib/lua/5.4/?.lua;/usr/local/lib/lua/5.4/?/init.lua;./?.lua;./?/init.lua;/Users/dan.clarke/.luarocks/share/lua/5.4/?.lua;/Users/dan.clarke/.luarocks/share/lua/5.4/?/init.lua'
+export LUA_CPATH='/usr/local/lib/lua/5.4/?.so;/usr/local/lib/lua/5.4/loadall.so;./?.so;/Users/dan.clarke/.luarocks/lib/lua/5.4/?.so'
+export PATH='/Users/dan.clarke/lua/bin:/Users/dan.clarke/.luarocks/bin:$PATH'
 ```
-Replace 5.4 with your Lua version.
