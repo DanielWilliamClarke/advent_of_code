@@ -19,7 +19,7 @@ local function part1()
 
     -- Create lists and sort ASC
     local list1, list2 = {}, {}
-    for _, line in pairs(lines) do
+    for _, line in ipairs(lines) do
         table.insert(list1, line.list1)
         table.insert(list2, line.list2)
     end
@@ -40,12 +40,12 @@ local function part2()
     local lines = read_file.parse("input.txt", parseLine)
 
     local count_table = {}
-    for _, line in pairs(lines) do
+    for _, line in ipairs(lines) do
         count_table[line.list2] = (count_table[line.list2] or 0) + 1
     end
 
     local similarity_score = 0
-    for _, line in pairs(lines) do
+    for _, line in ipairs(lines) do
         local multiplier = (count_table[line.list1] or 0)
         similarity_score = similarity_score + (line.list1 * multiplier)
     end
