@@ -2,6 +2,7 @@ package.path = package.path .. ";../utils/?.lua"
 
 local test = require "simple_test"
 local read_file = require "read_file"
+local timing = require "timing"
 
 local function parseLine(line)
     local locationIds = {}
@@ -55,15 +56,15 @@ local function part2()
 end
 
 test(
-    "Part 1",
+    "🎅 Part 1",
     function(a)
-        a.ok(part1() == 2000468, "Part 1 solution incorrect!")
+        a.ok(timing.measure(part1) == 2000468, "Part 1 solution incorrect!")
     end
 )
 
 test(
-    "Part 2",
+    "🎄 Part 2",
     function(a)
-        a.ok(part2() == 18567089, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 18567089, "Part 2 solution incorrect!")
     end
 )
