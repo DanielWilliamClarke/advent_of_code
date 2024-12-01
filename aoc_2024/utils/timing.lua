@@ -1,4 +1,4 @@
-local socket = require("socket")
+local socket = require "socket"
 
 local timing = {}
 
