@@ -42,7 +42,7 @@ local function assess_safety_desc(report, i)
     return assess_safety(sorted_desc(report, i), within_range(diff(report, i)))
 end
 
-local function safe_report (report)
+local function safe_report(report)
     local safe_asc = true
     local safe_desc = true
 
@@ -54,7 +54,8 @@ local function safe_report (report)
     return safe_asc or safe_desc
 end
 
-local function count_safe_reports (reports)
+local function part1()
+    local reports = read_file.parse("input.txt", parse_reports)
     local total_safe = 0
 
     for _, report in ipairs(reports) do
@@ -63,35 +64,38 @@ local function count_safe_reports (reports)
         end
     end
 
-    return total_safe
-end
-
-local function part1()
-    local reports = read_file.parse("input.txt", parse_reports)
-    local total_safe = count_safe_reports(reports)
-
     print(total_safe)
     return total_safe
 end
 
 local function part2()
-    local reports = read_file.parse("example.txt", parse_reports)
+    local reports = read_file.parse("input.txt", parse_reports)
 
-    local total_safe = count_safe_reports(reports)
-
-    local recheck_reports = {}
+    local total_safe = 0
     for _, report in ipairs(reports) do
-        local new_report = { }
+        if safe_report(report) then
+            total_safe = total_safe + 1
+            goto continue
+        end
 
-        for i = 2, #report do
-            if (sorted_asc(report, i) or sorted_desc(report, i)) and within_range(diff(report, i)) then
-                table.insert(new_report, report[i])
+        -- now check each permutation of 4 levels
+        for i = 1, #report do
+            -- create a report with the current level missing
+            local damped = {}
+            for j = 1, #report do
+                if i ~= j then
+                    table.insert(damped, report[j])
+                end
+            end
+
+            -- check if this permutation is safe
+            if safe_report(damped) then
+                total_safe = total_safe + 1
+                goto continue
             end
         end
 
-        if #new_report >= 4 and safe_report(new_report) then
-           total_safe = total_safe + 1
-        end
+        ::continue::
     end
 
     print(total_safe)
@@ -108,6 +112,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 4, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 354, "Part 2 solution incorrect!")
     end
 )
