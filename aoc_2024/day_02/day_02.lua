@@ -14,42 +14,88 @@ local function parse_reports(line)
     return report
 end
 
-local function assess_safety (safety, check, diff)
-     return safety and check and diff >= 1 and diff <= 3
+local function assess_safety(check, within_range)
+    return check and within_range
 end
 
-local function assess_safety_asc (safety, report, i)
-    return assess_safety(safety, report[i - 1] < report[i], math.abs(report[i] - report[i - 1]))
+local function within_range(diff)
+    return diff >= 1 and diff <= 3
 end
 
-local function assess_safety_desc (safety, report, i)
-    return assess_safety(safety, report[i - 1] > report[i], math.abs(report[i - 1] - report[i]))
+local function diff(report, i)
+    return math.abs(report[i] - report[i - 1])
+end
+
+local function sorted_asc(report, i)
+    return report[i] < report[i - 1]
+end
+
+local function sorted_desc(report, i)
+    return report[i] > report[i - 1]
+end
+
+local function assess_safety_asc(report, i)
+    return assess_safety(sorted_asc(report, i), within_range(diff(report, i)))
+end
+
+local function assess_safety_desc(report, i)
+    return assess_safety(sorted_desc(report, i), within_range(diff(report, i)))
+end
+
+local function safe_report (report)
+    local safe_asc = true
+    local safe_desc = true
+
+    for i = 2, #report do
+        safe_asc = safe_asc and assess_safety_asc(report, i)
+        safe_desc = safe_desc and assess_safety_desc(report, i)
+    end
+
+    return safe_asc or safe_desc
+end
+
+local function count_safe_reports (reports)
+    local total_safe = 0
+
+    for _, report in ipairs(reports) do
+        if safe_report(report) then
+            total_safe = total_safe + 1
+        end
+    end
+
+    return total_safe
 end
 
 local function part1()
     local reports = read_file.parse("input.txt", parse_reports)
-
-    local total_safe = 0
-    for _, report in ipairs(reports) do
-        local safe_asc = true
-        local safe_desc = true
-
-        for i = 2, #report do
-            safe_asc = assess_safety_asc(safe_asc, report, i)
-            safe_desc = assess_safety_desc(safe_desc, report, i)
-        end
-
-        if safe_asc or safe_desc then
-          total_safe = total_safe + 1
-        end
-    end
+    local total_safe = count_safe_reports(reports)
 
     print(total_safe)
     return total_safe
 end
 
 local function part2()
-    return 0
+    local reports = read_file.parse("example.txt", parse_reports)
+
+    local total_safe = count_safe_reports(reports)
+
+    local recheck_reports = {}
+    for _, report in ipairs(reports) do
+        local new_report = { }
+
+        for i = 2, #report do
+            if (sorted_asc(report, i) or sorted_desc(report, i)) and within_range(diff(report, i)) then
+                table.insert(new_report, report[i])
+            end
+        end
+
+        if #new_report >= 4 and safe_report(new_report) then
+           total_safe = total_safe + 1
+        end
+    end
+
+    print(total_safe)
+    return total_safe
 end
 
 test(
@@ -62,6 +108,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 4, "Part 2 solution incorrect!")
     end
 )
