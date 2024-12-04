@@ -12,7 +12,7 @@ local function parseLine(line)
     return row
 end
 
-local function bounds_check(lines, coord)
+local function within_bounds(lines, coord)
     return coord[1] >= 1 and coord[1] <= #lines and coord[2] >= 1 and coord[2] <= #lines[1]
 end
 
@@ -29,18 +29,18 @@ local function part1()
             for m_y = y - 1, y + 1 do
                 for m_x = x - 1, x + 1 do
                     local next_coord = {m_y, m_x}
-                    if (not bounds_check(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "M") then
+                    if (not within_bounds(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "M") then
                         goto next_neighbor
                     end
 
                     local dir = {next_coord[1] - y, next_coord[2] - x}
                     next_coord = {next_coord[1] + dir[1], next_coord[2] + dir[2]}
-                    if (not bounds_check(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "A") then
+                    if (not within_bounds(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "A") then
                         goto next_neighbor
                     end
 
                     next_coord = {next_coord[1] + dir[1], next_coord[2] + dir[2]}
-                    if (not bounds_check(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "S") then
+                    if (not within_bounds(lines, next_coord) or lines[next_coord[1]][next_coord[2]] ~= "S") then
                         goto next_neighbor
                     end
 
@@ -67,7 +67,7 @@ local function part2()
             -- bounds check windows, if can't fit then ignore it
             local size = 2
             local limit = {y + size, x + size}
-            if not bounds_check(lines, limit) then
+            if not within_bounds(lines, limit) then
                 goto continue
             end
 
@@ -104,8 +104,8 @@ local function part2()
             end
 
             if (
-                not bounds_check(lines, s_coords[1]) or lines[s_coords[1][1]][s_coords[1][2]] ~= "S" or
-                not bounds_check(lines, s_coords[2]) or lines[s_coords[2][1]][s_coords[2][2]] ~= "S"
+                not within_bounds(lines, s_coords[1]) or lines[s_coords[1][1]][s_coords[1][2]] ~= "S" or
+                not within_bounds(lines, s_coords[2]) or lines[s_coords[2][1]][s_coords[2][2]] ~= "S"
             ) then
                 goto continue
             end
