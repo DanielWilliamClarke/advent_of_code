@@ -13,54 +13,58 @@ local function parseLine(line)
 end
 
 local function part1()
-    local lines = read_file.parse("example.txt", parseLine)
+    local lines = read_file.parse("input.txt", parseLine)
 
-    for i = 1, #lines do
-        for j = 1, #lines[i] do
-
-            if (lines[i][j] == 'X') then
-
-                for ni = i - 1, 3 do
-                    for nj = j - 1, 3 do
+    local count = 0
+    for y = 1, #lines do
+        for x = 1, #lines[y] do
+            if (lines[y][x] == "X") then
+                for m_y = y - 1, y + 1 do
+                    for m_x = x - 1, x + 1 do
+                        local m_coord = {m_y, m_x}
                         if (
-                            ni > 0 and ni <= #lines and
-                            nj > 0 and nj <= #lines[j] and
-                            lines[ni][nj] == 'M'
+                            m_coord[1] >= 1 and m_coord[1] <= #lines and
+                            m_coord[2] >= 1 and m_coord[2] <= #lines[y] and
+                            lines[m_coord[1]][m_coord[2]] == "M"
                         ) then
-                            local dir = { i - ni, j - nj }
+                            local dir = {m_coord[1] - y, m_coord[2] - x}
+                            local a_coord = {m_coord[1] + dir[1], m_coord[2] + dir[2]}
 
-                            print(ni .. "," .. nj)
-                            print(dir[1] .. "," .. dir[2])
+                            if (
+                                a_coord[1] >= 1 and a_coord[1] <= #lines and
+                                a_coord[2] >= 1 and a_coord[2] <= #lines[y] and
+                                lines[a_coord[1]][a_coord[2]] == "A"
+                            ) then
+                                local s_coord = {m_coord[1] + (dir[1] * 2), m_coord[2] + (dir[2] * 2)}
+
+                                if (
+                                    s_coord[1] >= 1 and s_coord[1] <= #lines and
+                                    s_coord[2] >= 1 and s_coord[2] <= #lines[y] and
+                                    lines[s_coord[1]][s_coord[2]] == "S"
+                                ) then
+                                    count = count + 1
+                                end
+                            end
                         end
-
                     end
-               end
-
-                -- search neighbours for an 'M'
-                -- bounds check
-                -- on finding an 'M' search for an 'A' and 'S' in its direction
-                -- if found count XMAS
-                -- keep searching until no more 'M's can be found in neighbours
-                -- move on to the next X
-
+                end
             end
-
         end
     end
 
-    print(0)
-    return 0
+    print(count)
+    return count
 end
 
 local function part2()
-   print(0)
-       return 0
+    print(0)
+    return 0
 end
 
 test(
     "🎅 Part 1",
     function(a)
-        a.ok(timing.measure(part1) == 0, "Part 1 solution incorrect!")
+        a.ok(timing.measure(part1) == 2578, "Part 1 solution incorrect!")
     end
 )
 
