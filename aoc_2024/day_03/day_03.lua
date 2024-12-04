@@ -19,7 +19,7 @@ local function part1()
 
     local result = 0
     for _, line in ipairs(program) do
-        for match, a, b in string.gmatch(line, MUL_PATTERN) do
+        for _, a, b in string.gmatch(line, MUL_PATTERN) do
             result = result + (a * b)
         end
     end
