@@ -51,34 +51,43 @@ local function part1()
     local count = 0
     for y = 1, #lines do
         for x = 1, #lines[y] do
-            if (lines[y][x] == "X") then
-                for m_y = y - 1, y + 1 do
-                    for m_x = x - 1, x + 1 do
-                        local m_coord = {m_y, m_x}
-                        if (
-                            bounds_check(lines, m_coord) and
-                            lines[m_coord[1]][m_coord[2]] == "M"
-                        ) then
-                            local dir = {m_coord[1] - y, m_coord[2] - x}
-                            local a_coord = {m_coord[1] + dir[1], m_coord[2] + dir[2]}
+            if (lines[y][x] ~= "X") then
+                goto next_x
+            end
 
-                            if (
-                                bounds_check(lines, a_coord) and
-                                lines[a_coord[1]][a_coord[2]] == "A"
-                            ) then
-                                local s_coord = {m_coord[1] + (dir[1] * 2), m_coord[2] + (dir[2] * 2)}
-
-                                if (
-                                  bounds_check(lines, s_coord) and
-                                  lines[s_coord[1]][s_coord[2]] == "S"
-                                ) then
-                                    count = count + 1
-                                end
-                            end
-                        end
+            for m_y = y - 1, y + 1 do
+                for m_x = x - 1, x + 1 do
+                    local next_coord = { m_y, m_x }
+                    if (
+                        not bounds_check(lines, next_coord) or
+                        lines[next_coord[1]][next_coord[2]] ~= "M"
+                    ) then
+                        goto next_neighbor
                     end
+
+                    local dir = { next_coord[1] - y, next_coord[2] - x }
+                    next_coord = { next_coord[1] + dir[1], next_coord[2] + dir[2] }
+                    if (
+                        not bounds_check(lines, next_coord) or
+                        lines[next_coord[1]][next_coord[2]] ~= "A"
+                    ) then
+                        goto next_neighbor
+                    end
+
+                    next_coord = { next_coord[1] + dir[1], next_coord[2] + dir[2] }
+                    if (
+                      not bounds_check(lines, next_coord) or
+                      lines[next_coord[1]][next_coord[2]] ~= "S"
+                    ) then
+                        goto next_neighbor
+                    end
+
+                    count = count + 1
+                    ::next_neighbor::
                 end
             end
+
+            ::next_x::
         end
     end
 
@@ -141,12 +150,6 @@ local function part2()
                 bounds_check(lines, s_coords[2]) and
                 lines[s_coords[2][1]][s_coords[2][2]] == "S"
             ) then
-                         print("-------")
-                         print("s1 y " .. s_coords[1][1])
-                         print("s1 x " .. s_coords[1][2])
-                         print("s2 y " .. s_coords[2][1])
-                         print("s2 x " .. s_coords[2][2])
-
                 count = count + 1
             end
 
