@@ -64,8 +64,59 @@ local function part1()
 end
 
 local function part2()
-    print(0)
-    return 0
+    local lines =
+        read_file.parse(
+        "input.txt",
+        function(line)
+            return line
+        end
+    )
+
+    local rules, updates = parse_rules_updates(lines)
+
+    local incorrect_updates = {}
+    for _,update in ipairs(updates) do
+        local correct = true;
+
+        for i = 2, #update do
+            if not is_in_rule_set(rules, update[i - 1], update[i]) then
+                correct = false
+                goto continue
+            end
+        end
+
+        ::continue::
+        if not correct then
+           table.insert(incorrect_updates, update)
+        end
+    end
+
+    local total = 0
+    for _,update in ipairs(incorrect_updates) do
+         ::check_again::
+         for i = 2, #update do
+            -- check pair if in rule set
+            if not is_in_rule_set(rules, update[i - 1], update[i]) then
+                -- if not in rule set, check if swap is in rule set
+                if is_in_rule_set(rules, update[i], update[i - 1]) then
+                    -- swap the values and then recheck the whole update again
+                    local temp =  update[i - 1]
+                    update[i - 1] = update[i]
+                    update[i] = temp
+                    goto check_again
+                else
+                    -- if not in rule set at all ignore it
+                    goto continue
+                end
+            end
+         end
+
+         total = total + update[math.ceil(#update / 2)]
+         ::continue::
+    end
+
+    print(total)
+    return total
 end
 
 test(
@@ -78,6 +129,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 5285, "Part 2 solution incorrect!")
     end
 )
