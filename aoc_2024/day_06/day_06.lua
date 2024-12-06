@@ -25,21 +25,21 @@ end
 local function rotate_vector(coord, clockwise)
     -- coord is { y , x }
     if clockwise then
-        return { coord[2], -coord[1] } -- x, -y
+        return {coord[2], -coord[1]} -- x, -y
     else
-        return { -coord[2], coord[1] } -- -x, y
+        return {-coord[2], coord[1]} -- -x, y
     end
 end
 
-local function print_grid (grid)
-     for y = 1, #grid do
+local function print_grid(grid)
+    for y = 1, #grid do
         local row = {}
 
         for x = 1, #grid[1] do
             if grid[y][x].visited == true then
                 table.insert(row, "X")
             else
-                table.insert(row,  grid[y][x].char)
+                table.insert(row, grid[y][x].char)
             end
         end
 
