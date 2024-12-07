@@ -43,17 +43,6 @@ local function find_guard (grid)
     return {0, 0}
 end
 
-function copy_grid(grid)
-    local copy = {}
-    for i = 1, #grid do
-        copy[i] = {}
-        for j = 1, #grid[i] do
-            copy[i][j] = grid[i][j]
-        end
-    end
-    return copy
-end
-
 
 local function print_grid(grid)
     for y = 1, #grid do
@@ -128,21 +117,21 @@ local function part2()
             local previous_obstacles = {}
 
             -- copying is a bit jank so just regrab the file
-            local new_grid = read_file.parse(filename, parseLine)
-
-            local guard = find_guard(new_grid)
+            local guard = find_guard(grid)
             local dir = {-1, 0}
             -- Just in case the guard doesnt revisit its origin
             -- visit it to start with
-            new_grid[guard[1]][guard[2]].visited = true
+            grid[guard[1]][guard[2]].visited = true
+
+            local prev_char = grid[y][x].char
 
             -- ignore guard origin point
-            if y == guard[1] and x == guard[2] then
+            if y == guard[1] and x == guard[2] or grid[y][x].char ~= "." then
                 goto continue
             end
 
             -- Add a new obstacle
-            new_grid[y][x].char = "#"
+            grid[y][x].char = "#"
 
             -- find the loop - somehow
             while true do
@@ -151,14 +140,14 @@ local function part2()
                     guard[2] + dir[2] -- x
                 }
 
-                if not within_bounds(new_grid, np) then
+                if not within_bounds(grid, np) then
                     goto continue
                 else
-                    local char = new_grid[np[1]][np[2]].char
+                    local char = grid[np[1]][np[2]].char
                     if char == "." or char == "^" then
                         guard = np
-                        if not new_grid[np[1]][np[2]].visited then
-                            new_grid[np[1]][np[2]].visited = true
+                        if not grid[np[1]][np[2]].visited then
+                            grid[np[1]][np[2]].visited = true
                         end
                     elseif char == "#" then
                          for i = #previous_obstacles, 1, -1 do
@@ -168,7 +157,7 @@ local function part2()
                                 obstacle.dir[1] == dir[1] and obstacle.dir[2] == dir[2]
                             ) then
                                 cycles = cycles + 1
-                                -- print_grid(new_grid)
+                                -- print_grid(grid)
                                 goto continue
                             end
                         end
@@ -183,6 +172,7 @@ local function part2()
             end
 
             ::continue::
+            grid[y][x].char = prev_char
         end
     end
 
