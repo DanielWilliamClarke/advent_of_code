@@ -31,6 +31,30 @@ local function rotate_vector(coord, clockwise)
     end
 end
 
+local function find_guard (grid)
+    for y = 1, #grid do
+        for x = 1, #grid[1] do
+            if grid[y][x].char == "^" then
+                return {y, x}
+            end
+        end
+    end
+
+    return {0, 0}
+end
+
+function copy_grid(grid)
+    local copy = {}
+    for i = 1, #grid do
+        copy[i] = {}
+        for j = 1, #grid[i] do
+            copy[i][j] = grid[i][j]
+        end
+    end
+    return copy
+end
+
+
 local function print_grid(grid)
     for y = 1, #grid do
         local row = {}
@@ -51,16 +75,7 @@ local function part1()
     local grid = read_file.parse("input.txt", parseLine)
 
     -- find guard
-    local guard = {0, 0}
-    for y = 1, #grid do
-        for x = 1, #grid[1] do
-            if grid[y][x].char == "^" then
-                guard = {y, x}
-                goto found
-            end
-        end
-    end
-    ::found::
+    local guard = find_guard(grid)
 
     local dir = {-1, 0}
     local exited = false
@@ -100,8 +115,79 @@ local function part1()
 end
 
 local function part2()
-    print(0)
-    return 0
+    local filename = "input.txt"
+    local grid = read_file.parse(filename, parseLine)
+
+    -- brute force, put an obstacle at each grid point and check for a cycle
+    -- if cycle detected then count it
+    -- how to detect a cycle??
+    local cycles = 0
+
+    for y = 1, #grid do
+        for x = 1, #grid[1] do
+            local previous_obstacles = {}
+
+            -- copying is a bit jank so just regrab the file
+            local new_grid = read_file.parse(filename, parseLine)
+
+            local guard = find_guard(new_grid)
+            local dir = {-1, 0}
+            -- Just in case the guard doesnt revisit its origin
+            -- visit it to start with
+            new_grid[guard[1]][guard[2]].visited = true
+
+            -- ignore guard origin point
+            if y == guard[1] and x == guard[2] then
+                goto continue
+            end
+
+            -- Add a new obstacle
+            new_grid[y][x].char = "#"
+
+            -- find the loop - somehow
+            while true do
+                local np = {
+                    guard[1] + dir[1], -- y
+                    guard[2] + dir[2] -- x
+                }
+
+                if not within_bounds(new_grid, np) then
+                    goto continue
+                else
+                    local char = new_grid[np[1]][np[2]].char
+                    if char == "." or char == "^" then
+                        guard = np
+                        if not new_grid[np[1]][np[2]].visited then
+                            new_grid[np[1]][np[2]].visited = true
+                        end
+                    elseif char == "#" then
+                         for i = #previous_obstacles, 1, -1 do
+                            local obstacle = previous_obstacles[i]
+                            if (
+                                obstacle.coord[1] == np[1] and obstacle.coord[2] == np[2] and
+                                obstacle.dir[1] == dir[1] and obstacle.dir[2] == dir[2]
+                            ) then
+                                cycles = cycles + 1
+                                -- print_grid(new_grid)
+                                goto continue
+                            end
+                        end
+
+                        table.insert(previous_obstacles, {
+                            dir=dir,
+                            coord=np
+                        })
+                        dir = rotate_vector(dir, true)
+                    end
+                end
+            end
+
+            ::continue::
+        end
+    end
+
+    print(cycles)
+    return cycles
 end
 
 test(
@@ -114,6 +200,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 1697, "Part 2 solution incorrect!")
     end
 )
