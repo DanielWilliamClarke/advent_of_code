@@ -22,6 +22,14 @@ local function parseLine(line)
     }
 end
 
+local function concat_numbers(current, next)
+    -- Current multiplied by 10 raised to the power of (the floor of (log base 10 of next plus 1)) plus next
+    -- Calculate the number of digits in next
+    local digits = math.floor(math.log10(next) + 1)
+    -- Concatenate numbers
+    return current * 10^digits + next
+end
+
 local function solve(target, operands, current, index, part2)
     -- print("INDEX:" .. index .. " CURRENT:" .. current)
 
@@ -59,7 +67,7 @@ local function solve(target, operands, current, index, part2)
 
     if part2 then
         -- Try concatenation of current and next
-        local concat = tonumber(tostring(current)..tostring(next))
+        local concat = concat_numbers(current, next)
         -- print("CURRENT=" .. current .. " CONCAT=" .. next .. " RESULT=" .. concat)
         if solve(target, operands, concat, next_index, part2) then
            -- print("CONCAT + SOLVED: RESULT=" .. concat)
