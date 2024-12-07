@@ -53,7 +53,7 @@ local function solve(target, operands, current, index, part2)
         return true
     end
 
-    -- Try multiplication (only if it doesn't exceed the target)
+    -- Try multiplication - prune if exceed target
     local mult = current * next
     if mult <= target then
         -- print("CURRENT=" .. current .. " MULTIPLYING=" .. next .. " RESULT=" .. mult)
