@@ -104,8 +104,7 @@ local function part1()
 end
 
 local function part2()
-    local filename = "input.txt"
-    local grid = read_file.parse(filename, parseLine)
+    local grid = read_file.parse("input.txt", parseLine)
 
     -- brute force, put an obstacle at each grid point and check for a cycle
     -- if cycle detected then count it
