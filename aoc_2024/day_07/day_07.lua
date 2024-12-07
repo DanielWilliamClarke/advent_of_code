@@ -33,7 +33,7 @@ end
 local function solve(target, operands, current, index, part2)
     -- print("INDEX:" .. index .. " CURRENT:" .. current)
 
-    -- Handle case where we've reached the end of operands
+    -- Happy exit case
     if index > #operands then
         local solved = target == current
         -- print("END REACHED: CURRENT=" .. current .. " SOLVED=" .. tostring(solved))
