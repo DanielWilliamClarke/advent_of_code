@@ -109,31 +109,31 @@ local function part2()
 
     -- brute force, put an obstacle at each grid point and check for a cycle
     -- if cycle detected then count it
-    -- how to detect a cycle??
     local cycles = 0
 
     for y = 1, #grid do
         for x = 1, #grid[1] do
             local previous_obstacles = {}
 
-            -- copying is a bit jank so just regrab the file
             local guard = find_guard(grid)
             local dir = {-1, 0}
             -- Just in case the guard doesnt revisit its origin
             -- visit it to start with
             grid[guard[1]][guard[2]].visited = true
 
+            -- Since copying is a bit fraut lets just swap
+            -- the value back befor the next iteration
             local prev_char = grid[y][x].char
 
-            -- ignore guard origin point
-            if y == guard[1] and x == guard[2] or grid[y][x].char ~= "." then
+            -- ignore guard origin point or existing obstacles
+            if grid[y][x].char ~= "." then
                 goto continue
             end
 
             -- Add a new obstacle
             grid[y][x].char = "#"
 
-            -- find the loop - somehow
+            -- find the cycle - somehow
             while true do
                 local np = {
                     guard[1] + dir[1], -- y
