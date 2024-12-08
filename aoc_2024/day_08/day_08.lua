@@ -109,14 +109,14 @@ local function find_antinodes (grid, paired_nodes)
         for _,p in ipairs(frequency) do
             local direction = get_direction(p[1].coord, p[2].coord)
 
-            print("DIRECTION: x: " .. direction.x .. ", y: " .. direction.y)
+            -- print("DIRECTION: x: " .. direction.x .. ", y: " .. direction.y)
 
             local first_antinode = {
                 x=p[2].coord.x + direction.x,
                 y=p[2].coord.y + direction.y
             }
             if within_bounds(grid, first_antinode) and is_new_antinode(antinodes, first_antinode) then
-                print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
+                -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
                 table.insert(antinodes, first_antinode)
             end
 
@@ -125,7 +125,7 @@ local function find_antinodes (grid, paired_nodes)
                 y=p[1].coord.y + -direction.y
             }
             if within_bounds(grid, second_antinode) and is_new_antinode(antinodes, second_antinode) then
-                print("Adding second antinode: x: " .. second_antinode.x .. ", y: " .. second_antinode.y)
+                -- print("Adding second antinode: x: " .. second_antinode.x .. ", y: " .. second_antinode.y)
                 table.insert(antinodes, second_antinode)
             end
         end
@@ -134,13 +134,13 @@ local function find_antinodes (grid, paired_nodes)
 end
 
 local function part1()
-    local grid = read_file.parse("example.txt", parseLine)
+    local grid = read_file.parse("input.txt", parseLine)
 
     local nodes = extract_nodes(grid)
-    print_nodes(nodes)
+    -- print_nodes(nodes)
 
     local paired_nodes = pair_up_nodes(nodes)
-    print_pairs(paired_nodes)
+    -- print_pairs(paired_nodes)
 
     local antinodes = find_antinodes(grid, paired_nodes)
     local count = #antinodes
