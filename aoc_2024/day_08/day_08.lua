@@ -4,6 +4,39 @@ local test = require "simple_test"
 local read_file = require "read_file"
 local timing = require "timing"
 
+local function print_nodes(nodes)
+    for i, f in pairs(nodes) do
+        print("FREQUENCY " .. i)
+        for _, n in ipairs(f) do
+            print("(" .. n.x .. ", " .. n.y .. ")")
+        end
+    end
+end
+
+local function print_pairs(nodes)
+    for i, f in pairs(nodes) do
+        print("FREQUENCY " .. i)
+        for _, n in ipairs(f) do
+            print("(" .. n[1].x .. ", " .. n[1].y .. "), (" .. n[2].x .. ", " .. n[2].y .. ")")
+        end
+    end
+end
+
+local function print_antinodes_on_grid(grid, antinodes)
+    for y = 1, #grid do
+        local row = {}
+        for x = 1, #grid[1] do
+            if (find_antinode(antinodes, {x = x, y = y}) == nil) then
+                -- table.insert(row, ".")
+                table.insert(row, grid[y][x])
+            else
+                table.insert(row, "#")
+            end
+        end
+        print(table.concat(row, ""))
+    end
+end
+
 local function parseLine(line)
     local row = {}
     for char in string.gmatch(line, ".") do
@@ -22,22 +55,24 @@ local function extract_nodes(grid)
                     grouped_nodes[frequency] = {}
                 end
 
-                table.insert(
-                    grouped_nodes[frequency],
-                    {
-                        frequency = frequency,
-                        coord = {y = y, x = x}
-                    }
-                )
+                table.insert(grouped_nodes[frequency], {y = y, x = x})
             end
         end
     end
     return grouped_nodes
 end
 
+local function is_known_pair(paired_nodes, left, right)
+    for _, p in ipairs(paired_nodes) do
+        if ((p[1] == left and p[2] == right) or (p[1] == right and p[2] == left)) then
+            return true
+        end
+    end
+    return false
+end
+
 local function pair_up_nodes(nodes)
     local paired_nodes = {}
-
     for f, frequency in pairs(nodes) do
         if paired_nodes[f] == nil then
             paired_nodes[f] = {}
@@ -45,55 +80,13 @@ local function pair_up_nodes(nodes)
 
         for _, left in ipairs(frequency) do
             for _, right in ipairs(frequency) do
-                if left ~= right then
-                    local pair = {left, right}
-
-                    -- check if pair already present in pairs
-                    local duplicate = false
-                    for _, p in ipairs(paired_nodes[f]) do
-                        -- if left or right pair are present either l->r or r-> l reject it
-                        if (p[1] == left and p[2] == right) or (p[1] == right and p[2] == left) then
-                            duplicate = true
-                            break
-                        end
-                    end
-
-                    if not duplicate then
-                        table.insert(paired_nodes[f], pair)
-                    end
+                if left ~= right and not is_known_pair(paired_nodes[f], left, right) then
+                    table.insert(paired_nodes[f], {left, right})
                 end
             end
         end
     end
     return paired_nodes
-end
-
-local function print_nodes(nodes)
-    for i, f in pairs(nodes) do
-        print("FREQUENCY " .. i)
-        for _, n in ipairs(f) do
-            print("(" .. n.coord.x .. ", " .. n.coord.y .. ")")
-        end
-    end
-end
-
-local function print_pairs(nodes)
-    for i, f in pairs(nodes) do
-        print("FREQUENCY " .. i)
-        for _, n in ipairs(f) do
-            print("(" .. n[1].coord.x .. ", " .. n[1].coord.y .. "), (" .. n[2].coord.x .. ", " .. n[2].coord.y .. ")")
-        end
-    end
-end
-
-local function within_bounds(grid, coord)
-    return coord.y >= 1 and coord.y <= #grid and coord.x >= 1 and coord.x <= #grid[1]
-end
-
-local function get_direction(a, b)
-    local dx = b.x - a.x
-    local dy = b.y - a.y
-    return {x = dx, y = dy}
 end
 
 local function find_antinode(antinodes, antinode)
@@ -102,29 +95,19 @@ local function find_antinode(antinodes, antinode)
             return antinode
         end
     end
-
-    return nill
+    return nil
 end
 
-local function print_antinodes_on_grid(grid, antinodes)
-    for y = 1, #grid do
-        local row = {}
-        for x = 1, #grid[1] do
-            if (find_antinode(antinodes, {x = x, y = y}) == nil) then
-                -- table.insert(row, ".")
-                table.insert(row, grid[y][x])
-            else
-                table.insert(row, "#")
-            end
-        end
-        print(table.concat(row, ""))
-    end
+local function within_bounds(grid, coord)
+    return coord.y >= 1 and coord.y <= #grid and coord.x >= 1 and coord.x <= #grid[1]
+end
+
+local function manhattan_distance(a, b)
+    return {x = b.x - a.x, y = b.y - a.y}
 end
 
 local function find_antinodes_for_origin(grid, antinodes, origin, direction, repeat_nodes)
-    -- check antinode on antenea
-    if repeat_nodes and within_bounds(grid, origin) and find_antinode(antinodes, origin) == nil then
-        -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
+    if repeat_nodes and find_antinode(antinodes, origin) == nil then
         table.insert(antinodes, origin)
     end
     repeat
@@ -132,9 +115,7 @@ local function find_antinodes_for_origin(grid, antinodes, origin, direction, rep
             x = origin.x + direction.x,
             y = origin.y + direction.y
         }
-        -- print("Checking first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
         if within_bounds(grid, origin) and find_antinode(antinodes, origin) == nil then
-            -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
             table.insert(antinodes, origin)
         end
     until not repeat_nodes or not within_bounds(grid, origin)
@@ -144,12 +125,10 @@ local function find_antinodes(grid, paired_nodes, repeat_nodes)
     local antinodes = {}
     for _, frequency in pairs(paired_nodes) do
         for _, p in ipairs(frequency) do
-            local direction = get_direction(p[1].coord, p[2].coord)
-            -- print("DIRECTION: x: " .. direction.x .. ", y: " .. direction.y)
-            find_antinodes_for_origin(grid, antinodes, p[2].coord, direction, repeat_nodes)
-
-            local reverse_direction = get_direction(p[2].coord, p[1].coord)
-            find_antinodes_for_origin(grid, antinodes, p[1].coord, reverse_direction, repeat_nodes)
+            local direction = manhattan_distance(p[1], p[2])
+            find_antinodes_for_origin(grid, antinodes, p[2], direction, repeat_nodes)
+            local r_direction = manhattan_distance(p[2], p[1])
+            find_antinodes_for_origin(grid, antinodes, p[1], r_direction, repeat_nodes)
         end
     end
     return antinodes
@@ -157,36 +136,12 @@ end
 
 local function part1()
     local grid = read_file.parse("input.txt", parseLine)
-
-    local nodes = extract_nodes(grid)
-    -- print_nodes(nodes)
-
-    local paired_nodes = pair_up_nodes(nodes)
-    -- print_pairs(paired_nodes)
-
-    local antinodes = find_antinodes(grid, paired_nodes, false)
-    -- print_antinodes_on_grid(grid, antinodes)
-
-    local count = #antinodes
-    print(count)
-    return count
+    return #find_antinodes(grid, pair_up_nodes(extract_nodes(grid)), false)
 end
 
 local function part2()
     local grid = read_file.parse("input.txt", parseLine)
-
-    local nodes = extract_nodes(grid)
-    -- print_nodes(nodes)
-
-    local paired_nodes = pair_up_nodes(nodes)
-    -- print_pairs(paired_nodes)
-
-    local antinodes = find_antinodes(grid, paired_nodes, true)
-    -- print_antinodes_on_grid(grid, antinodes)
-
-    local count = #antinodes
-    print(count)
-    return count
+    return #find_antinodes(grid, pair_up_nodes(extract_nodes(grid)), true)
 end
 
 test(
