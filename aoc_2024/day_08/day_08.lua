@@ -37,7 +37,7 @@ local function print_antinodes_on_grid(grid, antinodes)
     end
 end
 
-local function parseLine(line)
+local function parse_line(line)
     local row = {}
     for char in string.gmatch(line, ".") do
         table.insert(row, char)
@@ -135,12 +135,12 @@ local function find_antinodes(grid, paired_nodes, repeat_nodes)
 end
 
 local function part1()
-    local grid = read_file.parse("input.txt", parseLine)
+    local grid = read_file.parse("input.txt", parse_line)
     return #find_antinodes(grid, pair_up_nodes(extract_nodes(grid)), false)
 end
 
 local function part2()
-    local grid = read_file.parse("input.txt", parseLine)
+    local grid = read_file.parse("input.txt", parse_line)
     return #find_antinodes(grid, pair_up_nodes(extract_nodes(grid)), true)
 end
 
