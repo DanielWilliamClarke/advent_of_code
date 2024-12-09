@@ -146,9 +146,10 @@ local function find_antinodes(grid, paired_nodes, repeat_nodes)
         for _, p in ipairs(frequency) do
             local direction = get_direction(p[1].coord, p[2].coord)
             -- print("DIRECTION: x: " .. direction.x .. ", y: " .. direction.y)
-
             find_antinodes_for_origin(grid, antinodes, p[2].coord, direction, repeat_nodes)
-            find_antinodes_for_origin(grid, antinodes, p[1].coord, {x = -direction.x, y = -direction.y}, repeat_nodes)
+
+            local reverse_direction = get_direction(p[2].coord, p[1].coord)
+            find_antinodes_for_origin(grid, antinodes, p[1].coord, reverse_direction, repeat_nodes)
         end
     end
     return antinodes
