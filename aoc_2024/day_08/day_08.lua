@@ -107,18 +107,37 @@ local function find_antinode(antinodes, antinode)
 end
 
 local function print_antinodes_on_grid(grid, antinodes)
-     for y = 1, #grid do
+    for y = 1, #grid do
         local row = {}
         for x = 1, #grid[1] do
-            if (find_antinode(antinodes, {x=x, y=y}) == nil) then
-                --table.insert(row, grid[y][x])
-                table.insert(row, ".")
+            if (find_antinode(antinodes, {x = x, y = y}) == nil) then
+                -- table.insert(row, ".")
+                table.insert(row, grid[y][x])
             else
-               table.insert(row, "#")
+                table.insert(row, "#")
             end
         end
         print(table.concat(row, ""))
     end
+end
+
+local function find_antinodes_for_origin(grid, antinodes, origin, direction, repeat_nodes)
+    -- check antinode on antenea
+    if repeat_nodes and within_bounds(grid, origin) and find_antinode(antinodes, origin) == nil then
+        -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
+        table.insert(antinodes, origin)
+    end
+    repeat
+        origin = {
+            x = origin.x + direction.x,
+            y = origin.y + direction.y
+        }
+        -- print("Checking first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
+        if within_bounds(grid, origin) and find_antinode(antinodes, origin) == nil then
+            -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
+            table.insert(antinodes, origin)
+        end
+    until not repeat_nodes or not within_bounds(grid, origin)
 end
 
 local function find_antinodes(grid, paired_nodes, repeat_nodes)
@@ -128,39 +147,8 @@ local function find_antinodes(grid, paired_nodes, repeat_nodes)
             local direction = get_direction(p[1].coord, p[2].coord)
             -- print("DIRECTION: x: " .. direction.x .. ", y: " .. direction.y)
 
-            local first_antinode = p[2].coord
-            if repeat_nodes and within_bounds(grid, first_antinode) and find_antinode(antinodes, first_antinode) == nil then
-                -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
-                table.insert(antinodes, first_antinode)
-            end
-            repeat
-                first_antinode = {
-                    x = first_antinode.x + direction.x,
-                    y = first_antinode.y + direction.y
-                }
-                -- print("Checking first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
-                if within_bounds(grid, first_antinode) and find_antinode(antinodes, first_antinode) == nil then
-                    -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
-                    table.insert(antinodes, first_antinode)
-                end
-            until not repeat_nodes or not within_bounds(grid, first_antinode)
-
-            local second_antinode = p[1].coord
-            if repeat_nodes and within_bounds(grid, second_antinode) and find_antinode(antinodes, second_antinode) == nil then
-                -- print("Adding first antinode: x: " .. first_antinode.x .. ", y: " .. first_antinode.y)
-                table.insert(antinodes, second_antinode)
-            end
-            repeat
-                second_antinode = {
-                    x = second_antinode.x + -direction.x,
-                    y = second_antinode.y + -direction.y
-                }
-                 -- print("Checking second antinode: x: " .. second_antinode.x .. ", y: " .. second_antinode.y)
-                if within_bounds(grid, second_antinode) and find_antinode(antinodes, second_antinode) == nil then
-                    -- print("Adding second antinode: x: " .. second_antinode.x .. ", y: " .. second_antinode.y)
-                    table.insert(antinodes, second_antinode)
-                end
-            until not repeat_nodes or not within_bounds(grid, second_antinode)
+            find_antinodes_for_origin(grid, antinodes, p[2].coord, direction, repeat_nodes)
+            find_antinodes_for_origin(grid, antinodes, p[1].coord, {x = -direction.x, y = -direction.y}, repeat_nodes)
         end
     end
     return antinodes
