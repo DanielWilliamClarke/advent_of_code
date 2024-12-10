@@ -9,7 +9,9 @@ local function print_disk(disk)
         if v == false then
             io.write(".")
         else
+            io.write("[")
             io.write(v)
+            io.write("]")
         end
     end
     io.write("\n")
@@ -37,12 +39,10 @@ local function unpacked_blocks(disk_map)
     return blocks
 end
 
-local function defrag(disk)
+local function block_defrag(disk)
     for i = 1, #disk do
         -- walk up the disk find each free space
         if disk[i] == false then
-            -- walk backwards from the end of the disk
-            -- swap first not empty block with empty block
             for j = #disk, 1, -1 do
                 if j < i then
                     goto finish
@@ -62,34 +62,87 @@ local function defrag(disk)
     return disk
 end
 
+local function find_space(disk, required_size, limit)
+    local space_start_index = 0
+    local space_size = 0
+    local inside_space = false
+
+    for i = 1, #disk do
+        if i > limit then
+            break
+        end
+
+        if disk[i] == false then
+            if not inside_space then
+                space_start_index = i
+                inside_space = true
+            end
+             space_size = space_size + 1
+        end
+
+        if disk[i] ~= false and inside_space then
+            inside_space = false
+            if space_size < required_size then
+                space_start_index = 0
+                space_size = 0
+            else
+                return space_start_index
+            end
+        end
+    end
+    return nil
+end
+
+local function file_defrag(disk)
+    local current_file = nil
+    local current_file_length = 0
+
+    for i = #disk, 1, -1 do
+        if disk[i] == false or (current_file ~= nil and disk[i] ~= current_file) then
+            local space_start_index = find_space(disk, current_file_length, i + 1)
+            if space_start_index ~= nil then
+                for j = 1, current_file_length do
+                    disk[space_start_index + j - 1] = current_file
+                    disk[i + j] = false
+                end
+                --print_disk(disk)
+            end
+            current_file = nil
+            current_file_length = 0
+        end
+
+        if disk[i] ~= false then
+            current_file = disk[i]
+            current_file_length = current_file_length + 1
+        end
+    end
+    return disk
+end
+
 local function calculate_checksum(disk)
     local checksum = 0
     for i = 1, #disk do
-        if disk[i] == false then
-           goto finish
+        if disk[i] ~= false then
+            checksum = checksum + ((i - 1) * disk[i])
         end
-        checksum = checksum + ((i - 1) * disk[i])
     end
-    ::finish::
     return checksum
 end
 
 local function part1()
     local disk = read_file.parse("input.txt", unpacked_blocks)[1]
     -- print_disk(disk)
-
-    local defragged_disk = defrag(disk)
-     -- print_disk(disk)
-
-    local checksum = calculate_checksum(disk)
-    -- print(checksum)
-
-    return checksum
+    local defragged_disk = block_defrag(disk)
+    -- print_disk(disk)
+    return calculate_checksum(disk)
 end
 
 local function part2()
-    print(0)
-    return 0
+    local disk = read_file.parse("input.txt", unpacked_blocks)[1]
+    -- print_disk(disk)
+    local defragged_disk = file_defrag(disk)
+    --print_disk(defragged_disk)
+    return calculate_checksum(disk)
 end
 
 test(
@@ -102,6 +155,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 6265268809555, "Part 2 solution incorrect!")
     end
 )
