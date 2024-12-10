@@ -18,22 +18,16 @@ local function print_disk(disk)
 end
 
 local function unpacked_blocks(disk_map)
-    local blocks = {}
-    local index = 1
-    local id = 0
-    for c in string.gmatch(disk_map, ".") do
-        local total_blocks = tonumber(c)
-
+    local blocks, index, id = {}, 1, 0
+    for b in string.gmatch(disk_map, ".") do
         local block = false
         if index % 2 ~= 0 then
             block = id
             id = id + 1
         end
-
-        for i = 1, total_blocks do
+        for i = 1, tonumber(b) do
             table.insert(blocks, block)
         end
-
         index = index + 1
     end
     return blocks
@@ -41,17 +35,14 @@ end
 
 local function block_defrag(disk)
     for i = 1, #disk do
-        -- walk up the disk find each free space
         if disk[i] == false then
             for j = #disk, 1, -1 do
                 if j < i then
                     goto finish
                 end
-
                 if disk[j] ~= false then
                     disk[i] = disk[j]
                     disk[j] = false
-                    -- print_disk(disk)
                     goto continue
                 end
             end
@@ -63,30 +54,25 @@ local function block_defrag(disk)
 end
 
 local function find_space(disk, required_size, limit)
-    local space_start_index = 0
-    local space_size = 0
-    local inside_space = false
-
+    local start_index, space_size, inside_space = 0, 0, false
     for i = 1, #disk do
         if i > limit then
-            break
+            return nil
         end
-
         if disk[i] == false then
             if not inside_space then
-                space_start_index = i
+                start_index = i
                 inside_space = true
             end
-             space_size = space_size + 1
+            space_size = space_size + 1
         end
-
         if disk[i] ~= false and inside_space then
             inside_space = false
             if space_size < required_size then
-                space_start_index = 0
+                start_index = 0
                 space_size = 0
             else
-                return space_start_index
+                return start_index
             end
         end
     end
@@ -94,26 +80,24 @@ local function find_space(disk, required_size, limit)
 end
 
 local function file_defrag(disk)
-    local current_file = nil
-    local current_file_length = 0
-
+    local file, file_length = nil, 0
     for i = #disk, 1, -1 do
-        if disk[i] == false or (current_file ~= nil and disk[i] ~= current_file) then
-            local space_start_index = find_space(disk, current_file_length, i + 1)
-            if space_start_index ~= nil then
-                for j = 1, current_file_length do
-                    disk[space_start_index + j - 1] = current_file
-                    disk[i + j] = false
+        if file ~= nil then
+            if disk[i] == false or disk[i] ~= file then
+                local space_index = find_space(disk, file_length, i + 1)
+                if space_index ~= nil then
+                    for j = 1, file_length do
+                        disk[space_index + j - 1] = file
+                        disk[i + j] = false
+                    end
                 end
-                --print_disk(disk)
+                file = nil
+                file_length = 0
             end
-            current_file = nil
-            current_file_length = 0
         end
-
         if disk[i] ~= false then
-            current_file = disk[i]
-            current_file_length = current_file_length + 1
+            file = disk[i]
+            file_length = file_length + 1
         end
     end
     return disk
