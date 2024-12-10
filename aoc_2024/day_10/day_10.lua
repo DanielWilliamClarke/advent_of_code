@@ -46,9 +46,9 @@ local function new_nine(nines, pos)
     return true
 end
 
-local function search(grid, pos, nines)
+local function search(grid, pos, nines, rating)
     local altitude = grid[pos[1]][pos[2]]
-    if altitude == 9 and new_nine(nines, pos) then
+    if altitude == 9 and (rating or new_nine(nines, pos)) then
         table.insert(nines, pos)
         return nines
     end
@@ -63,7 +63,7 @@ local function search(grid, pos, nines)
             local next = grid[np[1]][np[2]]
 
             if next ~= "." and next - altitude == 1 then
-                search(grid, np, nines)
+                search(grid, np, nines, rating)
             end
         end
     end
@@ -81,13 +81,20 @@ local function part1()
             end
         end
     end
-
     return count
 end
 
 local function part2()
-    print(0)
-    return 0
+    local grid = read_file.parse("input.txt", parse_line)
+    local count = 0
+    for y = 1, #grid do
+        for x = 1, #grid[1] do
+            if grid[y][x] == 0 then
+                count = count + #search(grid, { y, x }, {}, true)
+            end
+        end
+    end
+    return count
 end
 
 test(
@@ -100,6 +107,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 81, "Part 2 solution incorrect!")
     end
 )
