@@ -17,7 +17,7 @@ local function print_disk(disk)
     io.write("\n")
 end
 
-local function unpacked_blocks(disk_map)
+local function unpack_blocks(disk_map)
     local blocks, index, id = {}, 1, 0
     for b in string.gmatch(disk_map, ".") do
         local block = false
@@ -38,18 +38,16 @@ local function block_defrag(disk)
         if disk[i] == false then
             for j = #disk, 1, -1 do
                 if j < i then
-                    goto finish
+                    return disk
                 end
                 if disk[j] ~= false then
                     disk[i] = disk[j]
                     disk[j] = false
-                    goto continue
+                    break
                 end
             end
         end
-        ::continue::
     end
-    ::finish::
     return disk
 end
 
@@ -114,7 +112,7 @@ local function calculate_checksum(disk)
 end
 
 local function part1()
-    local disk = read_file.parse("input.txt", unpacked_blocks)[1]
+    local disk = read_file.parse("input.txt", unpack_blocks)[1]
     -- print_disk(disk)
     local defragged_disk = block_defrag(disk)
     -- print_disk(disk)
@@ -122,7 +120,7 @@ local function part1()
 end
 
 local function part2()
-    local disk = read_file.parse("input.txt", unpacked_blocks)[1]
+    local disk = read_file.parse("input.txt", unpack_blocks)[1]
     -- print_disk(disk)
     local defragged_disk = file_defrag(disk)
     --print_disk(defragged_disk)
