@@ -107,6 +107,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 81, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 1326, "Part 2 solution incorrect!")
     end
 )
