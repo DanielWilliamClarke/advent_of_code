@@ -27,48 +27,52 @@ local function parse_line(line)
 end
 
 local directions = {
-    { -1, 0 }, -- up
+    { -1, 0 },  -- up
     { 0,  -1 }, -- left
-    { 1,  0 }, -- down
-    { 0,  1 }, -- right
+    { 1,  0 },  -- down
+    { 0,  1 },  -- right
 }
 
-local function within_bounds(grid, coord)
-    return coord[1] >= 1 and coord[1] <= #grid and coord[2] >= 1 and coord[2] <= #grid[1]
+local function within_bounds(grid, position)
+    return position[1] >= 1 and position[1] <= #grid and position[2] >= 1 and position[2] <= #grid[1]
 end
 
-local function new_nine(nines, pos)
-    for _, coord in ipairs(nines) do
-        if coord[1] == pos[1] and coord[2] == pos[2] then
+local function is_new_nine(found_nines, position)
+    for _, p in ipairs(found_nines) do
+        if p[1] == position[1] and p[2] == position[2] then
             return false
         end
     end
     return true
 end
 
-local function search(grid, pos, nines, rating)
-    local altitude = grid[pos[1]][pos[2]]
-    if altitude == 9 and (rating or new_nine(nines, pos)) then
-        table.insert(nines, pos)
-        return nines
+local function index_grid(grid, p)
+    return grid[p[1]][p[2]]
+end
+
+local function search(grid, found_nines, current_position, count_all)
+    local altitude = index_grid(grid, current_position)
+    if altitude == 9 and (count_all or is_new_nine(found_nines, current_position)) then
+        table.insert(found_nines, current_position)
+        return found_nines
     end
 
     for _, dir in ipairs(directions) do
-        local np = {
-            pos[1] + dir[1],
-            pos[2] + dir[2],
+        local next_position = {
+            current_position[1] + dir[1],
+            current_position[2] + dir[2],
         }
 
-        if within_bounds(grid, np) then
-            local next = grid[np[1]][np[2]]
+        if within_bounds(grid, next_position) then
+            local next = index_grid(grid, next_position)
 
             if next ~= "." and next - altitude == 1 then
-                search(grid, np, nines, rating)
+                found_nines = search(grid, found_nines, next_position, count_all)
             end
         end
     end
 
-    return nines
+    return found_nines
 end
 
 local function part1()
@@ -77,7 +81,7 @@ local function part1()
     for y = 1, #grid do
         for x = 1, #grid[1] do
             if grid[y][x] == 0 then
-                count = count + #search(grid, { y, x }, {})
+                count = count + #search(grid, {}, { y, x })
             end
         end
     end
@@ -90,7 +94,7 @@ local function part2()
     for y = 1, #grid do
         for x = 1, #grid[1] do
             if grid[y][x] == 0 then
-                count = count + #search(grid, { y, x }, {}, true)
+                count = count + #search(grid, {}, { y, x }, true)
             end
         end
     end
