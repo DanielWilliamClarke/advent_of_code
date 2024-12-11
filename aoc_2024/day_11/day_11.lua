@@ -17,7 +17,7 @@ local function blink(stone, iterations_left, cache)
         return 1
     end
 
-    local key = table.concat({ stone, iterations_left }, ",")
+    local key = table.concat({ stone, iterations_left }, "+")
     local index = iterations_left - 1
     if cache[key] == nil then
         if stone == 0 then
