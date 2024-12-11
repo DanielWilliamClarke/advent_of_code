@@ -24,9 +24,9 @@ local function blink(stone, iterations_left, cache)
             cache[key] = blink(1, index, cache)
         elseif #tostring(stone) % 2 == 0 then
             local str = tostring(stone);
-            local half_index = math.floor(#str / 2)
-            local left = tonumber(string.sub(str, 1, half_index))
-            local right = tonumber(string.sub(str, half_index + 1))
+            local half = math.floor(#str / 2)
+            local left = tonumber(string.sub(str, 1, half))
+            local right = tonumber(string.sub(str, half + 1))
             cache[key] = blink(left, index, cache) + blink(right, index, cache)
         else
             cache[key] = blink(stone * 2024, index, cache)
