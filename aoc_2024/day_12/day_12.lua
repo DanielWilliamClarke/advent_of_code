@@ -104,11 +104,6 @@ end
 
 
 local function count_sides(region)
-    if #region == 1 then 
-        -- print("Region " .. region[1].garden .. " sides: " .. 4)
-        return 4 
-    end
-
     local sides = 1
     local regionSet = {}
 
@@ -117,10 +112,10 @@ local function count_sides(region)
     end
 
     local origin = region[1].coord
-    local current = { origin[1],origin[2] }
+    local current = { origin[1], origin[2] }
     local dir_normal = { -1, 0 } -- up
     local dir_forward = rotate_vector(dir_normal, true) -- right
-    local initial_dir_forward = { dir_normal[1], dir_normal[2] } 
+    local initial_dir_forward = { dir_normal[1], dir_normal[2] } -- up
 
     repeat 
         -- print("Region " .. region[1].garden .. " current: " .. current[1] .. "," .. current[2] .. " direction: " .. dir_forward[1] .. "," .. dir_forward[2] .. " sides " .. sides)
@@ -161,23 +156,21 @@ local function count_sides(region)
         end
         
         if regionSet[look_forward[1] .. "," .. look_forward[2]]then
-            -- move in direction of travel fine
             current = look_forward
         end
 
-        if rotated then 
+        if rotated then
             sides = sides + 1
         end 
     until (
+        -- back at origin and direction is going up
         current[1] == origin[1] and
         current[2] == origin[2] and
         dir_forward[1] == initial_dir_forward[1] and
         dir_forward[2] == initial_dir_forward[2]
-        -- back at origin and direction is going up
     )
 
     -- print("Region " .. region[1].garden .. " | sides: " .. sides .. " | dir: " .. dir_forward[1] .. " , " .. dir_forward[2])
-
     return sides
 end
 
@@ -218,23 +211,13 @@ local function count_sides_with_holes(grid, region)
     -- Create a set of all grid points in the region
     local regionSet = {}
     local visited = {}
-    local gridHeight = #grid
-    local gridWidth = #grid[1]
 
     for _, garden in ipairs(region) do
         regionSet[garden.coord[1] .. "," .. garden.coord[2]] = true
     end
    
-    for y = 1, gridHeight do
-        for _, x in ipairs({1, gridWidth}) do
-            local key = y .. "," .. x
-            if not visited[key] and not regionSet[key] then
-                flood_fill(grid, regionSet, visited, {{y, x}}, true)
-            end
-        end
-    end
-    for x = 1, gridWidth do
-        for _, y in ipairs({1, gridHeight}) do
+    for y = 1, #grid do
+        for _, x in ipairs({1,  #grid[1]}) do
             local key = y .. "," .. x
             if not visited[key] and not regionSet[key] then
                 flood_fill(grid, regionSet, visited, {{y, x}}, true)
@@ -243,8 +226,8 @@ local function count_sides_with_holes(grid, region)
     end
 
     local holeSides = 0
-    for y = 1, gridHeight do
-        for x = 1, gridWidth do
+    for y = 1, #grid do
+        for x = 1, #grid[1] do
             local key = y .. "," .. x
             if not visited[key] and not regionSet[key] then
                 local holePoints = flood_fill(grid, regionSet, visited, {{y, x}})
@@ -314,7 +297,7 @@ local function part2(input_file)
 
     local price = 0
     for _,region in ipairs(regions) do
-        -- print("Garden " .. region[1].garden .. " Size: " .. #region)
+        print("Garden " .. region[1].garden .. " Size: " .. #region)
         price = price + count_sides_with_holes(grid, region) * #region
     end
     return price
@@ -343,6 +326,20 @@ test(
 
 test(
     "🎄 Part 2 Example 3",
+    function(a)
+        a.ok(timing.measure(function() return part2("example_3.txt") end) == 80, "Part 2 solution incorrect!")
+    end
+)
+
+test(
+    "🎄 Part 2 Example 4",
+    function(a)
+        a.ok(timing.measure(function() return part2("example_4.txt") end) == 436, "Part 2 solution incorrect!")
+    end
+)
+
+test(
+    "🎄 Part 2 Example Main",
     function(a)
         a.ok(timing.measure(function() return part2("example.txt") end) == 1206, "Part 2 solution incorrect!")
     end
