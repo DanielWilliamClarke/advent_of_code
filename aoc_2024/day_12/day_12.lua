@@ -216,6 +216,7 @@ local function count_sides_with_holes(grid, region)
         regionSet[garden.coord[1] .. "," .. garden.coord[2]] = true
     end
    
+    -- preprocess external points from region
     for y = 1, #grid do
         for _, x in ipairs({1,  #grid[1]}) do
             local key = y .. "," .. x
@@ -224,13 +225,22 @@ local function count_sides_with_holes(grid, region)
             end
         end
     end
+    for x = 1, #grid[1] do
+        for _, y in ipairs({1,  #grid}) do
+            local key = y .. "," .. x
+            if not visited[key] and not regionSet[key] then
+                flood_fill(grid, regionSet, visited, {{y, x}}, true)
+            end
+        end
+    end
 
+    -- now only count internal hole sides
     local holeSides = 0
     for y = 1, #grid do
         for x = 1, #grid[1] do
             local key = y .. "," .. x
             if not visited[key] and not regionSet[key] then
-                local holePoints = flood_fill(grid, regionSet, visited, {{y, x}})
+                local holePoints = flood_fill(grid, regionSet, visited, {{y, x}}, false)
                 if #holePoints > 0 then
                     holeSides = holeSides + count_sides(holePoints)
                 end
