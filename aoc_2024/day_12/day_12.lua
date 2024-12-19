@@ -105,27 +105,23 @@ end
 
 local function count_sides(region)
     if #region == 1 then 
-        print("Region " .. region[1].garden .. " sides: " .. 4)
+        -- print("Region " .. region[1].garden .. " sides: " .. 4)
         return 4 
     end
 
     local sides = 1
     local regionSet = {}
 
-    for _,garden in ipairs(region) do
-        regionSet[garden.coord[1] .. "," .. garden.coord[2]] = {
-            visited=false
-        }
+    for _, garden in ipairs(region) do
+        regionSet[garden.coord[1] .. "," .. garden.coord[2]] = true
     end
 
     local origin = region[1].coord
-
-    local current = {
-        origin[1],
-        origin[2]
-    }
+    local current = { origin[1],origin[2] }
     local dir_normal = { -1, 0 } -- up
     local dir_forward = rotate_vector(dir_normal, true) -- right
+    local initial_dir_forward = { dir_normal[1], dir_normal[2] } 
+
     repeat 
         -- print("Region " .. region[1].garden .. " current: " .. current[1] .. "," .. current[2] .. " direction: " .. dir_forward[1] .. "," .. dir_forward[2] .. " sides " .. sides)
 
@@ -173,19 +169,95 @@ local function count_sides(region)
             sides = sides + 1
         end 
     until (
-        (current[1] == origin[1] and current[2] == origin[2]) -- and
-        -- (dir_forward[1] == 1 and dir_forward[2] == 0)
+        current[1] == origin[1] and
+        current[2] == origin[2] and
+        dir_forward[1] == initial_dir_forward[1] and
+        dir_forward[2] == initial_dir_forward[2]
         -- back at origin and direction is going up
     )
 
-    -- cludge
-    if dir_forward[1] == 0 and dir_forward[2] == -1 then
-        sides = sides + 1
-    end
-
-    print("Region " .. region[1].garden .. " sides: " .. sides .. "end dir" .. dir_forward[1] .. "," .. dir_forward[2])
+    -- print("Region " .. region[1].garden .. " | sides: " .. sides .. " | dir: " .. dir_forward[1] .. " , " .. dir_forward[2])
 
     return sides
+end
+
+local function flood_fill(grid, regionSet, visited, stack, mark_external)
+    local holePoints = {}
+    while #stack > 0 do
+        local current = table.remove(stack)
+        -- print("Stack size " .. #stack .. " | Current " .. current[1] .. " , " .. current[2])
+
+        local key = current[1] .. "," ..  current[2]
+        if within_bounds(grid, current) and not visited[key] and not regionSet[key] then
+            visited[key] = mark_external and "external" or "hole"
+            table.insert(holePoints, {
+                garden=".",
+                coord=current
+            })
+
+            for _, dir in ipairs(directions) do
+                local next = {
+                    current[1] + dir[1], 
+                    current[2] + dir[2]
+                }
+
+                if within_bounds(grid, next) and not visited[next[1] .. "," .. next[2]] then
+                    table.insert(stack, next)
+                end
+            end
+        end
+    end
+    return holePoints
+end
+
+local function count_sides_with_holes(grid, region)
+    -- Calculate sides of the main region
+    local sides = count_sides(region)
+    -- print("Garden " .. region[1].garden .. " Sides: " .. sides)
+
+    -- Create a set of all grid points in the region
+    local regionSet = {}
+    local visited = {}
+    local gridHeight = #grid
+    local gridWidth = #grid[1]
+
+    for _, garden in ipairs(region) do
+        regionSet[garden.coord[1] .. "," .. garden.coord[2]] = true
+    end
+   
+    for y = 1, gridHeight do
+        for _, x in ipairs({1, gridWidth}) do
+            local key = y .. "," .. x
+            if not visited[key] and not regionSet[key] then
+                flood_fill(grid, regionSet, visited, {{y, x}}, true)
+            end
+        end
+    end
+    for x = 1, gridWidth do
+        for _, y in ipairs({1, gridHeight}) do
+            local key = y .. "," .. x
+            if not visited[key] and not regionSet[key] then
+                flood_fill(grid, regionSet, visited, {{y, x}}, true)
+            end
+        end
+    end
+
+    local holeSides = 0
+    for y = 1, gridHeight do
+        for x = 1, gridWidth do
+            local key = y .. "," .. x
+            if not visited[key] and not regionSet[key] then
+                local holePoints = flood_fill(grid, regionSet, visited, {{y, x}})
+                if #holePoints > 0 then
+                    holeSides = holeSides + count_sides(holePoints)
+                end
+            end
+        end
+    end
+
+    -- Total sides = region sides + hole sides
+    print("Region sides " .. region[1].garden .. " (including holes): " .. (sides + holeSides))
+    return sides + holeSides
 end
 
 local function part1()
@@ -218,8 +290,8 @@ local function part1()
     return price
 end
 
-local function part2()
-    local grid = read_file.parse("example.txt", parse_line)
+local function part2(input_file)
+    local grid = read_file.parse(input_file, parse_line)
     -- print_grid(grid)
 
     local regions = {}
@@ -243,7 +315,7 @@ local function part2()
     local price = 0
     for _,region in ipairs(regions) do
         -- print("Garden " .. region[1].garden .. " Size: " .. #region)
-        price = price + count_sides(region) * #region
+        price = price + count_sides_with_holes(grid, region) * #region
     end
     return price
 end
@@ -256,8 +328,29 @@ test(
 )
 
 test(
-    "🎄 Part 2",
+    "🎄 Part 2 Example 1",
     function(a)
-        a.ok(timing.measure(part2) == 1206, "Part 2 solution incorrect!")
+        a.ok(timing.measure(function() return part2("example_1.txt") end) == 236, "Part 2 solution incorrect!")
+    end
+)
+
+test(
+    "🎄 Part 2 Example 2",
+    function(a)
+        a.ok(timing.measure(function() return part2("example_2.txt") end) == 368, "Part 2 solution incorrect!")
+    end
+)
+
+test(
+    "🎄 Part 2 Example 3",
+    function(a)
+        a.ok(timing.measure(function() return part2("example.txt") end) == 1206, "Part 2 solution incorrect!")
+    end
+)
+
+test(
+    "🎅 Part 2 Input",
+    function(a)
+        a.ok(timing.measure(function() return part2("input.txt") end) == 0, "Part 2 solution incorrect!")
     end
 )
