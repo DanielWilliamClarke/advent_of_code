@@ -24,9 +24,22 @@ local function within_bounds(grid, position)
     return position[1] >= 1 and position[1] <= #grid and position[2] >= 1 and position[2] <= #grid[1]
 end
 
-local function parse_warehouse(lines)
+local moves_to_dirs = {
+    ["<"] = function() return { 0, -1 } end,
+    ["^"] = function() return { -1, 0 } end,
+    ["v"] = function() return { 1, 0 } end,
+    [">"] = function() return { 0 , 1 } end
+}
+
+local single_to_double = {
+    ["#"] = function() return { "#", "#" } end,
+    ["O"] = function() return { "[", "]" } end,
+    ["."] = function() return { ".", "." } end,
+    ["@"] = function() return { "@", "." } end
+}
+
+local function parse_warehouse(lines, wide)
     local grid = {}
-    local robot = {}
 
     for y,l in ipairs(lines) do
         if l == "" then
@@ -36,11 +49,13 @@ local function parse_warehouse(lines)
         local row = {}
         local x = 1
         for char in string.gmatch(l, ".") do
-            if char == "@" then
-                robot = {y, x}
+            if not wide then 
+                table.insert(row, char)
+            else 
+                local chars = single_to_double[char]()
+                table.move(chars, 1, #chars, #row + 1, row)
             end
-
-            table.insert(row, char)
+        
             x = x + 1
         end
         table.insert(grid, row)
@@ -52,6 +67,16 @@ local function parse_warehouse(lines)
         table.insert(new_lines, lines[i])
     end
 
+    -- find robot
+    local robot = {}
+    for y = 1, #grid do
+        for x = 1, #grid[1] do
+            if grid[y][x] == "@" then
+                robot = {y, x}
+                break
+            end
+        end
+    end
     -- print("Robot at:" .. robot[1] .. ", " .. robot[2])
 
     return grid, robot, new_lines
@@ -59,13 +84,6 @@ end
 
 local function parse_moves(lines)
     local moves = {}
-
-    local moves_to_dirs = {
-        ["<"] = function() return { 0, -1 } end,
-        ["^"] = function() return { -1, 0 } end,
-        ["v"] = function() return { 1, 0 } end,
-        [">"] = function() return { 0 , 1 } end
-    }
 
     for _,l in ipairs(lines) do
         for char in string.gmatch(l, ".") do
@@ -76,7 +94,20 @@ local function parse_moves(lines)
     return moves
 end
 
-local function single_move (warehouse, current, dir)
+local single_move -- forward declare
+local function attempt_move_box (warehouse, current, next, dir, entity)
+    local box_next, hits_wall = single_move(warehouse, next, dir)
+    if hits_wall then
+        return current, hits_wall -- wall, cant move
+    else 
+        -- if not hitting a wall move this entity
+        warehouse[next[1]][next[2]] = "."
+        warehouse[box_next[1]][box_next[2]] = entity
+        return next, hits_wall
+    end
+end
+
+function single_move(warehouse, current, dir)
     local next = {
         current[1] + dir[1],
         current[2] + dir[2]
@@ -94,19 +125,22 @@ local function single_move (warehouse, current, dir)
     elseif entity == "O" then
         -- need to determine if this entity can move
         -- look in direction until you hit a . or a # 
-        local box_next, hits_wall = single_move(warehouse, next, dir)
-        if hits_wall then
-            return current, hits_wall -- wall, cant move
-        else 
-            -- if not hitting a wall move this entity
-            warehouse[next[1]][next[2]] = "."
-            warehouse[box_next[1]][box_next[2]] = entity
-            return next, hits_wall
+        return attempt_move_box(warehouse, current, next, dir, entity)
+    elseif entity == "[" or entity == "]" then
+        -- when hitting from left or right should be no change 
+
+        -- if hitting from up or down we need to account for moving the item left or right from it 
+        -- based on either `[` look right and ']` look left 
+        if dir[1] == 0 then  -- moving sideways
+            return attempt_move_box(warehouse, current, next, dir, entity) -- ✅
+        elseif dir[2] == 0 then -- moving updown
+            -- do some foo here
+            return current, true
         end
     end
 end
 
-local function process_robot_moves(warehouse, robot, moves)
+local function process_robot_moves(warehouse, robot, moves, display)
     local robot_entity = "@"
 
     for _,m in ipairs(moves) do
@@ -117,7 +151,9 @@ local function process_robot_moves(warehouse, robot, moves)
         warehouse[robot[1]][robot[2]] = "."
         warehouse[next[1]][next[2]] = robot_entity
         robot = next;
-        -- print_grid(warehouse)
+        if display then 
+            print_grid(warehouse)
+        end
     end
 end
 
@@ -152,6 +188,19 @@ local function part1()
 end
 
 local function part2()
+    local lines =
+        read_file.parse(
+            "example_mini.txt",
+            function(line)
+                return line
+            end
+        )
+
+    local warehouse, robot, new_lines = parse_warehouse(lines, true)
+    print_grid(warehouse)
+    -- print_grid(warehouse)
+    local moves = parse_moves(new_lines)
+    process_robot_moves(warehouse, robot, moves, true)
     return 0
 end
 
