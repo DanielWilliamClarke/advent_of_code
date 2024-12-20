@@ -107,6 +107,84 @@ local function attempt_move_box (warehouse, current, next, dir, entity)
     end
 end
 
+local function move_wide_boy(warehouse, current, dir)
+    -- if all points next are "." move to next 
+     -- if any points next are "#" then cant move
+     -- if no points are "#" and at least 1 are "[" or "]" then recurse passing new points 
+    local next = {}
+    for i,p in ipairs(current) do
+        -- print(i .. " - " .. p[1] .. "," .. p[2])
+        table.insert(next, {
+            p[1] + dir[1],
+            p[2] + dir[2]
+        })
+    end
+
+    local has_wall = false
+    for _,n in ipairs(next) do
+        local entity = warehouse[n[1]][n[2]]
+
+        if entity == "#" then
+            has_wall = true
+            break
+        end
+    end
+    if has_wall then
+        return current, has_wall
+    end
+
+    local all_empty = true
+    for _,n in ipairs(next) do
+        local entity = warehouse[n[1]][n[2]]
+
+        if entity ~= "." then
+            all_empty = false
+        end
+    end
+    if all_empty then
+        for i,n in ipairs(next) do
+            local c = current[i]
+            local entity = warehouse[c[1]][c[2]]
+            warehouse[c[1]][c[2]] = "."
+            warehouse[n[1]][n[2]] = entity
+        end
+        return next, false
+    end
+
+    local check_set = {}
+    for _,n in ipairs(next) do
+        local entity = warehouse[n[1]][n[2]]
+        if entity == "[" then 
+            local n_r = { n[1], n[2] + 1 }
+            check_set[n[1]..","..n[2]] = n
+            check_set[n_r[1]..","..n_r[2]] = n_r
+        elseif entity == "]" then
+            local n_l = { n[1], n[2] - 1 }
+            check_set[n[1]..","..n[2]] = n
+            check_set[n_l[1]..","..n_l[2]] = n_l
+        end
+    end
+
+    local check = {}
+    for _,p in pairs(check_set) do
+        table.insert(check, p)
+    end
+
+    local _, has_wall = move_wide_boy(warehouse, check, dir)
+    if has_wall then 
+        return current, has_wall
+    else
+        for i,n in ipairs(next) do
+            local c = current[i]
+            local entity = warehouse[c[1]][c[2]]
+            warehouse[c[1]][c[2]] = "."
+            warehouse[n[1]][n[2]] = entity
+        end
+
+        return next, has_wall
+    end
+end
+
 function single_move(warehouse, current, dir)
     local next = {
         current[1] + dir[1],
@@ -134,8 +212,25 @@ function single_move(warehouse, current, dir)
         if dir[1] == 0 then  -- moving sideways
             return attempt_move_box(warehouse, current, next, dir, entity) -- ✅
         elseif dir[2] == 0 then -- moving updown
-            -- do some foo here
-            return current, true
+            local entity_points
+            if entity == "[" then
+                entity_points = {
+                    next, -- "["
+                    { next[1], next[2] + 1 } -- "]"
+                }
+            else -- entity == "]"
+                entity_points = {
+                    { next[1], next[2] - 1 }, -- "["
+                    next -- "]"
+                }
+            end
+
+            local _, has_wall = move_wide_boy(warehouse, entity_points, dir)
+            if has_wall then
+                return current, has_wall -- wall, can't move
+            else
+                return next, has_wall
+            end
         end
     end
 end
@@ -146,7 +241,6 @@ local function process_robot_moves(warehouse, robot, moves, display)
     for _,m in ipairs(moves) do
         -- print(m[1] .. ", " .. m[2])
         local next = single_move(warehouse, robot, m)
-
         -- move robot
         warehouse[robot[1]][robot[2]] = "."
         warehouse[next[1]][next[2]] = robot_entity
@@ -161,7 +255,7 @@ local function sum_gps_coordinates (warehouse)
     local total = 0
     for y = 1, #warehouse do
         for x = 1, #warehouse[1] do
-            if warehouse[y][x] == 'O' then
+            if warehouse[y][x] == 'O' or warehouse[y][x] == '[' then
                 total = total + (100 * (y - 1) + (x - 1))
             end
         end
@@ -179,29 +273,24 @@ local function part1()
         )
 
     local warehouse, robot, new_lines = parse_warehouse(lines)
-    -- print_grid(warehouse)
     local moves = parse_moves(new_lines)
-    -- print_moves(moves)
     process_robot_moves(warehouse, robot, moves)
-
     return sum_gps_coordinates(warehouse)
 end
 
 local function part2()
     local lines =
         read_file.parse(
-            "example_mini.txt",
+            "input.txt",
             function(line)
                 return line
             end
         )
 
     local warehouse, robot, new_lines = parse_warehouse(lines, true)
-    print_grid(warehouse)
-    -- print_grid(warehouse)
     local moves = parse_moves(new_lines)
-    process_robot_moves(warehouse, robot, moves, true)
-    return 0
+    process_robot_moves(warehouse, robot, moves)
+    return sum_gps_coordinates(warehouse)
 end
 
 test(
@@ -214,6 +303,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 1432781, "Part 2 solution incorrect!")
     end
 )
