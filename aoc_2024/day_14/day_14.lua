@@ -21,7 +21,8 @@ local function print_robots(robots)
     end
 end
 
-local function print_grid(robots, width, height)
+local function make_robot_set (robots)
+
     local robotSet = {}
     for _, r in ipairs(robots) do
         local key = r.p.x .. "," .. r.p.y;
@@ -32,6 +33,13 @@ local function print_grid(robots, width, height)
             robotSet[key] = robotSet[key] + 1
         end
     end
+
+    return robotSet
+
+end
+
+local function print_grid(robots, width, height)
+    local robotSet = make_robot_set (robots)
 
     for y = 0, height - 1 do
         local row = {}
@@ -50,7 +58,30 @@ local function print_grid(robots, width, height)
     end
 end
 
-local function simulate_moves(robots, width, height, iterations)
+local function has_tree (robots, width, height)
+    local robotSet = make_robot_set (robots)
+    for y = 0, height - 1 do
+        local row = {}
+
+        for x = 0, width - 1 do
+            local key = x .. "," .. y
+            if not robotSet[key] then 
+                table.insert(row, ".")
+            else 
+                table.insert(row, robotSet[key])
+            end
+        end
+
+        local start_pos = string.find(table.concat(row, ""), "1111111111111111111111111111111")
+        if start_pos then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function simulate_moves(robots, width, height, iterations, find_tree)
     local min_x = 0
     local max_x = width - 1
 
@@ -86,9 +117,15 @@ local function simulate_moves(robots, width, height, iterations)
 
         -- print ("Iteration " .. i)
         -- print_grid(robots, width, height)
-        -- -- print_robots(robots)
+        -- print_robots(robots)
         -- print("-------------------")
+    
+        if find_tree and has_tree(robots, width, height) then
+            return i
+        end
     end
+
+    return nil
 end
 
 local function bucket_robots (robots, width, height)
@@ -105,11 +142,6 @@ local function bucket_robots (robots, width, height)
 
     for i,r in ipairs(robots) do
         -- print ("Robot " .. i .. " Final Position " .. r.p.x .. ", " .. r.p.y)
-
-        if r.p.x == mid_width or r.p.y == mid_height then
-            goto continue
-        end
-
         if r.p.x < mid_width and r.p.y < mid_height then
             table.insert(buckets.tl, r)
         elseif r.p.x > mid_width and r.p.y < mid_height then
@@ -119,8 +151,6 @@ local function bucket_robots (robots, width, height)
         elseif r.p.x > mid_width and r.p.y > mid_height then
             table.insert(buckets.br, r)
         end
-        
-        ::continue::
     end
     return buckets
 end
@@ -133,7 +163,7 @@ local function part1()
     simulate_moves(robots, width, height, 100)
 
     local quadrants = bucket_robots(robots, width, height)
-    
+
     local safety_factor = 1
     for _,q in pairs(quadrants) do
         safety_factor = safety_factor * math.max(#q, 1)
@@ -142,7 +172,13 @@ local function part1()
 end
 
 local function part2()
-    return 0
+    local width = 101
+    local height = 103
+
+    local robots = read_file.parse("input.txt", parse_robot)
+    local easter_egg = simulate_moves(robots, width, height, 10000, true)
+
+    return easter_egg
 end
 
 test(
@@ -155,6 +191,6 @@ test(
 test(
     "🎄 Part 2",
     function(a)
-        a.ok(timing.measure(part2) == 0, "Part 2 solution incorrect!")
+        a.ok(timing.measure(part2) == 6752, "Part 2 solution incorrect!")
     end
 )
