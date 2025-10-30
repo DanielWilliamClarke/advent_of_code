@@ -67,40 +67,45 @@ zig test src/test.zig --test-filter "day01"  # Run only day01 tests
 ```zig
 const std = @import("std");
 const runner = @import("../util/run.zig");
-const validate = @import("../util/validate.zig");
+pub const Day = struct {
+    pub const number: u8 = XX;
+    pub const input_path = "inputs/dayXX.txt";
+    pub const example_path = "inputs/dayXX_example.txt";
 
-fn part1(lines: [][]const u8) !i64 {
-    // Your solution here
-    return 0;
-}
+    pub fn part1(lines: [][]const u8) !i64 {
+        // Your solution here
+        return 0;
+    }
 
-fn part2(lines: [][]const u8) !i64 {
-    // Your solution here
-    return 0;
-}
+    pub fn part2(lines: [][]const u8) !i64 {
+        // Your solution here
+        return 0;
+    }
 
-pub fn run(alloc: std.mem.Allocator, input_path: []const u8) !void {
-    try runner.runParts(alloc, input_path, part1, part2);
-}
+    pub fn run(alloc: std.mem.Allocator) !void {
+        const Self = @This();
+        try runner.runParts(alloc, Self.input_path, Self.part1, Self.part2);
+    }
+};
 
 // ========== Tests ==========
 
 test "dayXX example" {
-    try validate.validateExample(XX, part1, 42); // Replace with example answer
+    try validate.validate(Day.example_path, Day.part1, 42); // Replace with example answer
 }
 
 test "dayXX part1" {
-    try validate.validate(XX, part1, 12345); // Replace with actual answer
+    try validate.validate(Day.input_path, Day.part1, 12345); // Replace with actual answer
 }
 
 test "dayXX part2" {
-    try validate.validate(XX, part2, 67890); // Replace with actual answer
+    try validate.validate(Day.input_path, Day.part2, 67890); // Replace with actual answer
 }
 ```
 
 2. Add the day to `src/main.zig` (in the Days.run() switch):
 ```zig
-XX => return @import("days/dayXX.zig").run(alloc, input_path),
+XX => return @import("days/dayXX.zig").Day.run(alloc),
 ```
 
 3. Add the day to `src/test.zig`:

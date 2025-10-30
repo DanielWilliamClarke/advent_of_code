@@ -12,6 +12,7 @@ puzzle.md
 
 # Zig build artifacts
 .zig-cache/
+zig-cache/
 zig-out/
 
 # OS

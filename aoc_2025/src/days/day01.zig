@@ -1,46 +1,34 @@
 const std = @import("std");
-const runner = @import("../util/run.zig"); // Framework for running both parts with timing
+const runner = @import("../util/run.zig");
 const validate = @import("../util/validate.zig");
 
-// Part 1: Solve the first puzzle (this is a placeholder example)
-// Input: lines is a slice of strings read from input file
-// The ! means this function can return an error
-fn part1(lines: [][]const u8) !i64 {
-    var sum: i64 = 0;
-    for (lines) |line| {
-        if (line.len == 0) continue;
-        sum += try std.fmt.parseInt(i64, line, 10);
+pub const Day = struct {
+    pub const number: u8 = 1;
+    pub const input_path = "inputs/day01.txt";
+    pub const example_path = "inputs/day01_example.txt";
+
+    pub fn part1(_: [][]const u8) !i64 {
+        return 0;
     }
-    return sum;
-}
 
-// Part 2: Solve the second puzzle
-fn part2(lines: [][]const u8) !i64 {
-    var sum: i64 = 0;
-    for (lines) |line| {
-        if (line.len == 0) continue;
-        const v = try std.fmt.parseInt(i64, line, 10);
-        sum += v * 2; // pretend Part 2 rule
+    pub fn part2(_: [][]const u8) !i64 {
+        return 0;
     }
-    return sum;
-}
 
-// Public entry point: called from main.zig
-// alloc is for memory allocation, input_path is the file to read
-pub fn run(alloc: std.mem.Allocator, input_path: []const u8) !void {
-    try runner.runParts(alloc, input_path, part1, part2);
-}
-
-// ========== Tests ==========
+    pub fn run(alloc: std.mem.Allocator) !void {
+        const Self = @This();
+        try runner.runParts(alloc, Self.input_path, Self.part1, Self.part2);
+    }
+};
 
 test "day01 example" {
-    try validate.validateExample(1, part1, 6);
+    try validate.validate(Day.example_path, Day.part1, 0);
 }
 
 test "day01 part1" {
-    try validate.validate(1, part1, 150);
+    try validate.validate(Day.input_path, Day.part1, 0);
 }
 
 test "day01 part2" {
-    try validate.validate(1, part2, 300);
+    try validate.validate(Day.input_path, Day.part2, 0);
 }
