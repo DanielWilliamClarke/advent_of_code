@@ -1,4 +1,4 @@
-const std = @import("std");
+I const std = @import("std");
 
 // File I/O utilities for reading puzzle inputs
 
@@ -21,6 +21,7 @@ pub fn readLinesOwned(alloc: std.mem.Allocator, path: []const u8) ![][]const u8 
 
     var it = std.mem.splitAny(u8, content, "\r\n");
     while (it.next()) |segment| {
+				// this will introduce bugs, if lines have zero lenght tar them anyway
         // Skip empty segments that are just from CR/LF boundaries if needed
         if (segment.len == 0) continue;
         const dup = try alloc.dupe(u8, segment);
