@@ -1,8 +1,8 @@
 const std = @import("std");
 const validate = @import("../util/validate.zig");
-const Day = @import("../util/day.zig").Day;
+const day = @import("../util/day.zig");
 
-const Day00Impl = struct {
+pub const day00 = day.fromImpl(struct {
     pub const input_path = "inputs/day00.txt";
     pub const example_path = "inputs/day00_example.txt";
 
@@ -28,22 +28,16 @@ const Day00Impl = struct {
         }
         return sum;
     }
-};
-
-pub const day00 = Day{
-    .input_path = Day00Impl.input_path,
-    .part1 = Day00Impl.part1,
-    .part2 = Day00Impl.part2,
-};
+});
 
 test "day00 example" {
-    try validate.validate(Day.example_path, Day.part1, 6);
+    try validate.validate(day00.example_path, day00.part1, 6);
 }
 
 test "day00 part1" {
-    try validate.validate(Day.input_path, Day.part1, 150);
+    try validate.validate(day00.input_path, day00.part1, 150);
 }
 
 test "day00 part2" {
-    try validate.validate(Day.input_path, Day.part2, 300);
+    try validate.validate(day00.input_path, day00.part2, 300);
 }

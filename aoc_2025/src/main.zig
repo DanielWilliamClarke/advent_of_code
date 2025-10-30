@@ -19,6 +19,7 @@ const Days = struct {
         try runner.runParts(alloc, d.input_path, d.part1, d.part2);
     }
 };
+
 pub fn main() !void {
     // Memory allocator with leak detection
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
