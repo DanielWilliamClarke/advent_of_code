@@ -1,11 +1,10 @@
 const std = @import("std");
-const io = @import("../util/io.zig");
-const out = @import("../util/out.zig");
-const time = @import("../util/time.zig");
+const runner = @import("../util/run.zig"); // Framework for running both parts with timing
+const validate = @import("../util/validate.zig");
 
-const std = @import("std");
-const runner = @import("../util/runner.zig");
-
+// Part 1: Solve the first puzzle (this is a placeholder example)
+// Input: lines is a slice of strings read from input file
+// The ! means this function can return an error
 fn part1(lines: [][]const u8) !i64 {
     var sum: i64 = 0;
     for (lines) |line| {
@@ -15,6 +14,7 @@ fn part1(lines: [][]const u8) !i64 {
     return sum;
 }
 
+// Part 2: Solve the second puzzle
 fn part2(lines: [][]const u8) !i64 {
     var sum: i64 = 0;
     for (lines) |line| {
@@ -25,19 +25,22 @@ fn part2(lines: [][]const u8) !i64 {
     return sum;
 }
 
+// Public entry point: called from main.zig
+// alloc is for memory allocation, input_path is the file to read
 pub fn run(alloc: std.mem.Allocator, input_path: []const u8) !void {
     try runner.runParts(alloc, input_path, part1, part2);
 }
 
-// Optional: unit tests for day logic
+// ========== Tests ==========
+
 test "day01 example" {
-    const alloc = std.testing.allocator;
-    const data = "1\n2\n3\n";
+    try validate.validateExample(1, part1, 6);
+}
 
-    // Write to a tmp file to test read+solve end-to-end.
-    var tmp = std.testing.tmpDir(.{});
-    defer tmp.cleanup();
-    try tmp.dir.writeFile("input.txt", data);
+test "day01 part1" {
+    try validate.validate(1, part1, 150);
+}
 
-    try run(alloc, "input.txt");
+test "day01 part2" {
+    try validate.validate(1, part2, 300);
 }

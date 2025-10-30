@@ -1,5 +1,7 @@
 const std = @import("std");
 
+// Timing utilities for benchmarking puzzle solutions
+
 /// Measures a fallible thunk that returns void.
 /// Usage:
 /// const ns = try timeFn(fn() !void { try doWork(); });

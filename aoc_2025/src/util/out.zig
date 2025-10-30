@@ -1,5 +1,7 @@
 const std = @import("std");
 
+// Output formatting utilities for pretty-printing puzzle results
+
 pub fn printHeader(day: u8) void {
     std.debug.print("\n== Day {d} ==\n", .{day});
 }

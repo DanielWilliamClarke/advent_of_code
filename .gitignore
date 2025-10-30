@@ -4,6 +4,16 @@ bazel-*
 input.txt
 example*.txt
 input
+inputs/
+
 puzzle.md
 
-.idea
+.idea/
+
+# Zig build artifacts
+.zig-cache/
+zig-out/
+
+# OS
+.DS_Store
+Thumbs.db
