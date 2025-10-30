@@ -12,7 +12,7 @@ pub fn readToString(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
 
 /// Returns owned lines (each line duplicated) so you can free them independently.
 /// Newlines ("\n") are not included. Works with both LF and CRLF.
-pub fn readLinesOwned(alloc: std.mem.Allocator, path: []const u8) ![][]const u8 {
+pub fn readLinesOwned(alloc: std.mem.Allocator, path: []const u8) ![]const []const u8 {
     const content = try readToString(alloc, path);
     errdefer alloc.free(content);
 

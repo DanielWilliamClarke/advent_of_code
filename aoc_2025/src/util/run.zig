@@ -8,8 +8,8 @@ const time = @import("./time.zig");
 pub fn runParts(
     alloc: std.mem.Allocator,
     input_path: []const u8,
-    comptime part1: fn ([][]const u8) anyerror!i64, // Part functions can return errors
-    comptime part2: fn ([][]const u8) anyerror!i64,
+    part1: *const fn ([]const []const u8) anyerror!i64, // Part functions can return errors
+    part2: *const fn ([]const []const u8) anyerror!i64,
 ) !void {
     // Read input file into lines (caller must provide allocator)
     const lines = try io.readLinesOwned(alloc, input_path);

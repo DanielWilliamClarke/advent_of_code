@@ -1,16 +1,15 @@
 const std = @import("std");
-const runner = @import("../util/run.zig"); // Framework for running both parts with timing
 const validate = @import("../util/validate.zig");
+const Day = @import("../util/day.zig").Day;
 
-pub const Day = struct {
-    pub const number: u8 = 0;
+const Day00Impl = struct {
     pub const input_path = "inputs/day00.txt";
     pub const example_path = "inputs/day00_example.txt";
 
     // Part 1: Solve the first puzzle (this is a placeholder example)
     // Input: lines is a slice of strings read from input file
     // The ! means this function can return an error
-    pub fn part1(lines: [][]const u8) !i64 {
+    pub fn part1(lines: []const []const u8) !i64 {
         var sum: i64 = 0;
         for (lines) |line| {
             if (line.len == 0) continue;
@@ -20,7 +19,7 @@ pub const Day = struct {
     }
 
     // Part 2: Solve the second puzzle
-    pub fn part2(lines: [][]const u8) !i64 {
+    pub fn part2(lines: []const []const u8) !i64 {
         var sum: i64 = 0;
         for (lines) |line| {
             if (line.len == 0) continue;
@@ -29,13 +28,12 @@ pub const Day = struct {
         }
         return sum;
     }
+};
 
-    // Public entry point: called from main.zig
-    // alloc is for memory allocation, input path is defined above
-    pub fn run(alloc: std.mem.Allocator) !void {
-        const Self = @This();
-        try runner.runParts(alloc, Self.input_path, Self.part1, Self.part2);
-    }
+pub const day00 = Day{
+    .input_path = Day00Impl.input_path,
+    .part1 = Day00Impl.part1,
+    .part2 = Day00Impl.part2,
 };
 
 test "day00 example" {
