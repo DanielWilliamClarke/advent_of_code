@@ -15,18 +15,20 @@ aoc_2025/
 │   ├── main.zig           # Entry point with day dispatcher
 │   ├── test.zig           # Test entry point (imports all day tests)
 │   ├── days/
-│   │   ├── day01.zig      # Day 1 solution
-│   │   └── day02.zig      # Day 2 solution (add as you go)
+│   │   ├── day00.zig      # Day 0 warm-up / template
+│   │   └── day01.zig      # Day 1 solution (add more as you go)
 │   └── util/
 │       ├── io.zig         # File reading utilities
 │       ├── out.zig        # Output formatting
 │       ├── time.zig       # Timing/benchmarking
 │       ├── day.zig        # Day descriptor + runner
+│       ├── tree.zig       # ASCII tree banner for output
 │       └── validate.zig   # Test validation helper
 └── inputs/
+    ├── day00.txt          # Day 0 puzzle input
+    ├── day00_example.txt  # Day 0 example input
     ├── day01.txt          # Day 1 puzzle input
-    ├── day01_example.txt  # Day 1 example input
-    └── day02.txt          # Day 2 puzzle input (add as you go)
+    └── day01_example.txt  # Day 1 example input
 ```
 
 ## Usage
@@ -46,14 +48,14 @@ zig build run -- <day_number>
 Examples:
 
 ```bash
+zig build run -- 0          # Runs day 0 with inputs/day00.txt
 zig build run -- 1          # Runs day 1 with inputs/day01.txt
-zig build run -- 2          # Runs day 2 with inputs/day02.txt
 ```
 
-### Use a custom input file
+### Run without building first
 
 ```bash
-zig build run -- 1 path/to/custom_input.txt
+zig run src/main.zig -- <day_number>
 ```
 
 ### Run tests
@@ -129,126 +131,114 @@ test {
 
 ## How It Works
 
-### Duck-Typed Day Interface
-
-This project uses Zig's compile-time type system to achieve a duck-typed interface pattern for daily solutions. Here's how it works:
-
-#### The Day Struct (`util/day.zig`)
+### Day Descriptor (`util/day.zig`)
 
 ```zig
 pub const Day = struct {
     example_path: []const u8,
     input_path: []const u8,
-    part1: *const fn ([]const []const u8) anyerror!i64,
-    part2: *const fn ([]const []const u8) anyerror!i64,
+    part1: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
+    part2: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
+
+    pub fn run(self: Day, alloc: std.mem.Allocator) !void {
+        const lines = try io.readLinesOwned(alloc, self.input_path);
+        defer {
+            for (lines) |line| alloc.free(line);
+            alloc.free(lines);
+        }
+
+        var t1 = try time.startTimer();
+        const res1 = try self.part1(alloc, lines);
+        const ns1 = time.readNs(&t1);
+
+        var t2 = try time.startTimer();
+        const res2 = try self.part2(alloc, lines);
+        const ns2 = time.readNs(&t2);
+
+        out.printPart(1, res1);
+        out.printTimed("part1", ns1);
+        out.printPart(2, res2);
+        out.printTimed("part2", ns2);
+    }
 };
 ```
 
-The `Day` struct acts as a **runtime interface** containing:
+`Day` is a lightweight runtime descriptor. Each instance stores the file paths plus function pointers for `part1` and `part2`, while `run` centralises input loading, timing, and printing.
 
-- File paths for input and example data
-- Function pointers to `part1` and `part2` implementations
+### Day Modules (`src/days/dayXX.zig`)
 
-#### The fromImpl Function
+Each day module exports just the data and functions that back the descriptor:
 
 ```zig
-pub fn fromImpl(comptime Impl: type) Day {
-    return .{
-        .example_path = Impl.example_path,
-        .input_path = Impl.input_path,
-        .part1 = Impl.part1,
-        .part2 = Impl.part2,
-    };
+pub const input_path = "inputs/dayXX.txt";
+pub const example_path = "inputs/dayXX_example.txt";
+
+pub fn part1(_: std.mem.Allocator, lines: []const []const u8) !i64 {
+    // Solution here
+}
+
+pub fn part2(_: std.mem.Allocator, lines: []const []const u8) !i64 {
+    // Solution here
 }
 ```
 
-This function performs **compile-time duck typing**:
+Tests in the file call `validate.validate`, which expects the allocator-aware function signature shown above.
 
-- Takes any type (`comptime Impl: type`) as a parameter
-- At compile time, Zig checks that the type has the required fields/functions
-- If valid, extracts the fields and creates function pointers
-- Returns a concrete `Day` instance
-
-#### Day Implementation Pattern (`days/dayXX.zig`)
-
-```zig
-pub const dayXX = day.fromImpl(struct {
-    pub const input_path = "inputs/dayXX.txt";
-    pub const example_path = "inputs/dayXX_example.txt";
-
-    pub fn part1(lines: []const []const u8) !i64 {
-        // Solution here
-    }
-
-    pub fn part2(lines: []const []const u8) !i64 {
-        // Solution here
-    }
-});
-```
-
-Each day exports a **constant** (e.g., `day00`, `day01`) created by:
-
-1. Defining an anonymous struct with the required shape
-2. Passing it to `day.fromImpl()` at compile time
-3. The compiler verifies the struct has the right structure
-4. A `Day` instance is created with function pointers to the implementations
-
-#### The Dispatcher (`main.zig`)
+### Dispatcher (`src/main.zig`)
 
 ```zig
 const Days = struct {
-    pub fn get(day_num: u8) !day.Day {
+    fn makeDay(comptime Mod: type) day.Day {
+        return .{
+            .example_path = Mod.example_path,
+            .input_path = Mod.input_path,
+            .part1 = Mod.part1,
+            .part2 = Mod.part2,
+        };
+    }
+
+    fn get(day_num: u8) !day.Day {
         return switch (day_num) {
-            0 => @import("days/day00.zig").day00,
-            1 => @import("days/day01.zig").day01,
+            0 => makeDay(@import("days/day00.zig")),
+            1 => makeDay(@import("days/day01.zig")),
             else => error.UnknownDay,
         };
+    }
+
+    pub fn run(day_num: u8, alloc: std.mem.Allocator) !void {
+        try (try get(day_num)).run(alloc);
     }
 };
 ```
 
-The dispatcher returns the appropriate `Day` struct based on user input, which is then passed to the runner framework.
+`main` parses CLI arguments, prints a header, and delegates to `Days.run`. The selected module is wrapped on demand, so adding a new day only requires an extra `makeDay(@import(...))` branch.
 
-#### Why This Pattern?
+### Execution Flow
 
-This achieves **interface-like polymorphism** without runtime overhead:
+1. Parse the requested day number from the CLI.
+2. Import that day module and wrap it in a `day.Day` descriptor.
+3. `Day.run` reads the puzzle input, runs both parts with the shared allocator, and records timings.
+4. Results and timings are printed via the shared `out` helpers.
 
-- **Compile-time safety**: The compiler enforces that each day has the correct structure
-- **No vtables**: Function pointers are created once at compile time
-- **Duck typing**: Any type that "looks like" a Day can be converted to one
-- **Zero cost abstraction**: No runtime penalty compared to calling functions directly
+### Why This Pattern
 
-### Memory Management
-
-- Zig uses manual memory management via **allocators**
-- `GeneralPurposeAllocator` in main.zig tracks memory leaks
-- Always `defer` cleanup (e.g., `defer alloc.free(memory)`)
-
-### Error Handling
-
-- `!` prefix means a function can return an error (e.g., `!i64`)
-- `try` keyword propagates errors up the call stack
-- Functions can fail and must handle or propagate errors
-
-### Framework Flow
-
-1. `main.zig` parses CLI args and loads the day's `day.Day` descriptor
-2. `Day.run()` reads the input, times both parts, and prints results
-3. Utility modules (`io`, `out`, `time`) handle file I/O, formatting, and timing
+- `Day` is the runtime bundle for a puzzle: it keeps the file paths plus callable pointers to `part1`/`part2`, and its `run` method centralises I/O, memory management, and timing so every day inherits the same harness.
+- `Days` is the compile-time dispatcher: `makeDay` converts whatever the module exports into a `Day`, `get` selects the right module for the CLI argument, and `run` hands execution over to the shared harness.
+- This lets each day module focus solely on puzzle logic (`input_path`, `example_path`, `part1`, `part2`) while the framework guarantees consistent orchestration and reporting.
+- The split keeps infrastructure changes confined to `util/day.zig` and `main.zig`, so adding instrumentation or new features does not touch puzzle code.
 
 ### Key Zig Concepts
 
-- **comptime**: Compile-time evaluation - used here for duck typing via `fromImpl`
-- **Allocator**: Memory manager passed explicitly (not global)
-- **Slices**: `[]T` is a pointer + length (not null-terminated)
-- **const**: Immutable data (e.g., `[]const u8` is a read-only string)
-- **defer**: Runs code when scope exits (like Go's defer or C++'s RAII)
-- **try**: Shorthand for error propagation (returns early if error)
-- **Function pointers**: `*const fn(Args) Return` - used to store day implementations
+- **Allocator**: Every allocation is explicit; the same allocator is passed into each part.
+- **Slices**: `[]T` represents a pointer + length, used for the input lines.
+- **Function pointers**: `*const fn (Allocator, [][]const u8) anyerror!T` lets us store callbacks inside `Day`.
+- **defer**: Guarantees that allocated buffers are freed even when errors occur.
+- **try**: Propagates errors without boilerplate handling code.
+- **comptime imports**: `@import` inside the switch runs at compile time, so unused days do not incur runtime cost.
 
 ## Tips
 
-- Use `std.debug.print()` for debugging (prints to stderr)
-- Input files are not committed to git (see `.gitignore`)
-- The framework automatically times your solutions
-- Write tests in your day files using `test "name" { ... }`
+- Use `std.debug.print()` for debugging (prints to stderr).
+- Input files are not committed to git (see `.gitignore`).
+- The framework automatically times your solutions.
+- Write tests in your day files using `test "name" { ... }`.
