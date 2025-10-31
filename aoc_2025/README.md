@@ -20,8 +20,8 @@ aoc_2025/
 │   └── util/
 │       ├── io.zig         # File reading utilities
 │       ├── out.zig        # Output formatting
-│       ├── run.zig        # Framework for running parts
 │       ├── time.zig       # Timing/benchmarking
+│       ├── day.zig        # Day descriptor + runner
 │       └── validate.zig   # Test validation helper
 └── inputs/
     ├── day01.txt          # Day 1 puzzle input
@@ -66,46 +66,39 @@ zig test src/test.zig --test-filter "day01"  # Run only day01 tests
 1. Create `src/days/dayXX.zig`:
 ```zig
 const std = @import("std");
-const runner = @import("../util/run.zig");
-pub const Day = struct {
-    pub const number: u8 = XX;
-    pub const input_path = "inputs/dayXX.txt";
-    pub const example_path = "inputs/dayXX_example.txt";
+const validate = @import("../util/validate.zig");
 
-    pub fn part1(lines: [][]const u8) !i64 {
-        // Your solution here
-        return 0;
-    }
+pub const input_path = "inputs/dayXX.txt";
+pub const example_path = "inputs/dayXX_example.txt";
 
-    pub fn part2(lines: [][]const u8) !i64 {
-        // Your solution here
-        return 0;
-    }
+pub fn part1(_: std.mem.Allocator, lines: []const []const u8) !i64 {
+    // Your solution here
+    return 0;
+}
 
-    pub fn run(alloc: std.mem.Allocator) !void {
-        const Self = @This();
-        try runner.runParts(alloc, Self.input_path, Self.part1, Self.part2);
-    }
-};
+pub fn part2(_: std.mem.Allocator, lines: []const []const u8) !i64 {
+    // Your solution here
+    return 0;
+}
 
 // ========== Tests ==========
 
 test "dayXX example" {
-    try validate.validate(Day.example_path, Day.part1, 42); // Replace with example answer
+    try validate.validate(example_path, part1, 42); // Replace with example answer
 }
 
 test "dayXX part1" {
-    try validate.validate(Day.input_path, Day.part1, 12345); // Replace with actual answer
+    try validate.validate(input_path, part1, 12345); // Replace with actual answer
 }
 
 test "dayXX part2" {
-    try validate.validate(Day.input_path, Day.part2, 67890); // Replace with actual answer
+    try validate.validate(input_path, part2, 67890); // Replace with actual answer
 }
 ```
 
-2. Add the day to `src/main.zig` (in the Days.run() switch):
+2. Add the day to `src/main.zig` (in the Days.get switch):
 ```zig
-XX => return @import("days/dayXX.zig").Day.run(alloc),
+XX => makeDay(@import("days/dayXX.zig")),
 ```
 
 3. Add the day to `src/test.zig`:
@@ -137,10 +130,9 @@ test {
 - Functions can fail and must handle or propagate errors
 
 ### Framework Flow
-1. `main.zig` parses CLI args and calls the day's `run()` function
-2. Day's `run()` function calls `runner.runParts()` with part1 and part2 functions
-3. `runner.runParts()` reads input, times both parts, and prints results
-4. Utility modules (`io`, `out`, `time`) handle file I/O, formatting, and timing
+1. `main.zig` parses CLI args and loads the day's `day.Day` descriptor
+2. `Day.run()` reads the input, times both parts, and prints results
+3. Utility modules (`io`, `out`, `time`) handle file I/O, formatting, and timing
 
 ### Key Zig Concepts
 - **Allocator**: Memory manager passed explicitly (not global)

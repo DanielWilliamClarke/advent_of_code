@@ -1,22 +1,29 @@
 const std = @import("std");
 const out = @import("util/out.zig");
-const runner = @import("util/run.zig");
 const day = @import("util/day.zig");
 
 // Days dispatcher: add new days to the switch as you implement them
 const Days = struct {
-    pub fn get(day_num: u8) !day.Day {
+    fn makeDay(comptime Mod: type) day.Day {
+        return .{
+            .example_path = Mod.example_path,
+            .input_path = Mod.input_path,
+            .part1 = Mod.part1,
+            .part2 = Mod.part2,
+        };
+    }
+
+    fn get(day_num: u8) !day.Day {
         return switch (day_num) {
-            0 => @import("days/day00.zig").day00,
-            1 => @import("days/day01.zig").day01,
+            0 => makeDay(@import("days/day00.zig")),
+            1 => makeDay(@import("days/day01.zig")),
             // 2 => @import("days/day02.zig").spec,
             else => error.UnknownDay,
         };
     }
 
     pub fn run(day_num: u8, alloc: std.mem.Allocator) !void {
-        const d = try get(day_num); // <-- returns the day struct or error
-        try runner.runParts(alloc, d.input_path, d.part1, d.part2);
+        try (try get(day_num)).run(alloc);
     }
 };
 

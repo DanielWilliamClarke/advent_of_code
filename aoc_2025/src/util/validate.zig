@@ -5,7 +5,7 @@ const io = @import("./io.zig");
 // Usage: try validate("inputs/day01.txt", part1, 12345);
 pub fn validate(
     input_path: []const u8,
-    partFn: *const fn ([]const []const u8) anyerror!i64,
+    partFn: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
     expected: i64,
 ) !void {
     const alloc = std.testing.allocator;
@@ -16,6 +16,6 @@ pub fn validate(
         alloc.free(lines);
     }
 
-    const result = try partFn(lines);
+    const result = try partFn(alloc, lines);
     try std.testing.expectEqual(expected, result);
 }
