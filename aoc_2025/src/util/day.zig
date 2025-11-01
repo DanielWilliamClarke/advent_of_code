@@ -20,10 +20,7 @@ pub const Day = struct {
 
     pub fn run(self: Day, alloc: std.mem.Allocator) !void {
         const lines = try io.readLinesOwned(alloc, self.input_path);
-        defer {
-            for (lines) |line| alloc.free(line);
-            alloc.free(lines);
-        }
+        defer io.freeLinesOwned(alloc, lines);
 
         var t1 = try time.startTimer();
         const res1 = try self.part1(alloc, lines);

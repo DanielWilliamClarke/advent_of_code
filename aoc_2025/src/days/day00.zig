@@ -8,6 +8,8 @@ fn parse(alloc: std.mem.Allocator, lines: []const []const u8) ![]const i64 {
     var nums: std.ArrayList(i64) = .empty;
     defer nums.deinit(alloc);
 
+    try nums.ensureTotalCapacityPrecise(alloc, lines.len);
+
     for (lines) |line| {
         const num = try std.fmt.parseInt(i64, line, 10);
         try nums.append(alloc, num);

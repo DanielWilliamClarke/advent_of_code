@@ -11,10 +11,7 @@ pub fn validate(
     const alloc = std.testing.allocator;
 
     const lines = try io.readLinesOwned(alloc, input_path);
-    defer {
-        for (lines) |line| alloc.free(line);
-        alloc.free(lines);
-    }
+    defer io.freeLinesOwned(alloc, lines);
 
     const result = try partFn(alloc, lines);
     try std.testing.expectEqual(expected, result);
