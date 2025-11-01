@@ -70,7 +70,7 @@ zig test src/test.zig --test-filter "day01"  # Run only day01 tests
 
 ## Adding a New Day
 
-1. Create `src/days/dayXX.zig`:
+1. Create `src/days/dayXX.zig` using the template below, then fill in the solver logic and expected answers in the tests.
 
 ```zig
 const std = @import("std");
@@ -104,114 +104,31 @@ test "dayXX part2" {
 }
 ```
 
-2. Add the day to `src/main.zig` (in the Days.get switch):
-
-```zig
-XX => makeDay(@import("days/dayXX.zig")),
-```
-
-3. Add the day to `src/test.zig`:
-
-```zig
-test {
-    _ = @import("days/day00.zig");
-    _ = @import("days/day01.zig");
-    _ = @import("days/dayXX.zig");  // Add this line
-}
-```
-
-4. Add input files:
-
+2. Copy the template or reuse `src/days/day00.zig` as a starting point, adjusting the constants, solver functions, and test expectations for day XX.
+3. Register the module in `src/util/runner.zig` by adding a branch inside `Runner.getImpl` that returns `day.Day.fromImpl(@import("../days/dayXX.zig"))`.
+4. Import the module in `src/test.zig` so the aggregated test harness picks up the new day.
+5. Add input files:
    - `inputs/dayXX_example.txt` - Example input from the puzzle description
    - `inputs/dayXX.txt` - Your actual puzzle input
-
-5. Run the example test to verify your solution logic works with the example
-6. Run your solution to get the actual answers
-7. Update test expectations with correct answers and run `zig build test` to validate
+6. Run the example test to verify your solution logic works with the example.
+7. Run your solution to get the actual answers.
+8. Update test expectations with correct answers and run `zig build test` to validate.
 
 ## How It Works
 
-### Day Descriptor (`util/day.zig`)
+### Day Descriptor (`src/util/day.zig`)
 
-```zig
-pub const Day = struct {
-    example_path: []const u8,
-    input_path: []const u8,
-    part1: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
-    part2: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
-
-    pub fn run(self: Day, alloc: std.mem.Allocator) !void {
-        const lines = try io.readLinesOwned(alloc, self.input_path);
-        defer {
-            for (lines) |line| alloc.free(line);
-            alloc.free(lines);
-        }
-
-        var t1 = try time.startTimer();
-        const res1 = try self.part1(alloc, lines);
-        const ns1 = time.readNs(&t1);
-
-        var t2 = try time.startTimer();
-        const res2 = try self.part2(alloc, lines);
-        const ns2 = time.readNs(&t2);
-
-        out.printPart(1, res1);
-        out.printTimed("part1", ns1);
-        out.printPart(2, res2);
-        out.printTimed("part2", ns2);
-    }
-};
-```
-
-`Day` is a lightweight runtime descriptor. Each instance stores the file paths plus function pointers for `part1` and `part2`, while `run` centralises input loading, timing, and printing.
+`Day` is a lightweight runtime descriptor. The struct stores the example and input file paths plus function pointers for `part1` and `part2`, while `run` centralises input loading, timing, and printing. The `fromImpl` helper bundles a day module into the struct in one call.
 
 ### Day Modules (`src/days/dayXX.zig`)
 
-Each day module exports just the data and functions that back the descriptor:
+Each day module declares `input_path`, `example_path`, and the two solver functions. Inline tests call `validate.validate` so the same allocator-aware signature is reused. Refer to `src/days/day00.zig` and `src/days/day01.zig` for concrete patterns.
 
-```zig
-pub const input_path = "inputs/dayXX.txt";
-pub const example_path = "inputs/dayXX_example.txt";
+### Dispatcher (`src/util/runner.zig`)
 
-pub fn part1(_: std.mem.Allocator, lines: []const []const u8) !i64 {
-    // Solution here
-}
+`Runner.getImpl` imports the requested module at comptime and wraps it with `day.Day.fromImpl`, while `Runner.run` executes the bundled struct and logs any errors. This centralises the list of implemented days and keeps puzzle files free of runner concerns.
 
-pub fn part2(_: std.mem.Allocator, lines: []const []const u8) !i64 {
-    // Solution here
-}
-```
-
-Tests in the file call `validate.validate`, which expects the allocator-aware function signature shown above.
-
-### Dispatcher (`src/main.zig`)
-
-```zig
-const Days = struct {
-    fn makeDay(comptime Mod: type) day.Day {
-        return .{
-            .example_path = Mod.example_path,
-            .input_path = Mod.input_path,
-            .part1 = Mod.part1,
-            .part2 = Mod.part2,
-        };
-    }
-
-    fn get(day_num: u8) !day.Day {
-        return switch (day_num) {
-            0 => makeDay(@import("days/day00.zig")),
-            1 => makeDay(@import("days/day01.zig")),
-            else => error.UnknownDay,
-        };
-    }
-
-    pub fn run(day_num: u8, alloc: std.mem.Allocator) !void {
-        try (try get(day_num)).run(alloc);
-    }
-};
-```
-
-`main` parses CLI arguments, prints a header, and delegates to `Days.run`. The selected module is wrapped on demand, so adding a new day only requires an extra `makeDay(@import(...))` branch.
+`src/main.zig` parses CLI arguments, prints the header via `util/out.zig`, then invokes `Runner.run`. Adding a new day only requires updating the switch in `getImpl` and importing the module in `src/test.zig`.
 
 ### Execution Flow
 
@@ -223,9 +140,9 @@ const Days = struct {
 ### Why This Pattern
 
 - `Day` is the runtime bundle for a puzzle: it keeps the file paths plus callable pointers to `part1`/`part2`, and its `run` method centralises I/O, memory management, and timing so every day inherits the same harness.
-- `Days` is the compile-time dispatcher: `makeDay` converts whatever the module exports into a `Day`, `get` selects the right module for the CLI argument, and `run` hands execution over to the shared harness.
+- `Runner` is the compile-time dispatcher: `getImpl` selects the right module for the CLI argument, and `run` hands execution over to the shared harness.
 - This lets each day module focus solely on puzzle logic (`input_path`, `example_path`, `part1`, `part2`) while the framework guarantees consistent orchestration and reporting.
-- The split keeps infrastructure changes confined to `util/day.zig` and `main.zig`, so adding instrumentation or new features does not touch puzzle code.
+- The split keeps infrastructure changes confined to `util/day.zig`, `util/runner.zig`, and `main.zig`, so adding instrumentation or new features does not touch puzzle code.
 
 ### Key Zig Concepts
 
@@ -236,9 +153,26 @@ const Days = struct {
 - **try**: Propagates errors without boilerplate handling code.
 - **comptime imports**: `@import` inside the switch runs at compile time, so unused days do not incur runtime cost.
 
+## Parsing Inputs
+
+We lean on the [`mecha`](https://github.com/Hejsil/mecha) parser combinator library to turn raw puzzle input into typed structures. Favor building reusable mecha parsers over ad-hoc regular expressions so input handling stays idiomatic Zig and easier to maintain.
+
 ## Tips
 
 - Use `std.debug.print()` for debugging (prints to stderr).
 - Input files are not committed to git (see `.gitignore`).
 - The framework automatically times your solutions.
 - Write tests in your day files using `test "name" { ... }`.
+
+## Debugging `aoc_2025` with LLDB
+
+Since debugger support for Zig appears to be quite limited, lets trial using LLDB
+
+1. Build the project in debug mode (the default) so LLDB can inspect symbols: `cd aoc_2025 && zig build`.
+2. Launch LLDB against the freshly built binary: `lldb aoc_2025/zig-out/bin/aoc_2025`.
+3. Set any breakpoints you need, for example `b main; b ./day/day00.zig:23` or target a specific day handler such as `Day.run`.
+   3.i. List breakpoints with br list, delete breakpoints with br delete <number>
+   3.ii. useful commands, `step`, `continue`, `down`, `frame variable`
+4. Run the executable with Advent of Code arguments via LLDB, e.g. `run 1` to debug day 1.
+
+A concise walkthrough of these LLDB basics is in [this debugging video](https://www.youtube.com/watch?v=FDfFUJM1UOw&t=255s), which pairs nicely with the steps above.
