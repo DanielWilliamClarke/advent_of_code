@@ -32,7 +32,7 @@ pub fn part1(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
 
     // two-pointer scan
     var l: usize = 0;
-    var r: usize = nums.len - 1;
+    var r = nums.len - 1;
     while (l < r) {
         const s = nums[l] + nums[r];
         if (s == TARGET) return nums[l] * nums[r];
@@ -53,8 +53,8 @@ pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
 
     // O(n^2) scan
     for (nums, 0..) |a, i| {
-        var l: usize = i + 1;
-        var r: usize = nums.len - 1;
+        var l = i + 1;
+        var r = nums.len - 1;
         while (l < r) {
             const s = a + nums[l] + nums[r];
             if (s == TARGET) return a * nums[l] * nums[r];
