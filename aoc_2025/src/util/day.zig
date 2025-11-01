@@ -4,14 +4,12 @@ const out = @import("./out.zig");
 const time = @import("./time.zig");
 
 pub const Day = struct {
-    example_path: []const u8,
     input_path: []const u8,
     part1: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
     part2: *const fn (std.mem.Allocator, []const []const u8) anyerror!i64,
 
     pub fn fromImpl(comptime Mod: type) Day {
         return .{
-            .example_path = Mod.example_path,
             .input_path = Mod.input_path,
             .part1 = Mod.part1,
             .part2 = Mod.part2,
