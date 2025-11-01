@@ -25,16 +25,13 @@ pub fn part1(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     const nums = try parse(alloc, lines);
     defer alloc.free(nums);
 
-    const result = res: {
-        for (nums, 0..) |num1, i| {
-            for (nums[i + 1 ..]) |num2| {
-                if (num1 + num2 == 2020) break :res num1 * num2;
-            }
+    for (nums, 0..) |num1, i| {
+        for (nums[i + 1 ..]) |num2| {
+            if (num1 + num2 == 2020) return num1 * num2;
         }
-        break :res 0; // fallback value if not found
-    };
+    }
 
-    return result;
+    return 0;
 }
 
 // Part 2: Solve the second puzzle
@@ -42,25 +39,15 @@ pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     var nums = try parse(alloc, lines);
     defer alloc.free(nums);
 
-    const result = res: {
-        for (nums, 0..) |num1, i| {
-            const rest1 = nums[i + 1 ..];
-
-            for (rest1, 0..) |num2, j| {
-                const rest2 = rest1[j + 1 ..];
-
-                for (rest2) |num3| {
-                    if (num1 + num2 + num3 == 2020) {
-                        break :res num1 * num2 * num3;
-                    }
-                }
+    for (nums, 0..) |num1, i| {
+        for (nums[i + 1 ..], 0..) |num2, j| {
+            for (nums[j + 1 ..]) |num3| {
+                if (num1 + num2 + num3 == 2020) return num1 * num2 * num3;
             }
         }
+    }
 
-        break :res 0;
-    };
-
-    return result;
+    return 0;
 }
 
 test "day00 example" {
