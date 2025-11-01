@@ -1,7 +1,5 @@
 const std = @import("std");
 
-// File I/O utilities for reading puzzle inputs
-
 // Read entire file into a string (caller owns memory)
 pub fn readToString(alloc: std.mem.Allocator, path: []const u8) ![]u8 {
     var file = try std.fs.cwd().openFile(path, .{});

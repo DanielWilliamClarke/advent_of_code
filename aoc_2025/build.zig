@@ -5,6 +5,12 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // --- mecha dependency ---
+    const mecha_dep = b.dependency("mecha", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     // Main executable
     const exe = b.addExecutable(.{
         .name = "aoc_2025",
@@ -14,6 +20,10 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+
+    // attach mecha to the root module (importable as @import("mecha"))
+    exe.root_module.addImport("mecha", mecha_dep.module("mecha"));
+
     b.installArtifact(exe);
 
     // Run command (zig build run -- 1)
@@ -34,6 +44,8 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    // attach mecha to tests too
+    exe_tests.root_module.addImport("mecha", mecha_dep.module("mecha"));
 
     const run_tests = b.addRunArtifact(exe_tests);
     const test_step = b.step("test", "Run unit tests");

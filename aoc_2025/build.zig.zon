@@ -1,0 +1,12 @@
+.{
+    .name = .aoc_2025,
+    .version = "0.15.1",
+    .dependencies = .{
+        .mecha = .{
+            .url = "git+https://github.com/Hejsil/mecha#e866fcef123f9469cc9ef9ff6ec9b55fb65eae09",
+            .hash = "mecha-0.11.0-dVGaSFB6AQDfBwIQRhIehY2wgKiOgDwuClcpMUz5Iz7c",
+        },
+    },
+    .paths = .{""},
+    .fingerprint = 0xf5342346d1be7ffc,
+}
