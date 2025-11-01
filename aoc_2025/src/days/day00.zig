@@ -1,5 +1,5 @@
 const std = @import("std");
-const validate = @import("../util/validate.zig");
+const validate = @import("../util/validate.zig").validate;
 
 pub const input_path = "inputs/day00.txt";
 pub const example_path = "inputs/day00_example.txt";
@@ -51,13 +51,13 @@ pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
 }
 
 test "day00 example" {
-    try validate.validate(example_path, part1, 514579);
+    try validate(example_path, part1, 514579);
 }
 
 test "day00 part1" {
-    try validate.validate(input_path, part1, 618144);
+    try validate(input_path, part1, 618144);
 }
 
 test "day00 part2" {
-    try validate.validate(input_path, part2, 173538720);
+    try validate(input_path, part2, 173538720);
 }
