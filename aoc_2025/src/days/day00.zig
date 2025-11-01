@@ -51,13 +51,13 @@ pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
 }
 
 test "day00 example" {
-    try validate(example_path, part1, 514579);
+    try validate(part1).with(example_path).equals(514579);
 }
 
 test "day00 part1" {
-    try validate(input_path, part1, 618144);
+    try validate(part1).with(input_path).equals(618144);
 }
 
 test "day00 part2" {
-    try validate(input_path, part2, 173538720);
+    try validate(part2).with(input_path).equals(173538720);
 }
