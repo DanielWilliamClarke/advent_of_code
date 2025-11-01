@@ -23,14 +23,13 @@ pub const Day = struct {
         var t1 = try time.startTimer();
         const res1 = try self.part1(alloc, lines);
         const ns1 = time.readNs(&t1);
+        out.printPart(1, res1);
+        out.printTimed("part1", ns1, .micros);
 
         var t2 = try time.startTimer();
         const res2 = try self.part2(alloc, lines);
         const ns2 = time.readNs(&t2);
-
-        out.printPart(1, res1);
-        out.printTimed("part1", ns1);
         out.printPart(2, res2);
-        out.printTimed("part2", ns2);
+        out.printTimed("part2", ns2, .micros);
     }
 };
