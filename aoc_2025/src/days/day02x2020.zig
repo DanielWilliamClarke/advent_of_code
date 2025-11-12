@@ -37,7 +37,7 @@ fn parse(alloc: std.mem.Allocator, lines: []const []const u8) ![]PasswordPolicy 
     return passwords.toOwnedSlice(alloc);
 }
 
-fn countInvalidViaMinMaxCount(passwords: []PasswordPolicy) i64 {
+fn countValidViaMinMaxCount(passwords: []PasswordPolicy) i64 {
     var count: i64 = 0;
 
     for (passwords) |p| {
@@ -56,7 +56,7 @@ fn countInvalidViaMinMaxCount(passwords: []PasswordPolicy) i64 {
     return count;
 }
 
-fn countInvalidViaIndexing(passwords: []PasswordPolicy) i64 {
+fn countValidViaIndexing(passwords: []PasswordPolicy) i64 {
     var count: i64 = 0;
 
     for (passwords) |p| {
@@ -75,14 +75,14 @@ pub fn part1(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     const passwords = try parse(alloc, lines);
     defer alloc.free(passwords);
 
-    return countInvalidViaMinMaxCount(passwords);
+    return countValidViaMinMaxCount(passwords);
 }
 
 pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     const passwords = try parse(alloc, lines);
     defer alloc.free(passwords);
 
-    return countInvalidViaIndexing(passwords);
+    return countValidViaIndexing(passwords);
 }
 
 test "day02 2020 example" {
