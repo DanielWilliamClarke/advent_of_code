@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn printHeader(day: u8) void {
+pub fn printHeader(day: i32) void {
     std.debug.print(
         \\           ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠀⠀⣤⣶⢄⡿⢿⣭⣁⠴⡤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
         \\        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠂⠤⡀⠰⠁⠀⠀⠀⠀⠀⠉⠓⢦⡀⠉⠛⢮⡊⢂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -25,7 +25,7 @@ pub fn printHeader(day: u8) void {
     , .{day});
 }
 
-pub fn printPart(part: u8, value: anytype) void {
+pub fn printPart(part: i32, value: anytype) void {
     std.debug.print("Part {d}: {}\n", .{ part, value });
 }
 

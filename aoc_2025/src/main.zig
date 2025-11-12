@@ -21,7 +21,7 @@ pub fn main() !void {
         return;
     };
 
-    const day_num = try std.fmt.parseInt(u8, day_str, 10);
+    const day_num = try std.fmt.parseInt(i32, day_str, 10);
     out.printHeader(day_num);
     aoc.Runner.run(alloc, day_num);
 }
