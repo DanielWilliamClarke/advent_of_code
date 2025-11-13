@@ -28,7 +28,7 @@ const Position = struct {
     x: usize,
     y: usize,
 
-    fn next(self: *Position, grid: Grid, slope: Slope) bool {
+    fn next(self: *Position, grid: *const Grid, slope: Slope) bool {
         self.x = (self.x + slope.right) % grid.width;
         self.y += slope.down;
         return self.y >= grid.height;
@@ -49,19 +49,15 @@ const Grid = struct {
     }
 
     pub fn deinit(self: *Grid, alloc: std.mem.Allocator) void {
-        // free each row slice
         for (self.grid) |row| {
             alloc.free(row);
         }
-        // free outer slice
         alloc.free(self.grid);
-
-        // optional: clear state for hygiene
         self.width = 0;
         self.height = 0;
     }
 
-    pub fn traverseSlopes(self: Grid, slopes: []const Slope) i64 {
+    pub fn traverseSlopes(self: *const Grid, slopes: []const Slope) i64 {
         var total: i64 = 1;
         for (slopes) |slope| {
             total *= self.countTreesOnSlope(slope);
@@ -69,15 +65,14 @@ const Grid = struct {
         return total;
     }
 
-    fn countTreesOnSlope(self: Grid, slope: Slope) i64 {
+    fn countTreesOnSlope(self: *const Grid, slope: Slope) i64 {
         var count: i64 = 0;
         var pos = Position{ .x = 0, .y = 0 };
 
         while (!pos.next(self, slope)) {
-            count += switch (self.grid[pos.y][pos.x]) {
-                .tree => 1,
-                else => 0,
-            };
+            if (self.grid[pos.y][pos.x] == .tree) {
+                count += 1;
+            }
         }
 
         return count;
