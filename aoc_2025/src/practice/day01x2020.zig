@@ -1,8 +1,8 @@
 const std = @import("std");
 const validate = @import("../util/validate.zig").validate;
 
-pub const input_path = "inputs/day01x2020.txt";
-pub const example_path = "inputs/day01x2020_example.txt";
+pub const input_path = "inputs/practice/day01x2020.txt";
+pub const example_path = "inputs/practice/day01x2020_example.txt";
 
 fn parse(alloc: std.mem.Allocator, lines: []const []const u8) ![]i64 {
     var nums: std.ArrayList(i64) = .empty;

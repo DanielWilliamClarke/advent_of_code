@@ -3,8 +3,8 @@ const mecha = @import("mecha");
 
 const validate = @import("../util/validate.zig").validate;
 
-pub const input_path = "inputs/day02x2020.txt";
-pub const example_path = "inputs/day02x2020_example.txt";
+pub const input_path = "inputs/practice/day02x2020.txt";
+pub const example_path = "inputs/practice/day02x2020_example.txt";
 
 //1-3 a: abcde
 const PasswordPolicy = struct {

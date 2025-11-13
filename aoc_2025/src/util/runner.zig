@@ -6,10 +6,15 @@ const day = @import("./day.zig");
 pub const Runner = struct {
     fn getImpl(num: i32) !day.Day {
         return switch (num) {
-            20201 => day.Day.fromImpl(@import("../days/day01x2020.zig")),
-            20202 => day.Day.fromImpl(@import("../days/day02x2020.zig")),
+            // 2020
+            20201 => day.Day.fromImpl(@import("../practice/day01x2020.zig")),
+            20202 => day.Day.fromImpl(@import("../practice/day02x2020.zig")),
+            20203 => day.Day.fromImpl(@import("../practice/day03x2020.zig")),
+
+            // 2025
             1 => day.Day.fromImpl(@import("../days/day01.zig")),
             // 2 => @import("days/day02.zig").spec,
+
             else => error.UnknownDay,
         };
     }
