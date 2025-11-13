@@ -84,7 +84,7 @@ fn parseGrid(alloc: std.mem.Allocator, lines: []const []const u8) !Grid {
     defer grid.deinit(alloc);
 
     for (lines) |line| {
-        const row = (try rowParser.parse(alloc, line)).value.ok;
+        const row: []SpaceEntity = (try rowParser.parse(alloc, line)).value.ok;
         try grid.append(alloc, row);
     }
 
