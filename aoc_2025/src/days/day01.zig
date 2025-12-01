@@ -93,7 +93,7 @@ pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     return findPasswordMethod0x434C49434B(turns);
 }
 
-test "day01 part 1 example" {
+test "day01 part1 example" {
     try validate(part1).with(example_path).equals(3);
 }
 
@@ -101,7 +101,7 @@ test "day01 part1" {
     try validate(part1).with(input_path).equals(1102);
 }
 
-test "day01 part 2 example" {
+test "day01 part2 example" {
     try validate(part2).with(example_path).equals(6);
 }
 
