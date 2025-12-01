@@ -12,18 +12,18 @@ pub fn part2(_: std.mem.Allocator, _: []const []const u8) !i64 {
     return 0;
 }
 
-test "day01 part1 example" {
+test "day00 part1 example" {
     try validate(part1).with(example_path).equals(0);
 }
 
-test "day01 part1" {
+test "day00 part1" {
     try validate(part1).with(input_path).equals(0);
 }
 
-test "day02 part2 example" {
+test "day00 part2 example" {
     try validate(part2).with(example_path).equals(0);
 }
 
-test "day01 part2" {
+test "day00 part2" {
     try validate(part2).with(input_path).equals(0);
 }
