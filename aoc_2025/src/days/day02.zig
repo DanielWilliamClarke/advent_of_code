@@ -25,47 +25,38 @@ fn parse(alloc: std.mem.Allocator, lines: []const []const u8) ![]Range {
     return (try rangesParser.parse(alloc, lines[0])).value.ok;
 }
 
-fn allChunksEqual(id_str: []u8, divisions: usize) !bool {
-    const len = id_str.len;
-    // Must split evenly into `divisions` chunks
-    if (len % divisions != 0) return false;
+fn all_chunks_equal(id_str: []u8, divisions: usize) !bool {
+    if (id_str.len % divisions != 0) {
+        return false;
+    }
 
-    const chunk_len = len / divisions;
-
-    // First chunk is the reference
+    const chunk_len = id_str.len / divisions;
     const first = id_str[0..chunk_len];
 
-    // Compare every other chunk to the first
+    // compare chunks
     var start: usize = chunk_len;
-    // std.debug.print("id {s} \n", .{id_str});
-
-    while (start < len) : (start += chunk_len) {
-        const chunk = id_str[start .. start + chunk_len];
-        // std.debug.print("part {s} ", .{chunk});
-        if (!std.mem.eql(u8, first, chunk)) {
+    while (start < id_str.len) : (start += chunk_len) {
+        const current = id_str[start .. start + chunk_len];
+        if (!std.mem.eql(u8, first, current)) {
             return false;
         }
     }
 
-    // std.debug.print("\nMATCH {s} \n", .{id_str});
-
     return true;
 }
 
-fn detect_invalid_ids(ranges: []Range, atLeastTwice: bool) !i64 {
+fn detect_invalid_ids(ranges: []Range, testAllDivisions: bool) !i64 {
     var total: i64 = 0;
 
     for (ranges) |r| {
-        var id = r.start;
-        while (id <= r.end) : (id += 1) {
+        for (@intCast(r.start)..@intCast(r.end + 1)) |id| {
             var buf: [32]u8 = undefined;
             const id_str = try std.fmt.bufPrint(&buf, "{}", .{id});
-
-            const maxDivisions = if (atLeastTwice) id_str.len else 2;
+            const maxDivisions = if (testAllDivisions) id_str.len else 2;
 
             for (2..maxDivisions + 1) |d| {
-                if (try allChunksEqual(id_str, d)) {
-                    total += id;
+                if (try all_chunks_equal(id_str, d)) {
+                    total += @intCast(id);
                     break; // leave loop on first match
                 }
             }
