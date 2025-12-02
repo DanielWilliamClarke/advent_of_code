@@ -13,7 +13,7 @@ test {
     // 2024 tests
     // _ = @import("days/day00.zig");
     _ = @import("days/day01.zig");
-    // _ = @import("days/day02.zig");
+    _ = @import("days/day02.zig");
     // _ = @import("days/day03.zig");
     // ...
 }
