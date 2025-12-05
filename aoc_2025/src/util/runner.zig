@@ -15,6 +15,7 @@ pub const Runner = struct {
             1 => day.Day.fromImpl(@import("../days/day01.zig")),
             2 => day.Day.fromImpl(@import("../days/day02.zig")),
             3 => day.Day.fromImpl(@import("../days/day03.zig")),
+            4 => day.Day.fromImpl(@import("../days/day04.zig")),
             // 2 => @import("days/day02.zig").spec,
 
             else => error.UnknownDay,
