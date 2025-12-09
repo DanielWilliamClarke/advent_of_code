@@ -61,54 +61,23 @@ fn findStart(grid: *[][]Cell) Coord {
     };
 }
 
-fn simulateTachyonBeam(grid: *[][]Cell, curr: Coord, count: *i64) void {
-    // bounds check and exit clause
-    if (curr.x < 0 or curr.x >= grid.*[0].len or curr.y < 0 or curr.y >= grid.*.len) {
-        return;
+fn makeMemo(
+    alloc: std.mem.Allocator,
+    grid: [][]Cell,
+) ![][]?i64 {
+    const height = grid.len;
+    const width = grid[0].len;
+
+    const memo = try alloc.alloc([]?u64, height);
+
+    for (memo) |*row| {
+        row.* = try alloc.alloc(?u64, width);
+        for (row.*) |*cell| {
+            cell.* = null;
+        }
     }
 
-    const next = Coord{ .x = curr.x, .y = curr.y + 1 };
-
-    switch (grid.*[curr.y][curr.x]) {
-        .beam => {
-            // beams cant intersect so we've already visited this cell, so move on
-        },
-        .split => {
-            // just for debug, but does nothing since its already been used
-        },
-        .start => {
-            // propagate down
-            simulateTachyonBeam(grid, next, count);
-        },
-        .space => {
-            // turn space into beam to "visit" space
-            grid.*[curr.y][curr.x] = .beam;
-
-            // propagate beam
-            simulateTachyonBeam(grid, next, count);
-        },
-        .splitter => {
-            // look ahead to count split before propagating
-            const nl = Coord{ .x = curr.x - 1, .y = curr.y };
-            const nr = Coord{ .x = curr.x + 1, .y = curr.y };
-
-            const nextLeft = grid.*[nl.y][nl.x];
-            const nextRight = grid.*[nr.y][nr.x];
-
-            // if a beam can be created it can be "split",
-            // if both are already beam, then we arent not splitting
-            // NAND
-            if (!(nextLeft == .beam and nextRight == .beam)) {
-                grid.*[curr.y][curr.x] = .split;
-                count.* += 1;
-            }
-
-            // propagate left
-            simulateTachyonBeam(grid, nl, count);
-            // propagate right
-            simulateTachyonBeam(grid, nr, count);
-        },
-    }
+    return memo;
 }
 
 fn drawGrid(grid: *[][]Cell) void {
@@ -120,6 +89,86 @@ fn drawGrid(grid: *[][]Cell) void {
     }
 }
 
+fn simulateTachyonBeams(grid: *[][]Cell, curr: Coord) i64 {
+    // bounds check and exit clause
+    if (curr.x < 0 or curr.x >= grid.*[0].len or curr.y < 0 or curr.y >= grid.*.len) {
+        return 0;
+    }
+
+    const next = Coord{ .x = curr.x, .y = curr.y + 1 };
+
+    return switch (grid.*[curr.y][curr.x]) {
+        .beam, .split => 0, // already visited, no new splits from here
+        .start => simulateTachyonBeams(grid, next),
+        .space => blk: {
+            // turn space into beam to "visit" space
+            grid.*[curr.y][curr.x] = .beam;
+
+            // propagate beam
+            break :blk simulateTachyonBeams(grid, next);
+        },
+        .splitter => blk: {
+            const nl = Coord{ .x = curr.x - 1, .y = curr.y };
+            const nr = Coord{ .x = curr.x + 1, .y = curr.y };
+
+            const nextLeft = grid.*[nl.y][nl.x];
+            const nextRight = grid.*[nr.y][nr.x];
+
+            var did_split: i64 = 0;
+
+            // if a beam can be created it can be "split"
+            // NAND: !(both already beam)
+            if (!(nextLeft == .beam and nextRight == .beam)) {
+                grid.*[curr.y][curr.x] = .split;
+                did_split = 1;
+            }
+
+            const left_splits = simulateTachyonBeams(grid, nl);
+            const right_splits = simulateTachyonBeams(grid, nr);
+
+            break :blk did_split + left_splits + right_splits;
+        },
+    };
+}
+
+fn simulateQuantumTachyonBeams(
+    grid: [][]Cell,
+    curr: Coord,
+    memo: [][]?i64,
+) i64 {
+    // Out of bounds = one complete timeline
+    if (curr.x < 0 or curr.x >= grid[0].len or curr.y < 0 or curr.y >= grid.len) {
+        return 1;
+    }
+
+    // Check the memo to not do recomputation
+    if (memo[curr.y][curr.x]) |cached| {
+        return cached;
+    }
+
+    const result = switch (grid[curr.y][curr.x]) {
+        .split, .beam => 0, // should not be encoutnered in this version
+        .start, .space => blk: {
+            // Just move down
+            const next = Coord{ .x = curr.x, .y = curr.y + 1 };
+            break :blk simulateQuantumTachyonBeams(grid, next, memo);
+        },
+        .splitter => blk: {
+            // Time splits: left and right in the *same row*
+            const left = Coord{ .x = curr.x - 1, .y = curr.y };
+            const right = Coord{ .x = curr.x + 1, .y = curr.y };
+
+            const left_paths = simulateQuantumTachyonBeams(grid, left, memo);
+            const right_paths = simulateQuantumTachyonBeams(grid, right, memo);
+
+            break :blk left_paths + right_paths;
+        },
+    };
+
+    memo[curr.y][curr.x] = result;
+    return result;
+}
+
 pub fn part1(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
     var grid = try parse(alloc, lines);
     defer {
@@ -129,16 +178,31 @@ pub fn part1(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
 
     // find starting point;
     const start = findStart(&grid);
-
-    var count: i64 = 0;
-    simulateTachyonBeam(&grid, start, &count);
+    const count = simulateTachyonBeams(&grid, start);
 
     // drawGrid(&grid);
     return count;
 }
 
-pub fn part2(_: std.mem.Allocator, _: []const []const u8) !i64 {
-    return 0;
+pub fn part2(alloc: std.mem.Allocator, lines: []const []const u8) !i64 {
+    var grid = try parse(alloc, lines);
+    defer {
+        for (grid) |row| alloc.free(row);
+        alloc.free(grid);
+    }
+
+    // find starting point;
+    const start = findStart(&grid);
+    const memo = try makeMemo(alloc, grid);
+    defer {
+        for (memo) |row| alloc.free(row);
+        alloc.free(memo);
+    }
+
+    const count = simulateQuantumTachyonBeams(grid, start, memo);
+
+    // drawGrid(&grid);
+    return count;
 }
 
 test "day07 part1 example" {
@@ -149,10 +213,10 @@ test "day07 part1" {
     try validate(part1).with(input_path).equals(1499);
 }
 
-// test "day07 part2 example" {
-//     try validate(part2).with(example_path).equals(0);
-// }
+test "day07 part2 example" {
+    try validate(part2).with(example_path).equals(40);
+}
 
-// test "day07 part2" {
-//     try validate(part2).with(input_path).equals(0);
-// }
+test "day07 part2" {
+    try validate(part2).with(input_path).equals(24743903847942);
+}
