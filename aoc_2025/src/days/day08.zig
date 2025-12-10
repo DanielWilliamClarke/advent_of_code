@@ -145,11 +145,9 @@ fn connectBoxes(alloc: std.mem.Allocator, boxes: []JunctionBox, iterations: usiz
             }
 
             if (isPart2 and base.count() == boxes.len) {
-                // Build a result slice of length 1
                 var result = try alloc.alloc(std.AutoHashMap(JunctionBox, bool), 1);
 
                 result[0] = std.AutoHashMap(JunctionBox, bool).init(alloc);
-                // Add only the pair that completed the full cluster
                 try result[0].put(c.a, true);
                 try result[0].put(c.b, true);
 
