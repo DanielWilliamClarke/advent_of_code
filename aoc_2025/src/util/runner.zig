@@ -20,6 +20,7 @@ pub const Runner = struct {
             6 => day.Day.fromImpl(@import("../days/day06.zig")),
             7 => day.Day.fromImpl(@import("../days/day07.zig")),
             8 => day.Day.fromImpl(@import("../days/day08.zig")),
+            9 => day.Day.fromImpl(@import("../days/day09.zig")),
 
             else => error.UnknownDay,
         };
