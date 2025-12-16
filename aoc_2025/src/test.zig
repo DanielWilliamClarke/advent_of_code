@@ -21,5 +21,6 @@ test {
     _ = @import("days/day07.zig");
     _ = @import("days/day08.zig");
     _ = @import("days/day09.zig");
+    _ = @import("days/day10.zig");
     // ...
 }
